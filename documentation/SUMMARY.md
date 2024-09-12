@@ -8,5 +8,6 @@
 * [API](api.md)
 * [Single Sign-On](sso.md)
 * [Backup and Restore](backup-and-restore.md)
-* [User Interface User Guide](user-interface-user-guide.md)
+* [User Interface Guide](user-interface-guide.md)
+* [Configuration User Guide](configuration-user-guide.md)
 * [Road Map](road-map.md)
