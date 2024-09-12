@@ -10,7 +10,7 @@ $sbtUrl = "https://github.com/sbt/sbt/releases/download/v1.9.7/sbt-1.9.7.msi"
 $sbtAppName="sbt.exe"
 
 # $javaUrl = "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.8.1+1/OpenJDK17U-jdk_x64_windows_hotspot_17.0.8.1_1.msi"
-$javaUrl = "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.1+12/OpenJDK21U-jdk_x64_windows_hotspot_21.0.1_12.msi"
+$javaUrl = "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.3+9/OpenJDK21U-jdk_x64_windows_hotspot_21.0.3_9.msi"
 $javaAppName="java.exe"
 
 
@@ -35,7 +35,14 @@ function  installApp() {
 }
 
 # Start WSL in a new window
-Start-Process wsl.exe -WindowStyle Normal
+$wslProcess = Get-Process -Name wsl -ErrorAction SilentlyContinue
+
+# If WSL is not running, start it
+if (-not $wslProcess) {
+    Start-Process wsl.exe -WindowStyle Normal
+} else {
+    Write-Host "WSL is already running."
+}
 # Wait for WSL to start
 
 Push-Location $currentPath/devops/windows/deployment/common
@@ -67,11 +74,6 @@ switch ($choice) {
         wsl -d Ubuntu $wslPath/devops/windows/deployment/deploy-local-wsl.sh  -Wait
         Start-Sleep -Seconds 30
 
-        Push-Location $currentPath/JeMPI_Apps/JeMPI_Configuration
-            Write-Host "Current directory: $PWD.path"
-            .\create.ps1 reference\config-reference.json
-        Pop-Location
-
         Push-Location $currentPath/devops/windows/run--base-docker-wsl
             Write-Host "start-with-bootstraper.ps1"
             # .\bootstrapper.ps1 -Wait
@@ -85,15 +87,12 @@ switch ($choice) {
     }
     '2' {
         Write-Host "Build and Reboot"
-        wsl -d Ubuntu $wslPath/devops/windows/deployment/deploy-local-wsl.sh
-        Push-Location $currentPath/JeMPI_Apps/JeMPI_Configuration
-            .\create.ps1 reference\config-reference.json
-        Pop-Location
-
         Push-Location $currentPath/devops/windows/run--base-docker-wsl
-            Write-Host "start-with-bootstraper.ps1"
+            Write-Host "Running file: stop.ps1"
+            .\stop.ps1 -Wait
+            Write-Host "Build and Reboot"
+            Write-Host "start.ps1"
             .\start.ps1 -Wait
-
             Write-Host "Script completed."
             Write-Host "Running file: start-ui.ps1"
             .\start-ui.ps1 -Wait

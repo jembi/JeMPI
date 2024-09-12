@@ -10,6 +10,6 @@ pushd ./docker
   if [ "$CI" = true ]; then
     docker buildx build --platform linux/amd64,linux/arm64 --build-arg JAVA_VERSION=${JAVA_VERSION_X} --tag $APP_IMAGE --builder=container --push .
   else
-    docker build --build-arg JAVA_VERSION=${JAVA_VERSION_X} --tag $APP_IMAGE .
+    docker build --no-cache --build-arg JAVA_VERSION=${JAVA_VERSION_X} --tag $APP_IMAGE .
   fi
 popd

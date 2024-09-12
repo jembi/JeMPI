@@ -199,26 +199,32 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    private Behavior<Request> asyncLinkInteractionHandler(final AsyncLinkInteractionRequest req) {
-      if (req.batchInteraction.contentType() != InteractionEnvelop.ContentType.BATCH_INTERACTION) {
-         return Behaviors.withTimers(timers -> {
-            timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY,
-                                    TeaTimeRequest.INSTANCE,
-                                    Duration.ofSeconds(GlobalConstants.TIMEOUT_TEA_TIME_SECS));
+      try {
+         if (req.batchInteraction.contentType() != InteractionEnvelop.ContentType.BATCH_INTERACTION) {
+            return Behaviors.withTimers(timers -> {
+               timers.startSingleTimer(SINGLE_TIMER_TIMEOUT_KEY,
+                                       TeaTimeRequest.INSTANCE,
+                                       Duration.ofSeconds(GlobalConstants.TIMEOUT_TEA_TIME_SECS));
+               req.replyTo.tell(new AsyncLinkInteractionResponse(null));
+               return Behaviors.same();
+            });
+         }
+         final var linkInfo =
+               LinkerDWH.linkInteraction(libMPI,
+                                       req.batchInteraction.interaction(),
+                                       null,
+                                       req.batchInteraction.sessionMetadata().commonMetaData().uploadConfig() != null
+                                             ? req.batchInteraction.sessionMetadata().commonMetaData().uploadConfig().linkThreshold().floatValue()
+                                             : AppConfig.LINKER_MATCH_THRESHOLD,
+                                       req.batchInteraction.stan());
+         if (linkInfo.isRight()) {
+            req.replyTo.tell(new AsyncLinkInteractionResponse(linkInfo.get()));
+         } else {
             req.replyTo.tell(new AsyncLinkInteractionResponse(null));
-            return Behaviors.same();
-         });
-      }
-      final var linkInfo =
-            LinkerDWH.linkInteraction(libMPI,
-                                      req.batchInteraction.interaction(),
-                                      null,
-                                      req.batchInteraction.sessionMetadata().commonMetaData().uploadConfig() != null
-                                            ? req.batchInteraction.sessionMetadata().commonMetaData().uploadConfig().linkThreshold().floatValue()
-                                            : AppConfig.LINKER_MATCH_THRESHOLD,
-                                      req.batchInteraction.stan());
-      if (linkInfo.isRight()) {
-         req.replyTo.tell(new AsyncLinkInteractionResponse(linkInfo.get()));
-      } else {
+         }
+      } catch (Exception e) {
+         LOGGER.error("Error handling AsyncLinkInteractionRequest: {}", e.getMessage(), e);
+         LOGGER.info("Interaction: {}", req.batchInteraction.interaction());
          req.replyTo.tell(new AsyncLinkInteractionResponse(null));
       }
       return Behaviors.withTimers(timers -> {

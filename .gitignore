@@ -13,3 +13,6 @@ my-notes
 .classpath
 .project
 .metals
+devops/benchmarking/k6
+devops/windows/base-docker-wsl/config
+devops/windows/base-docker-wsl/csv

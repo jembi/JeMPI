@@ -174,7 +174,7 @@ public final class Main {
                if (givenName.isEmpty() && familyName.isEmpty()) {
                   partitionKey += "Unknown";
                }
-               LOGGER.info("Kafka topic/partition for patient: " + partitionKey);
+               LOGGER.info("Using Kafka topic/partition: " + partitionKey);
 
                final var interactionEnvelop = new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION,
                                                                      tag,
