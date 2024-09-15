@@ -155,8 +155,10 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
   })
 
   const setUser = (data: User | undefined) => {
+    console.log('User data:', data) // Add this to check the response
     queryClient.setQueryData([currentUserOueryClientKey], data)
   }
+  
 
   const signInWithKeyCloak = () => {
     keycloack.init({

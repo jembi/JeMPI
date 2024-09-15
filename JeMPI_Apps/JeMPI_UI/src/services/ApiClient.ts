@@ -402,6 +402,7 @@ export class ApiClient {
 
   async getCurrentUser() {
     const { data } = await this.client.get(ROUTES.CURRENT_USER)
+    console.log('Current User', data)
     return typeof data === 'string' && data.length === 0 ? null : data
   }
 
