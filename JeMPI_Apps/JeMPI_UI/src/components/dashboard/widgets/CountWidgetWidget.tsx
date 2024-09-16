@@ -3,7 +3,7 @@ import React from 'react'
 
 type countWidgetType = {
   label: string
-  value: number
+  value: string
   icon?: React.ReactElement
   iconBackgroundColor?: string
   secondValue?: number
