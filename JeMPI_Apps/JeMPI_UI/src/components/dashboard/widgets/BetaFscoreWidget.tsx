@@ -1,20 +1,22 @@
-import React from 'react';
-import { Box, Grid } from '@mui/material';
-import CountWidget from './CountWidgetWidget';
+import React from 'react'
+import { Box, Grid } from '@mui/material'
+import CountWidget from './CountWidgetWidget'
 
 interface DataProps {
-  precision?: number;
-  recall_precision?: number;
-  recall?: number;
+  precision?: number
+  recall_precision?: number
+  recall?: number
 }
 
 interface BetaFscoreWidgetProps {
-  data: DataProps;
+  data: DataProps
 }
 
 function BetaFscoreWidget({ data }: BetaFscoreWidgetProps) {
-  const formatValue = (value: number | undefined): number => 
-    Number.isFinite(value) ? Number(value?.toFixed(5)) : 0;
+  const formatValue = (value?: number): number =>
+    value !== undefined && Number.isFinite(value)
+      ? parseFloat(value.toFixed(5))
+      : 0
 
   return (
     <Box component="fieldset">
@@ -40,7 +42,7 @@ function BetaFscoreWidget({ data }: BetaFscoreWidgetProps) {
         </Grid>
       </Grid>
     </Box>
-  );
+  )
 }
 
-export default BetaFscoreWidget;
+export default BetaFscoreWidget
