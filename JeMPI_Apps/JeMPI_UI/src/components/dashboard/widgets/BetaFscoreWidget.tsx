@@ -13,10 +13,12 @@ interface BetaFscoreWidgetProps {
 }
 
 function BetaFscoreWidget({ data }: BetaFscoreWidgetProps) {
-  const formatValue = (value?: number): number =>
-    value !== undefined && Number.isFinite(value)
-      ? parseFloat(value.toFixed(5))
-      : 0
+  const formatValue = (value?: number): string => {
+    if (value === undefined || !Number.isFinite(value)) {
+      return '0.00000'
+    }
+    return value.toFixed(5)
+  }
 
   return (
     <Box component="fieldset">
