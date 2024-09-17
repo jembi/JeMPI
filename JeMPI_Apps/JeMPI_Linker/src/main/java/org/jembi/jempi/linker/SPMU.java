@@ -55,7 +55,7 @@ public final class SPMU {
                                                                               system.scheduler());
       final var completableFuture = result.toCompletableFuture();
       try {
-         final var reply = completableFuture.get(6, TimeUnit.SECONDS);
+         final var reply = completableFuture.get(GlobalConstants.TIMEOUT_GENERAL_SECS, TimeUnit.SECONDS);
          LOGGER.debug("Update MU Request: {}", reply);
          if (reply.rc()) {
             LOGGER.debug("MU Updated");

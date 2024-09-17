@@ -1,4 +1,4 @@
-ARG JAVA_VERSION
+ARG JAVA_VERSION=21.0.1-tem
 
 FROM eclipse-temurin:${JAVA_VERSION}-jre
 
