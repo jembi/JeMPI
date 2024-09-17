@@ -386,8 +386,9 @@
     "enabled" : true,
     "totp" : false,
     "emailVerified" : false,
-    "firstName" : "",
-    "lastName" : "",
+    "firstName" : "dev",
+    "lastName" : "user",
+    "email" : "dummy@jembi.org",
     "credentials" : [ {
       "id" : "30445f2a-9ea5-4658-81e7-a96959e2ab96",
       "type" : "password",
