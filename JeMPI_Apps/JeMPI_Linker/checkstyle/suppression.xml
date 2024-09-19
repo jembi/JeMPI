@@ -32,7 +32,7 @@
     />
 
     <suppress
-            checks="(MethodLength)"
+            checks="(MethodLength|ParameterNumber)"
             files="LinkerDWH.java"
     />
 

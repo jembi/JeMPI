@@ -187,6 +187,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                                          request.link.matchThreshold() == null
                                                                ? AppConfig.LINKER_MATCH_THRESHOLD
                                                                : request.link.matchThreshold(),
+                                                         request.link.externalLinkRange().low(),
+                                                         request.link.externalLinkRange().high(),
+                                                         AppConfig.LINKER_MATCH_THRESHOLD_MARGIN,
                                                          request.link.stan());
       request.replyTo.tell(new SyncLinkInteractionResponse(request.link.stan(),
                                                            listLinkInfo.isRight()
@@ -213,9 +216,34 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                LinkerDWH.linkInteraction(libMPI,
                                        req.batchInteraction.interaction(),
                                        null,
-                                       req.batchInteraction.sessionMetadata().commonMetaData().uploadConfig() != null
-                                             ? req.batchInteraction.sessionMetadata().commonMetaData().uploadConfig().linkThreshold().floatValue()
-                                             : AppConfig.LINKER_MATCH_THRESHOLD,
+                                         req.batchInteraction.sessionMetadata().commonMetaData().uploadConfig() != null
+                                               ? req.batchInteraction.sessionMetadata()
+                                                                     .commonMetaData()
+                                                                     .uploadConfig()
+                                                                     .linkThreshold()
+                                                                     .floatValue()
+                                               : AppConfig.LINKER_MATCH_THRESHOLD,
+                                         req.batchInteraction.sessionMetadata().commonMetaData().uploadConfig() != null
+                                               ? req.batchInteraction.sessionMetadata()
+                                                                     .commonMetaData()
+                                                                     .uploadConfig()
+                                                                     .minThreshold()
+                                                                     .floatValue()
+                                               : AppConfig.LINKER_MIN_THRESHOLD,
+                                         req.batchInteraction.sessionMetadata().commonMetaData().uploadConfig() != null
+                                               ? req.batchInteraction.sessionMetadata()
+                                                                     .commonMetaData()
+                                                                     .uploadConfig()
+                                                                     .maxThreshold()
+                                                                     .floatValue()
+                                               : AppConfig.LINKER_MAX_THRESHOLD,
+                                         req.batchInteraction.sessionMetadata().commonMetaData().uploadConfig() != null
+                                               ? req.batchInteraction.sessionMetadata()
+                                                                     .commonMetaData()
+                                                                     .uploadConfig()
+                                                                     .marginWindowSize()
+                                                                     .floatValue()
+                                               : AppConfig.LINKER_MATCH_THRESHOLD_MARGIN,
                                        req.batchInteraction.stan());
          if (linkInfo.isRight()) {
             req.replyTo.tell(new AsyncLinkInteractionResponse(linkInfo.get()));
