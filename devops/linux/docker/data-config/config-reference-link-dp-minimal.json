@@ -189,6 +189,10 @@
       }
     }
   ],
+  "nameValidationFields": [
+            "given_name",
+            "family_name"
+  ],
   "rules": {
     "link": {
       "deterministic": [

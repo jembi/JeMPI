@@ -19,6 +19,7 @@ public record JsonConfig(
       @JsonProperty("auxGoldenRecordFields") List<AuxGoldenRecordField> auxGoldenRecordFields,
       List<AdditionalNode> additionalNodes,
       List<DemographicField> demographicFields,
+      List<String> nameValidationFields,
       Rules rules) {
 
    private static final Logger LOGGER = LogManager.getLogger(JsonConfig.class);
