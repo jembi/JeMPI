@@ -64,12 +64,12 @@ public final class GlobalConstants {
    public static final String SEGMENT_POST_GOLDEN_RECORD_RESTORE = "restoreGoldenRecord";
 
    // TIMEOUTS
-   public static final int TIMEOUT_DGRAPH_RECONNECT_RETRIES = 20;
+   public static final int TIMEOUT_DGRAPH_RECONNECT_RETRIES = 5;
    public static final int TIMEOUT_DGRAPH_RECONNECT_SLEEP_SECS = 2;
-   public static final int TIMEOUT_DGRAPH_QUERY_SECS = (TIMEOUT_DGRAPH_RECONNECT_SLEEP_SECS
-                                                        * TIMEOUT_DGRAPH_RECONNECT_RETRIES);
+   public static final int TIMEOUT_DGRAPH_QUERY_SECS = 60;
+   public static final int TIMEOUT_DGRAPH_AKKA_SECS = (TIMEOUT_DGRAPH_RECONNECT_RETRIES * TIMEOUT_DGRAPH_QUERY_SECS) + (TIMEOUT_DGRAPH_RECONNECT_RETRIES * TIMEOUT_DGRAPH_RECONNECT_SLEEP_SECS);
    public static final int TIMEOUT_GENERAL_SECS = 60;
-   public static final int TIMEOUT_TEA_TIME_SECS = 5;
+   public static final int TIMEOUT_TEA_TIME_SECS = 30;
 
    private GlobalConstants() {
    }

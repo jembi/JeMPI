@@ -35,19 +35,18 @@ The deterministic tab has three sub tabs :
 
 **Design view**
 this view allows the user to do the following :
-- Select the operator values from a drop down field eg “And” and “Or”
-- Select common field values from a drop down field
-- Select comparator function from a drop down field eg “Exact”, “Low Fuzziness” etc
-- Add a second row of input fields by selecting the add add icon button
+- Select the operator values from a dropdown field, e.g., "And" and "Or"
+- Select common field values from a dropdown field
+- Select comparator function from a dropdown field, e.g., "Exact", "Low Fuzziness", etc.
+- Add a second row of input fields by selecting the add icon button
 - Save rule by selecting the add rule button
 - Exit edit mode and cancel previous edits.
-- Delete existing row of input fields
+- Delete the existing row of input fields
 ![Determistic Design View](.gitbook/assets/22)
-
 **Blocking**
 The blocking tab  is used to define the blocking rules. 
 
-The blocking tabs has two sub tabs : 
+The blocking tabs have two sub tabs: 
 - Linking 
 - Matching 
 
@@ -61,24 +60,23 @@ This view allows the user to do the following :
 ![Blocking Source View](.gitbook/assets/23)
 
 **Design view**
-This view must allows the user to do the following :
+This view must allow the user to do the following:
 
-- Select the operator values from a drop down field eg “And” and “Or”
-- Select common field values from a drop down field.
-- Select comparator function from a drop down field eg “Exact”, “Low Fuzziness” etc
-- Add a second row of input fields by selecting the add add icon button
+- Select the operator values from a dropdown field, e.g., "And" and "Or"
+- Select common field values from a dropdown field.
+- Select comparator function from a dropdown field, e.g., "Exact", "Low Fuzziness", etc.
+- Add a second row of input fields by selecting the add icon button
 - Save rule by selecting the add rule button
 - Exit edit mode and cancel previous edits.
-- Delete existing row of input fields
+- Delete the existing row of input fields
 ![Blocking Design View](.gitbook/assets/25)
-
 **Probabilistic**
    In the Probabilistic tab the user can  define the linking threshold ranges and/or values. 
 
 All values must be entered as per the rules defined.
 ![Probabilistic Tab](.gitbook/assets/26)
 
-**Rules on threshold slider**
+## Rules on threshold slider
 - Do not allow the link threshold (green circle):
 To be < the Minimum threshold review value
 To be > the Maximum threshold review value

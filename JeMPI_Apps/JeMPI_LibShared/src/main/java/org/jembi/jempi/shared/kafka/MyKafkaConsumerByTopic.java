@@ -2,13 +2,16 @@ package org.jembi.jempi.shared.kafka;
 
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.Deserializer;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.time.Duration;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -36,7 +39,19 @@ public final class MyKafkaConsumerByTopic<KEY_TYPE, VAL_TYPE> {
       properties.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, fetchMaxWaitMSConfig);
       try {
          consumer = new KafkaConsumer<>(properties, keyDeserializer, valueDeserializer);
-         consumer.subscribe(Collections.singletonList(topic));
+         consumer.subscribe(Collections.singletonList(topic), new ConsumerRebalanceListener() {
+            @Override
+            public void onPartitionsRevoked(final Collection<TopicPartition> partitions) {
+               // Commit offsets before rebalance
+               LOGGER.info("Committing offsets before rebalance");
+               consumer.commitSync();
+            }
+
+            @Override
+            public void onPartitionsAssigned(final Collection<TopicPartition> partitions) {
+               // Handle partition assignment if needed
+            }
+         });
       } catch (Exception ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
          consumer = null;

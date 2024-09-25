@@ -55,6 +55,9 @@ install_docker() {
 # Function to install SDKMAN, Java, Maven, and SBT
 install_sdkman_and_java_sbt_maven() {
     # Install SDKMAN
+    sudo apt-get install unzip
+    sudo apt-get install zip
+
     echo "Installing SDKMAN... "
     curl -s "https://get.sdkman.io" | bash
 
@@ -71,6 +74,7 @@ install_sdkman_and_java_sbt_maven() {
 
     echo "Installing sbt... "
     sdk install sbt
+    source "$HOME/.sdkman/bin/sdkman-init.sh"
 }
 
 hostname_setup() {
