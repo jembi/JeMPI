@@ -44,6 +44,8 @@ public final class AppConfig {
    public static final String API_IP = CONFIG.getString("API_IP");
    public static final String API_HTTP_PORT = CONFIG.getString("API_HTTP_PORT");
    public static final Float LINKER_MATCH_THRESHOLD = (float) CONFIG.getDouble("LINKER_MATCH_THRESHOLD");
+   public static final Float LINKER_MIN_THRESHOLD = (float) CONFIG.getDouble("LINKER_MIN_THRESHOLD");
+   public static final Float LINKER_MAX_THRESHOLD = (float) CONFIG.getDouble("LINKER_MAX_THRESHOLD");
    public static final Float LINKER_MATCH_THRESHOLD_MARGIN = (float) CONFIG.getDouble("LINKER_MATCH_THRESHOLD_MARGIN");
    public static final Level GET_LOG_LEVEL = Level.toLevel(CONFIG.getString("LOG4J2_LEVEL"));
 
