@@ -422,6 +422,15 @@ final class DgraphQueries {
       return 0L;
    }
 
+   private static String getFieldsCount(final String query) {
+      try {
+         return DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
+      } catch (Exception e) {
+         LOGGER.error(e.getLocalizedMessage());
+         return e.getLocalizedMessage();
+      }
+   }
+
    /**
     * Count golden records long.
     *
@@ -467,6 +476,48 @@ final class DgraphQueries {
                         }""";
       return getCount(query);
    }
+
+   static String getFieldCount(final ApiModels.CountFields countFields) {
+      String fieldName = countFields.fieldName();
+      String fieldType = countFields.recordType();
+      List<String> fieldValues = countFields.value();
+      // Build the query dynamically using the provided gender values
+      StringBuilder queryBuilder = new StringBuilder();
+      queryBuilder.append("query count() {");
+
+      // Check if genderValues is empty or contains null values
+      boolean hasValues = fieldValues != null && !fieldValues.isEmpty();
+      boolean hasFieldName = fieldName != null && !fieldName.isEmpty();
+
+      // If there are no values, count all records without filter
+      if (!hasValues && !hasFieldName) {
+         queryBuilder.append(String.format("""
+                totalCount(func: type(%s)) {
+                    total: count(uid)
+                }
+                """, fieldType));
+      }else if (!hasValues) {
+         queryBuilder.append(String.format("""
+                totalCount(func: has(%s.%s)) {
+                    total: count(uid)
+                }
+                """, fieldType, fieldName));
+      }else {
+         // Loop through each gender value and append to the query
+         for (String value : fieldValues) {
+            queryBuilder.append(String.format("""
+                    %s(func: eq(%s.%s, "%s")) {
+                        total: count(uid)
+                    }
+                    """, value.toLowerCase(), fieldType, fieldName, value));
+         }
+      }
+      queryBuilder.append("}");
+      String query = queryBuilder.toString();
+      // Call the genderCount method with the constructed query
+      return getFieldsCount(query);
+   }
+
 
    private static LinkedList<GoldenRecord> deterministicSelectGoldenRecords(
          final List<PartialFunction<DemographicData, List<GoldenRecord>>> queryFunctions,

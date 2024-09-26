@@ -165,6 +165,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                     .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
                     .onMessage(SQLDashboardDataRequest.class, this::getSqlDashboardDataHandler)
                     .onMessage(GetConfigurationRequest.class, this::getConfigurationHandler)
+                    .onMessage(GetFieldCountRequest.class, this::getFieldCountHandler)
                     .onMessage(PostConfigurationRequest.class, this::postConfigurationHandler)
                     .onMessage(GetFieldsConfigurationRequest.class, this::getFieldsConfigurationHandler)
                     .build();
@@ -514,6 +515,18 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
+   private Behavior<Event> getFieldCountHandler(final GetFieldCountRequest request) {
+      String getCount = null;
+      try {
+         getCount = libMPI.getFieldCount(request.countFields);
+         request.replyTo.tell(new GetFieldCountResponse(getCount));
+      } catch (Exception e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+         LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}", e.getMessage());
+      }
+      return Behaviors.same();
+   }
+
    private Behavior<Event> getFieldsConfigurationHandler(final GetFieldsConfigurationRequest request) {
       final var separator = FileSystems.getDefault().getSeparator();
       final String configDir = System.getenv("SYSTEM_CONFIG_DIRS");
@@ -616,6 +629,11 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record GetConfigurationRequest(ActorRef<GetConfigurationResponse> replyTo) implements Event { }
 
    public record GetConfigurationResponse(Configuration configuration) implements EventResponse { }
+
+   public record GetFieldCountRequest(ActorRef<GetFieldCountResponse> replyTo, ApiModels.CountFields countFields) implements Event { }
+
+   public record GetFieldCountResponse(String genderCount) implements EventResponse { }
+
 
    public record GetFieldsConfigurationRequest(ActorRef<GetFieldsConfigurationResponse> replyTo) implements Event { }
 

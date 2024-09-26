@@ -333,6 +333,18 @@ public final class Ask {
       return stage.thenApply(response -> response);
    }
 
+   static CompletionStage<BackEnd.GetFieldCountResponse> getFieldCount(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd,
+           final ApiModels.CountFields countFields) {
+      final CompletionStage<BackEnd.GetFieldCountResponse> stage = AskPattern
+              .ask(backEnd,
+                      replyTo -> new BackEnd.GetFieldCountRequest(replyTo, countFields),
+                      java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
+                      actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
    static CompletionStage<BackEnd.GetFieldsConfigurationResponse> getFieldsConfiguration(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {

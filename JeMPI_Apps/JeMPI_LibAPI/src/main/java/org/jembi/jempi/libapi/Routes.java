@@ -7,6 +7,8 @@ import akka.http.javadsl.marshallers.jackson.Jackson;
 import akka.http.javadsl.marshalling.Marshaller;
 import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.Route;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.MpiServiceError;
@@ -548,6 +550,27 @@ public final class Routes {
                         });
    }
 
+    public static Route getFieldCount(
+            final ActorSystem<Void> actorSystem,
+            final ActorRef<BackEnd.Event> backEnd) {
+        return entity(Jackson.unmarshaller(ApiModels.CountFields.class),
+                request -> onComplete(Ask.getFieldCount(actorSystem, backEnd, request),
+                        result -> {
+                            if (!result.isSuccess()) {
+                                return handleError(result.failed().get());
+                            }
+                            ObjectMapper objectMapper = new ObjectMapper();
+                            JsonNode jsonResponse = null;
+                            try {
+                                jsonResponse = objectMapper.readTree(result.get().genderCount());
+                            } catch (JsonProcessingException e) {
+                                throw new RuntimeException(e);
+                            }
+                            // Complete the request with JSON response
+                            return complete(StatusCodes.OK, jsonResponse, JSON_MARSHALLER);
+                        }));
+    }
+
    private static Route getFieldsConfiguration(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
@@ -676,6 +699,8 @@ public final class Routes {
                                () -> Routes.getGidsAll(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_CONFIGURATION,
                                () -> Routes.getConfiguration(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_FIELD_COUNT,
+                               () -> Routes.getFieldCount(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIGURATION,
                                () -> Routes.getFieldsConfiguration(actorSystem, backEnd)))));
    }

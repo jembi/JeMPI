@@ -149,6 +149,11 @@ public final class LibMPI {
       return Either.right(results.get().data());
    }
 
+   public String getFieldCount(final ApiModels.CountFields countFields) {
+       client.connect();
+       return client.getFieldCount(countFields);
+   }
+
    public ExpandedGoldenRecord findExpandedGoldenRecord(final String goldenId) {
       client.connect();
       final var results = client.findExpandedGoldenRecords(List.of(goldenId));

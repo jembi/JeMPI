@@ -402,6 +402,14 @@ public abstract class ApiModels {
          DemographicData demographicData) {
    }
 
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record CountFields(
+           String fieldName,
+           List<String> value,
+           String recordType
+          ) {
+   }
+
    public record ApiCalculateScoresResponse(
          String interactionId,
          List<ApiScore> scores) {
