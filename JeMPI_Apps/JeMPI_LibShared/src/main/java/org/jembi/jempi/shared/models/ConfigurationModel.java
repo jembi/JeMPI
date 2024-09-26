@@ -16,6 +16,7 @@ public record ConfigurationModel(
                         List<Field> auxGoldenRecordFields,
                         List<Node> additionalNodes,
                         List<DemographicField> demographicFields,
+                        List<String> nameValidationFields,
                         Rules rules) {
         }
 

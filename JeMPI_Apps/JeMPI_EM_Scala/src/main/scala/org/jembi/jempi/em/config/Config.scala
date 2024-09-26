@@ -65,5 +65,6 @@ case class Config(
     auxGoldenRecordFields: Option[Array[auxField]],
     additionalNodes: Option[Array[AdditionalNode]],
     demographicFields: Array[DemographicField],
-    rules: Rules
+    rules: Rules,
+    nameValidationFields: Option[List[String]]
 )

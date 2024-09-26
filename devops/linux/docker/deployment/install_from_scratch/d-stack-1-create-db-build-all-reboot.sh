@@ -30,5 +30,3 @@ source ../scripts/d-stack-up-keycloak-containers.sh
 sleep 2
 source ../scripts/d-stack-up-app-containers.sh
 sleep 2
-source ../../helper/keycloak/start-keycloak-test-server.sh
-sleep 2

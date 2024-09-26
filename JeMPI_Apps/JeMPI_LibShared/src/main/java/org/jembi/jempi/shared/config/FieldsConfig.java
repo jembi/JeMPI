@@ -31,6 +31,7 @@ public final class FieldsConfig {
    public final List<AuxField> userAuxInteractionFields;
    public final List<AuxField> userAuxGoldenRecordFields;
    public final List<DemographicField> demographicFields;
+   public final List<String> nameValidationFields;
    public final List<AdditionalNode> additionalNodes;
 
    public FieldsConfig(final JsonConfig jsonConfig) {
@@ -88,6 +89,7 @@ public final class FieldsConfig {
                        );
       optionalInteractionAuxIdIdx = auxInteractionAuxIdIdx[0];
 
+      nameValidationFields = jsonConfig.nameValidationFields().stream().toList();
 
       demographicFields = jsonConfig.demographicFields()
                                     .stream()
