@@ -177,6 +177,9 @@ final class LinkerCR {
                                                                            demographicData),
                                                            null,
                                                            AppConfig.LINKER_MATCH_THRESHOLD,
+                                                           AppConfig.LINKER_MIN_THRESHOLD,
+                                                           AppConfig.LINKER_MAX_THRESHOLD,
+                                                           AppConfig.LINKER_MATCH_THRESHOLD_MARGIN,
                                                            "STAN");
 
             return Either.right(linkInfo.get());
