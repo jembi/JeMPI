@@ -212,29 +212,25 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                return Behaviors.same();
             });
          }
+         final var uploadConfig = req.batchInteraction.sessionMetadata().commonMetaData().uploadConfig();
          final var linkInfo =
                LinkerDWH.linkInteraction(libMPI,
-                                       req.batchInteraction.interaction(),
-                                       null,
-                final var uploadConfig = req.batchInteraction.sessionMetadata().commonMetaData().uploadConfig();
-                final var linkInfo =
-                    LinkerDWH.linkInteraction(libMPI,
-                                              req.batchInteraction.interaction(),
-                                              null,
-                                              uploadConfig != null
-                                                    ? uploadConfig.linkThreshold().floatValue()
-                                                    : AppConfig.LINKER_MATCH_THRESHOLD,
-                                              uploadConfig != null
-                                                    ? uploadConfig.minThreshold().floatValue()
-                                                    : AppConfig.LINKER_MIN_THRESHOLD,
-                                              uploadConfig != null
-                                                    ? uploadConfig.maxThreshold().floatValue()
-                                                    : AppConfig.LINKER_MAX_THRESHOLD,
-                                              uploadConfig != null
-                                                    ? uploadConfig.marginWindowSize().floatValue()
-                                                    : AppConfig.LINKER_MATCH_THRESHOLD_MARGIN,
-                                              req.batchInteraction.stan());
-                                       req.batchInteraction.stan());
+                                         req.batchInteraction.interaction(),
+                                         null,
+                                         uploadConfig != null
+                                               ? uploadConfig.linkThreshold().floatValue()
+                                               : AppConfig.LINKER_MATCH_THRESHOLD,
+                                         uploadConfig != null
+                                               ? uploadConfig.minThreshold().floatValue()
+                                               : AppConfig.LINKER_MIN_THRESHOLD,
+                                         uploadConfig != null
+                                               ? uploadConfig.maxThreshold().floatValue()
+                                               : AppConfig.LINKER_MAX_THRESHOLD,
+                                         uploadConfig != null
+                                               ? uploadConfig.marginWindowSize().floatValue()
+                                               : AppConfig.LINKER_MATCH_THRESHOLD_MARGIN,
+                                         req.batchInteraction.stan());
+         req.batchInteraction.stan();
          if (linkInfo.isRight()) {
             req.replyTo.tell(new AsyncLinkInteractionResponse(linkInfo.get()));
          } else {
@@ -252,46 +248,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
          return Behaviors.same();
       });
    }
-
-/*
-   private Behavior<Request> syncLinkInteractionToGidHandler(final SyncLinkInteractionToGidRequest request) {
-      final LinkInfo linkInfo;
-      final var interaction = request.link.interaction();
-      final var gid = request.link.gid();
-      try {
-         // Check if we have new M&U values
-         LinkerProbabilistic.checkUpdatedMU();
-
-         libMPI.startTransaction();
-         if (StringUtils.isBlank(gid)) {
-            linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
-         } else {
-            final var goldenRecord = libMPI.findGoldenRecord(gid);
-            if (goldenRecord == null) {
-               LOGGER.error("Golden Record for GID {} is null", gid);
-               linkInfo = null;
-            } else {
-               final var validated1 = CustomLinkerDeterministic.validateDeterministicMatch(goldenRecord.demographicData(),
-                                                                                           interaction.demographicData());
-               final var validated2 = CustomLinkerProbabilistic.validateProbabilisticScore(goldenRecord.demographicData(),
-                                                                                           interaction.demographicData());
-
-               linkInfo = libMPI.createInteractionAndLinkToExistingGoldenRecord(interaction,
-                                                                                new LibMPIClientInterface.GoldenIdScore(gid,
-                                                                                                                        3.0F),
-                                                                                validated1, validated2);
-               if (Boolean.TRUE.equals(goldenRecord.customUniqueGoldenRecordData().auxAutoUpdateEnabled())) {
-                  CustomLinkerBackEnd.updateGoldenRecordFields(libMPI, 0.0F, linkInfo.interactionUID(), gid);
-               }
-            }
-         }
-      } finally {
-         libMPI.closeTransaction();
-      }
-      request.replyTo.tell(new SyncLinkInteractionToGidResponse(request.link.stan(), linkInfo));
-      return Behaviors.same();
-   }
-*/
 
    private Behavior<Request> workTimeHandler(final WorkTimeRequest request) {
       LOGGER.info("WORK TIME");
