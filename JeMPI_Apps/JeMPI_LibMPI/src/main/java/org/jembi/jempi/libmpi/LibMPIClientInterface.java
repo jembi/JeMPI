@@ -57,6 +57,8 @@ public interface LibMPIClientInterface {
 
    String getFieldCount(ApiModels.CountFields countFields);
 
+   String getAgeGroupCount(String startDate, String endDate);
+
    List<String> findGoldenIds();
 
    List<String> fetchGoldenIds(

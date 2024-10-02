@@ -1228,4 +1228,32 @@ final class DgraphQueries {
       }
    }
 
+   /**
+    * Get age group count based on start and end dates for DOB.
+    *
+    * @param startDate The start date of the age range (inclusive)
+    * @param endDate The end date of the age range (inclusive)
+    * @return A string containing the JSON response with the count
+    */
+    public static String getAgeGroupCount(final String startDate, final String endDate) {
+      // Constructing the query string
+      String query = String.format(Locale.ROOT,
+          """
+          {
+            dobRangeCount(func: has(GoldenRecord.dob)) @filter(ge(GoldenRecord.dob, "%s") AND le(GoldenRecord.dob, "%s")) {
+              count(uid)
+            }
+          }
+          """,
+          endDate, startDate);  // Order of %s matches the date range
+      try {
+         LOGGER.info("Query: {}", query);
+          String json = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
+          return json;
+      } catch (Exception e) {
+          LOGGER.error("Error executing age group count query", e);
+          return "{\"count\": [{\"total\": 0}]}"; // Return default count in case of error
+      }
+  }
+
 }
