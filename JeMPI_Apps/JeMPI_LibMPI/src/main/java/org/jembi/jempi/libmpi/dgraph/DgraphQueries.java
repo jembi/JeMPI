@@ -1266,17 +1266,7 @@ final class DgraphQueries {
 
          // Build the query dynamically based on date range availability
          String query;
-         if (startDate.isEmpty() && endDate.isEmpty()) {
-            // Fetch all records without date range filter
-            query = """
-               {
-                     peopleInDateRange(func: has(GoldenRecord.dob)) {
-                        GoldenRecord.dob
-                     }
-               }
-            """;
-         } else {
-            // Apply date range filter
+         if (!startDate.isEmpty() && !endDate.isEmpty()) {
             query = String.format("""
                {
                      peopleInDateRange(func: has(GoldenRecord.dob)) 
@@ -1285,6 +1275,14 @@ final class DgraphQueries {
                      }
                }
             """, startDate, endDate);
+         } else {
+            query = """
+               {
+                     peopleInDateRange(func: has(GoldenRecord.dob)) {
+                        GoldenRecord.dob
+                     }
+               }
+            """;
          }
          LOGGER.info("Query: {}", query);
          // Assuming `DgraphClient` is set up to make requests
