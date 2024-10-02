@@ -410,6 +410,13 @@ public abstract class ApiModels {
           ) {
    }
 
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record SearchAgeCountFields(
+           int startAge,
+           int endAge
+          ) {
+   }
+
    public record ApiCalculateScoresResponse(
          String interactionId,
          List<ApiScore> scores) {

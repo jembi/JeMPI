@@ -571,6 +571,19 @@ public final class Routes {
                         }));
     }
 
+   public static Route getAgeGroupCount(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd) {
+       return entity(Jackson.unmarshaller(ApiModels.SearchAgeCountFields.class),
+               request -> onComplete(Ask.getAgeGroupCount(actorSystem, backEnd, request),
+                       result -> {
+                           if (!result.isSuccess()) {
+                               return handleError(result.failed().get());
+                           }
+                           return complete(StatusCodes.OK, result.get().ageGroupCount(), JSON_MARSHALLER);
+                           }));
+   }
+
    private static Route getFieldsConfiguration(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
@@ -701,6 +714,8 @@ public final class Routes {
                                () -> Routes.getConfiguration(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_FIELD_COUNT,
                                () -> Routes.getFieldCount(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_AGE_GROUP_COUNT,
+                               () -> Routes.getAgeGroupCount(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIGURATION,
                                () -> Routes.getFieldsConfiguration(actorSystem, backEnd)))));
    }
