@@ -12,10 +12,13 @@ import org.jembi.jempi.libmpi.common.PartialFunction;
 import org.jembi.jempi.shared.config.linker.Programs;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
-
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.IntStream;
+
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.jembi.jempi.shared.config.Config.*;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
@@ -1254,5 +1257,60 @@ final class DgraphQueries {
           return 0L; // Return default count in case of error
       }
   }
+
+   public static List<String> getAverageAge(final ApiModels.AverageAgeRequest averageAgeRequest) {
+      try {
+            // Assume these values come from a request
+         String startDate = averageAgeRequest.startDate();  // Empty means no start date
+         String endDate = averageAgeRequest.endDate();    // Empty means no end date
+
+         // Build the query dynamically based on date range availability
+         String query;
+         if (startDate.isEmpty() && endDate.isEmpty()) {
+            // Fetch all records without date range filter
+            query = """
+               {
+                     peopleInDateRange(func: has(GoldenRecord.dob)) {
+                        GoldenRecord.dob
+                     }
+               }
+            """;
+         } else {
+            // Apply date range filter
+            query = String.format("""
+               {
+                     peopleInDateRange(func: has(GoldenRecord.dob)) 
+                     @filter(ge(GoldenRecord.dob, "%s") AND le(GoldenRecord.dob, "%s")) {
+                        GoldenRecord.dob
+                     }
+               }
+            """, startDate, endDate);
+         }
+         LOGGER.info("Query: {}", query);
+         // Assuming `DgraphClient` is set up to make requests
+         String responseJson = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
+         // Parse the JSON response to extract DOBs
+         List<String> dobList = parseDobFromResponse(responseJson);
+         return dobList;
+      } catch (Exception e) {
+            e.printStackTrace();
+            return List.of("Error: " + e.getMessage());
+      }
+   }
+
+  private static List<String> parseDobFromResponse(final String responseJson) throws JsonMappingException, JsonProcessingException {
+        List<String> dobList = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jsonNode = mapper.readTree(responseJson);
+        JsonNode peopleArray = jsonNode.get("peopleInDateRange");
+
+        // Extract each `dob` and add to the list
+        for (JsonNode person : peopleArray) {
+            if (person.has("GoldenRecord.dob")) {
+                dobList.add(person.get("GoldenRecord.dob").asText());
+            }
+        }
+        return dobList;
+    }
 
 }

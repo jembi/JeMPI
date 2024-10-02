@@ -29,9 +29,11 @@ import java.nio.file.*;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
@@ -169,6 +171,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                     .onMessage(GetConfigurationRequest.class, this::getConfigurationHandler)
                     .onMessage(GetFieldCountRequest.class, this::getFieldCountHandler)
                     .onMessage(GetAgeGroupCountRequest.class, this::getAgeGroupCountHandler)
+                    .onMessage(GetAverageAgeRequest.class, this::getAverageAgeHandler)
                     .onMessage(PostConfigurationRequest.class, this::postConfigurationHandler)
                     .onMessage(GetFieldsConfigurationRequest.class, this::getFieldsConfigurationHandler)
                     .build();
@@ -553,6 +556,42 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
+   private Behavior<Event> getAverageAgeHandler(final GetAverageAgeRequest request) {
+      List<String> dobList = new ArrayList<>();
+      try {
+         dobList = libMPI.getAverageAge(request.averageAgeRequest);
+         LOGGER.info("dobList size: {}", dobList.size());
+         double averageAge = calculateAverageAge(dobList);
+         request.replyTo.tell(new GetAverageAgeResponse(averageAge));
+      } catch (Exception e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+         LOGGER.error("libMPI.getAverageAge failed for averageAgeRequest: {} with error: {}", request.averageAgeRequest, e.getMessage());
+      }
+      return Behaviors.same();
+   }
+
+    public static double calculateAverageAge(final List<String> dobList) {
+        LocalDate today = LocalDate.now();  // Get today's date
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");  // DOB format in YYYYMMDD
+        int totalAge = 0;
+        int count = 0;
+        // Iterate through the list of DOBs and calculate the age for each
+        for (String dob : dobList) {
+            if (!dob.isEmpty()) {
+               try {
+                LocalDate birthDate = LocalDate.parse(dob, formatter);  // Try to convert DOB to LocalDate
+                int age = Period.between(birthDate, today).getYears();  // Calculate age in years
+                totalAge += age;
+                count++;
+               } catch (DateTimeParseException e) {
+                  LOGGER.error("Invalid date format for dob: " + dob + ". Skipping this record.");
+               }
+            }
+        }
+        // Calculate and return average age
+        return count > 0 ? (double) totalAge / count : 0;
+    }
+
    private Behavior<Event> getFieldsConfigurationHandler(final GetFieldsConfigurationRequest request) {
       final var separator = FileSystems.getDefault().getSeparator();
       final String configDir = System.getenv("SYSTEM_CONFIG_DIRS");
@@ -663,6 +702,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record GetAgeGroupCountRequest(ActorRef<GetAgeGroupCountResponse> replyTo, ApiModels.SearchAgeCountFields searchAgeCountFields) implements Event { }
 
    public record GetAgeGroupCountResponse(long ageGroupCount) implements EventResponse { }
+
+   public record GetAverageAgeRequest(ActorRef<GetAverageAgeResponse> replyTo, ApiModels.AverageAgeRequest averageAgeRequest) implements Event { }
+
+   public record GetAverageAgeResponse(double averageAge) implements EventResponse { }
 
    public record GetFieldsConfigurationRequest(ActorRef<GetFieldsConfigurationResponse> replyTo) implements Event { }
 

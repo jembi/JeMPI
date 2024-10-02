@@ -59,6 +59,8 @@ public interface LibMPIClientInterface {
 
    long getAgeGroupCount(String startDate, String endDate);
 
+   List<String> getAverageAge(ApiModels.AverageAgeRequest averageAgeRequest);
+
    List<String> findGoldenIds();
 
    List<String> fetchGoldenIds(

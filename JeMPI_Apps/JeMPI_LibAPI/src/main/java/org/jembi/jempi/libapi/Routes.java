@@ -584,6 +584,19 @@ public final class Routes {
                            }));
    }
 
+   private static Route getAverageAge(
+      final ActorSystem<Void> actorSystem,
+      final ActorRef<BackEnd.Event> backEnd) {
+  return entity(Jackson.unmarshaller(ApiModels.AverageAgeRequest.class),
+          request -> onComplete(Ask.getAverageAge(actorSystem, backEnd, request),
+                  result -> {
+                      if (!result.isSuccess()) {
+                          return handleError(result.failed().get());
+                      }
+                      return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
+                  }));
+}
+
    private static Route getFieldsConfiguration(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
@@ -717,7 +730,9 @@ public final class Routes {
                           path(GlobalConstants.SEGMENT_GET_AGE_GROUP_COUNT,
                                () -> Routes.getAgeGroupCount(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIGURATION,
-                               () -> Routes.getFieldsConfiguration(actorSystem, backEnd)))));
+                               () -> Routes.getFieldsConfiguration(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_AVERAGE_AGE,
+                               () -> Routes.getAverageAge(actorSystem, backEnd)))));
    }
 
 }

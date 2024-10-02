@@ -87,6 +87,10 @@ public final class LibDgraph implements LibMPIClientInterface {
       return DgraphQueries.getAgeGroupCount(startDate, endDate);
    }
 
+   public List<String> getAverageAge(final ApiModels.AverageAgeRequest averageAgeRequest) {
+      return DgraphQueries.getAverageAge(averageAgeRequest);
+   }
+
    public String restoreGoldenRecord(
            final RestoreGoldenRecords goldenRecord) {
       return dgraphMutations.restoreGoldenRecord(goldenRecord);

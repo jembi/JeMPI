@@ -345,6 +345,18 @@ public final class Ask {
       return stage.thenApply(response -> response);
    }
 
+   static CompletionStage<BackEnd.GetAverageAgeResponse> getAverageAge(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd,
+           final ApiModels.AverageAgeRequest averageAgeRequest) {
+      final CompletionStage<BackEnd.GetAverageAgeResponse> stage = AskPattern
+              .ask(backEnd,
+                      replyTo -> new BackEnd.GetAverageAgeRequest(replyTo, averageAgeRequest),
+                      java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
+                      actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
    static CompletionStage<BackEnd.GetFieldCountResponse> getFieldCount(
            final ActorSystem<Void> actorSystem,
            final ActorRef<BackEnd.Event> backEnd,

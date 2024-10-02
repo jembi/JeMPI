@@ -441,4 +441,8 @@ public abstract class ApiModels {
          Boolean sortAsc) {
          }
 
+   public record AverageAgeRequest(String startDate, String endDate) { }
+
+   public record AverageAgeResponse(double averageAge) { }
+
 }
