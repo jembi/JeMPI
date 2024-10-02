@@ -33,30 +33,28 @@ record JsonNodeInteraction(JsonNode node) {
       final var facilityNode = sourceIdNode.get("SourceId.facility");
       final var patientNode = sourceIdNode.get("SourceId.patient");
       final var sourceId = new SourceId(sourceIdNode.get("uid").textValue(),
-                                        (!(facilityNode == null || facilityNode.isMissingNode()))
-                                              ? facilityNode.textValue()
-                                              : null,
-                                        (!(patientNode == null || patientNode.isMissingNode()))
-                                              ? patientNode.textValue()
-                                              : null);
+            (!(facilityNode == null || facilityNode.isMissingNode()))
+                  ? facilityNode.textValue()
+                  : null,
+            (!(patientNode == null || patientNode.isMissingNode()))
+                  ? patientNode.textValue()
+                  : null);
       final var auxInteractionData = AuxInteractionData.fromAuxInteractionData(node);
-      final var demographicData =
-            new DemographicData(
-                  JSON_CONFIG.demographicFields().stream().map(demographicField -> {
-                     final var fieldName = demographicField.scFieldName();
-                     final var v = node.get("Interaction.%s".formatted(fieldName));
-                     return (!(v == null || v.isMissingNode()))
-                           ? new DemographicData.DemographicField(AppUtils.snakeToCamelCase(fieldName), v.textValue())
-                           : null;
-                  }).toList());
+      final var demographicData = new DemographicData(
+            JSON_CONFIG.demographicFields().stream().map(demographicField -> {
+               final var fieldName = demographicField.scFieldName();
+               final var v = node.get("Interaction.%s".formatted(fieldName));
+               return (!(v == null || v.isMissingNode()))
+                     ? new DemographicData.DemographicField(AppUtils.snakeToCamelCase(fieldName), v.textValue())
+                     : null;
+            }).toList());
       return new Interaction(node.get("uid").textValue(), sourceId, auxInteractionData, demographicData);
    }
 
    InteractionWithScore toInteractionWithScore() {
       final var interaction = toInteraction();
-      final var score = node.get("GoldenRecord.interactions|score").floatValue();
+      JsonNode scoreNode = node.get("GoldenRecord.interactions|score");
+      float score = (scoreNode != null && !scoreNode.isNull()) ? scoreNode.floatValue() : 0.0f;
       return new InteractionWithScore(interaction, score);
    }
-
-
 }
