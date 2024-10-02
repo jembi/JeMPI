@@ -531,14 +531,14 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    }
 
    private Behavior<Event> getAgeGroupCountHandler(final GetAgeGroupCountRequest request) {
-      String getCount = null;
+      long getCount = 0;
       try {
          // Calculate start and end dates based on age range
          LocalDate today = LocalDate.now();
 
          // Calculate the date of birth range
          LocalDate startDate = today.minusYears(request.searchAgeCountFields.startAge());  // Subtract end age
-         LocalDate endDate = today.minusYears(request.searchAgeCountFields.endAge());  // Subtract start age
+         LocalDate endDate = (today.minusYears(request.searchAgeCountFields.endAge())).plusDays(1);  // Subtract start age
          // Format the dates as strings in "YYYYMMDD" format
          DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
          String startDob = startDate.format(formatter);
@@ -662,7 +662,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record GetAgeGroupCountRequest(ActorRef<GetAgeGroupCountResponse> replyTo, ApiModels.SearchAgeCountFields searchAgeCountFields) implements Event { }
 
-   public record GetAgeGroupCountResponse(String ageGroupCount) implements EventResponse { }
+   public record GetAgeGroupCountResponse(long ageGroupCount) implements EventResponse { }
 
    public record GetFieldsConfigurationRequest(ActorRef<GetFieldsConfigurationResponse> replyTo) implements Event { }
 

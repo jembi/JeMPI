@@ -580,16 +580,8 @@ public final class Routes {
                            if (!result.isSuccess()) {
                                return handleError(result.failed().get());
                            }
-                           ObjectMapper objectMapper = new ObjectMapper();
-                           JsonNode jsonResponse = null;
-                           try {
-                               jsonResponse = objectMapper.readTree(result.get().ageGroupCount());
-                           } catch (JsonProcessingException e) {
-                               throw new RuntimeException(e);
-                           }
-                           // Complete the request with JSON response
-                           return complete(StatusCodes.OK, jsonResponse, JSON_MARSHALLER);
-                       }));
+                           return complete(StatusCodes.OK, result.get().ageGroupCount(), JSON_MARSHALLER);
+                           }));
    }
 
    private static Route getFieldsConfiguration(
