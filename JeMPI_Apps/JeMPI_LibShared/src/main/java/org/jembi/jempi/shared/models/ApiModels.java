@@ -406,7 +406,9 @@ public abstract class ApiModels {
    public record CountFields(
            String fieldName,
            List<String> value,
-           String recordType
+           String recordType,
+           String startDate,
+           String endDate
           ) {
    }
 

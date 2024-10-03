@@ -481,45 +481,67 @@ final class DgraphQueries {
    }
 
    static String getFieldCount(final ApiModels.CountFields countFields) {
-      String fieldName = countFields.fieldName();
-      String fieldType = countFields.recordType();
-      List<String> fieldValues = countFields.value();
-      // Build the query dynamically using the provided gender values
-      StringBuilder queryBuilder = new StringBuilder();
-      queryBuilder.append("query count() {");
+    String fieldName = countFields.fieldName();
+    String fieldType = countFields.recordType();
+    List<String> fieldValues = countFields.value();
+    
+    String startDate = countFields.startDate(); // Assume startDate is of LocalDate type
+    String endDate = countFields.endDate(); // Assume endDate is of LocalDate type
+    
+    boolean hasValues = fieldValues != null && !fieldValues.isEmpty();
+    boolean hasDateRange = startDate != null && endDate != null;
 
-      // Check if genderValues is empty or contains null values
-      boolean hasValues = fieldValues != null && !fieldValues.isEmpty();
-      boolean hasFieldName = fieldName != null && !fieldName.isEmpty();
+    StringBuilder queryBuilder = new StringBuilder();
+    queryBuilder.append("query count() {");
 
-      // If there are no values, count all records without filter
-      if (!hasValues && !hasFieldName) {
-         queryBuilder.append(String.format("""
-                totalCount(func: type(%s)) {
-                    total: count(uid)
-                }
-                """, fieldType));
-      }else if (!hasValues) {
-         queryBuilder.append(String.format("""
-                totalCount(func: has(%s.%s)) {
-                    total: count(uid)
-                }
-                """, fieldType, fieldName));
-      }else {
-         // Loop through each gender value and append to the query
-         for (String value : fieldValues) {
+    // Count based on the conditions
+    if (!hasValues && !hasDateRange) {
+        // Count field when values and date range are absent
+        queryBuilder.append(String.format("""
+            totalCount(func: type(%s)) {
+                total: count(uid)
+            }
+            """, fieldType));
+    } else if (!hasValues && hasDateRange) {
+        // Count field with date range when values are absent
+        queryBuilder.append(String.format("""
+            totalCount(func: has(%s.%s)) @filter(ge(%s.aux_date_created, "%s") AND le(%s.aux_date_created, "%s")) {
+                total: count(uid)
+            }
+            """, fieldType, fieldName, fieldType, startDate, fieldType, endDate));
+    } else if (hasValues && !hasDateRange) {
+        // Count values when date range is absent
+        for (String value : fieldValues) {
             queryBuilder.append(String.format("""
-                    %s(func: eq(%s.%s, "%s")) {
-                        total: count(uid)
-                    }
-                    """, value.toLowerCase(), fieldType, fieldName, value));
-         }
-      }
-      queryBuilder.append("}");
-      String query = queryBuilder.toString();
-      // Call the genderCount method with the constructed query
-      return getFieldsCount(query);
-   }
+                %s(func: eq(%s.%s, "%s")) {
+                    total: count(uid)
+                }
+                """, value.toLowerCase(), fieldType, fieldName, value));
+        }
+    } else if (hasValues && hasDateRange) {
+        // Count values with date range present
+        for (String value : fieldValues) {
+            queryBuilder.append(String.format("""
+                %s(func: eq(%s.%s, "%s")) @filter(ge(%s.aux_date_created, "%s") AND le(%s.aux_date_created, "%s")) {
+                    total: count(uid)
+                }
+                """, value.toLowerCase(), fieldType, fieldName, value, fieldType, startDate, fieldType, endDate));
+        }
+    } else if (hasDateRange) {
+        // Only count field with date range present
+        queryBuilder.append(String.format("""
+            totalCount(func: has(%s.%s)) @filter(ge(%s.aux_date_created, "%s") AND le(%s.aux_date_created, "%s")) {
+                total: count(uid)
+            }
+            """, fieldType, fieldName, fieldType, startDate, fieldType, endDate));
+    }
+
+    queryBuilder.append("}");
+    String query = queryBuilder.toString();
+
+    // Call the getFieldsCount method with the constructed query
+    return getFieldsCount(query);
+}
 
 
    private static LinkedList<GoldenRecord> deterministicSelectGoldenRecords(
