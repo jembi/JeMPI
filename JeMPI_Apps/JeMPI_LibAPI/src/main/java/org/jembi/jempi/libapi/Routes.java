@@ -584,7 +584,7 @@ public final class Routes {
                            }));
    }
 
-   private static Route getAllList(
+   private static Route getDataList(
       final ActorSystem<Void> actorSystem,
       final ActorRef<BackEnd.Event> backEnd) {
   return entity(Jackson.unmarshaller(ApiModels.AllList.class),
@@ -714,8 +714,8 @@ public final class Routes {
                                () -> Routes.getFieldCount(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_AGE_GROUP_COUNT,
                                () -> Routes.getAgeGroupCount(actorSystem, backEnd)),
-                          path(GlobalConstants.SEGMENT_GET_ALL_LIST,
-                               () -> Routes.getAllList(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_DATA_LIST,
+                               () -> Routes.getDataList(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
                                () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_PROXY_POST_CR_UPDATE_FIELDS,

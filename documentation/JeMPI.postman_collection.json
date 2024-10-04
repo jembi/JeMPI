@@ -93,7 +93,7 @@
 			"response": []
 		},
 		{
-			"name": "All List of Field",
+			"name": "All Data List of Field",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -107,14 +107,15 @@
 					}
 				},
 				"url": {
-					"raw": "{{LocalApi}}/getAllList",
+					"raw": "{{LocalApi}}/getDataList",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"getAllList"
+						"getDataList"
 					]
-				}
+				},
+				"description": "### Get All List\n\nThis endpoint allows you to retrieve a list based on specified criteria.\n\n#### Request Body\n\n- `startDate` (optional string): The start date for filtering the list. You can pass null if not required.\n- `endDate` (optional string): The end date for filtering the list. You can pass null if not required.\n- `field` (string): The field based on which the list will be filtered.\n    \n\n#### Response\n\n- Status: 200\n- Content-Type: application/json\n- `allList` (array of strings): The list of items retrieved based on the specified criteria."
 			},
 			"response": []
 		},
