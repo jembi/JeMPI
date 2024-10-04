@@ -697,7 +697,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record GetAllListRequest(ActorRef<GetAllListResponse> replyTo, ApiModels.AllList allListRequest) implements Event { }
 
-   public record GetAllListResponse(List<String> allList) implements EventResponse { }
+   public record GetAllListResponse(List<String> records) implements EventResponse { }
 
    public record GetFieldsConfigurationRequest(ActorRef<GetFieldsConfigurationResponse> replyTo) implements Event { }
 
