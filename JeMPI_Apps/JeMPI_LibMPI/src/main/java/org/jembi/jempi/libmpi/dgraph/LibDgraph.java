@@ -87,6 +87,10 @@ public final class LibDgraph implements LibMPIClientInterface {
       return DgraphQueries.getAgeGroupCount(startDate, endDate);
    }
 
+   public List<String> getAllList(final ApiModels.AllList allList) {
+      return DgraphQueries.getAllList(allList);
+   }
+
    public String restoreGoldenRecord(
            final RestoreGoldenRecords goldenRecord) {
       return dgraphMutations.restoreGoldenRecord(goldenRecord);

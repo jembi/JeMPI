@@ -159,6 +159,11 @@ public final class LibMPI {
       return client.getAgeGroupCount(startDate, endDate);
    }
 
+   public List<String> getAllList(final ApiModels.AllList allListRequest) {
+      client.connect();
+      return client.getAllList(allListRequest);
+   }
+
    public ExpandedGoldenRecord findExpandedGoldenRecord(final String goldenId) {
       client.connect();
       final var results = client.findExpandedGoldenRecords(List.of(goldenId));

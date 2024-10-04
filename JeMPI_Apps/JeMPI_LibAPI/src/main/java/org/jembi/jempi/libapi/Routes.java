@@ -584,6 +584,19 @@ public final class Routes {
                            }));
    }
 
+   private static Route getAllList(
+      final ActorSystem<Void> actorSystem,
+      final ActorRef<BackEnd.Event> backEnd) {
+  return entity(Jackson.unmarshaller(ApiModels.AllList.class),
+          request -> onComplete(Ask.getAllList(actorSystem, backEnd, request),
+                  result -> {
+                      if (!result.isSuccess()) {
+                          return handleError(result.failed().get());
+                      }
+                      return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
+                  }));
+}
+
    private static Route getFieldsConfiguration(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
@@ -697,6 +710,12 @@ public final class Routes {
                                () -> Routes.getNotifications(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_GOLDEN_RECORD,
                                () -> Routes.updateGoldenRecord(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_FIELD_COUNT,
+                               () -> Routes.getFieldCount(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_AGE_GROUP_COUNT,
+                               () -> Routes.getAgeGroupCount(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_ALL_LIST,
+                               () -> Routes.getAllList(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
                                () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_PROXY_POST_CR_UPDATE_FIELDS,
@@ -712,12 +731,9 @@ public final class Routes {
                                () -> Routes.getGidsAll(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_CONFIGURATION,
                                () -> Routes.getConfiguration(actorSystem, backEnd)),
-                          path(GlobalConstants.SEGMENT_GET_FIELD_COUNT,
-                               () -> Routes.getFieldCount(actorSystem, backEnd)),
-                          path(GlobalConstants.SEGMENT_GET_AGE_GROUP_COUNT,
-                               () -> Routes.getAgeGroupCount(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIGURATION,
-                               () -> Routes.getFieldsConfiguration(actorSystem, backEnd)))));
+                               () -> Routes.getFieldsConfiguration(actorSystem, backEnd))
+                          )));
    }
 
 }

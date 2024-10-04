@@ -345,6 +345,18 @@ public final class Ask {
       return stage.thenApply(response -> response);
    }
 
+   static CompletionStage<BackEnd.GetAllListResponse> getAllList(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd,
+           final ApiModels.AllList allList) {
+      final CompletionStage<BackEnd.GetAllListResponse> stage = AskPattern
+              .ask(backEnd,
+                      replyTo -> new BackEnd.GetAllListRequest(replyTo, allList),
+                      java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
+                      actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
    static CompletionStage<BackEnd.GetFieldCountResponse> getFieldCount(
            final ActorSystem<Void> actorSystem,
            final ActorRef<BackEnd.Event> backEnd,

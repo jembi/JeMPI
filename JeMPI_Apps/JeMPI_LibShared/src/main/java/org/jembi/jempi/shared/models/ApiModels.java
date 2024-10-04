@@ -406,14 +406,16 @@ public abstract class ApiModels {
    public record CountFields(
            String fieldName,
            List<String> value,
-           String recordType
+           String recordType,
+           String startDate,
+           String endDate
           ) {
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record SearchAgeCountFields(
-           int startAge,
-           int endAge
+            String startDate,
+            String endDate
           ) {
    }
 
@@ -440,5 +442,9 @@ public abstract class ApiModels {
          String sortBy,
          Boolean sortAsc) {
          }
+
+   public record AllList(String field, String startDate, String endDate) { }
+
+   public record AverageAgeResponse(double averageAge) { }
 
 }
