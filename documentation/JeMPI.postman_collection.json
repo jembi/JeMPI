@@ -47,7 +47,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"fieldName\": \"gender\",\n    \"value\": [\"male\", \"female\"],\n    \"recordType\": \"GoldenRecord\",\n    \"startDate\": \"2024-10-01\",\n    \"endDate\": \"2024-10-04\"\n}",
+					"raw": "{\n    \"fieldName\": \"gender\",\n    \"value\": [\"male\", \"female\"], //Optional you can pass null\n    \"recordType\": \"GoldenRecord\", // Use GoldenRecord or Interaction\n    \"startDate\": \"2024-10-01\", //Optional you can pass null\n    \"endDate\": \"2024-10-04\"  //Optional you can pass null\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -73,7 +73,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"startDate\": \"20231005\",\n    \"endDate\": \"20241001\"\n}",
+					"raw": "{\n    \"startDate\": \"20231005\", //Optional you can pass null\n    \"endDate\": \"20241001\" //Optional you can pass null\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -93,13 +93,13 @@
 			"response": []
 		},
 		{
-			"name": "Average Age",
+			"name": "All List of Field",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"startDate\": \"2024-10-03\",\n    \"endDate\": \"2024-10-05\",\n    \"field\": \"dob\"\n}",
+					"raw": "{\n    \"startDate\": \"2024-10-03\", //Optional you can pass null\n    \"endDate\": \"2024-10-05\", //Optional you can pass null\n    \"field\": \"dob\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
