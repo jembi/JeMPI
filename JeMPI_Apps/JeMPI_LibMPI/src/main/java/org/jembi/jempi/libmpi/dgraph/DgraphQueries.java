@@ -1270,7 +1270,7 @@ final class DgraphQueries {
             }
           }
           """,
-          endDate, startDate);  // Order of %s matches the date range
+          startDate, endDate);  // Order of %s matches the date range
       try {
           LOGGER.info("Query: {}", query);
           return getCount(query);
@@ -1280,31 +1280,32 @@ final class DgraphQueries {
       }
   }
 
-   public static List<String> getAverageAge(final ApiModels.AverageAgeRequest averageAgeRequest) {
+   public static List<String> getAllList(final ApiModels.AllList allListRequest) {
       try {
             // Assume these values come from a request
-         String startDate = averageAgeRequest.startDate();  // Empty means no start date
-         String endDate = averageAgeRequest.endDate();    // Empty means no end date
+         String field = allListRequest.field();
+         String startDate = allListRequest.startDate();  // Empty means no start date
+         String endDate = allListRequest.endDate();    // Empty means no end date
 
          // Build the query dynamically based on date range availability
          String query;
          if (!startDate.isEmpty() && !endDate.isEmpty()) {
             query = String.format("""
                {
-                     peopleInDateRange(func: has(GoldenRecord.dob)) 
-                     @filter(ge(GoldenRecord.dob, "%s") AND le(GoldenRecord.dob, "%s")) {
-                        GoldenRecord.dob
+                     peopleInDateRange(func: has(GoldenRecord.%s)) 
+                     @filter(ge(GoldenRecord.aux_date_created, "%s") AND le(GoldenRecord.aux_date_created, "%s")) {
+                        GoldenRecord.%s
                      }
                }
-            """, startDate, endDate);
+            """, field, startDate, endDate, field);
          } else {
-            query = """
+            query = String.format("""
                {
-                     peopleInDateRange(func: has(GoldenRecord.dob)) {
-                        GoldenRecord.dob
+                     peopleInDateRange(func: has(GoldenRecord.%s)) {
+                        GoldenRecord.%s
                      }
                }
-            """;
+            """, field, field);
          }
          LOGGER.info("Query: {}", query);
          // Assuming `DgraphClient` is set up to make requests

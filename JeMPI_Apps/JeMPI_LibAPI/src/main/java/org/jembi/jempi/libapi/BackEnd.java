@@ -171,7 +171,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                     .onMessage(GetConfigurationRequest.class, this::getConfigurationHandler)
                     .onMessage(GetFieldCountRequest.class, this::getFieldCountHandler)
                     .onMessage(GetAgeGroupCountRequest.class, this::getAgeGroupCountHandler)
-                    .onMessage(GetAverageAgeRequest.class, this::getAverageAgeHandler)
+                    .onMessage(GetAllListRequest.class, this::getAllListHandler)
                     .onMessage(PostConfigurationRequest.class, this::postConfigurationHandler)
                     .onMessage(GetFieldsConfigurationRequest.class, this::getFieldsConfigurationHandler)
                     .build();
@@ -536,16 +536,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private Behavior<Event> getAgeGroupCountHandler(final GetAgeGroupCountRequest request) {
       long getCount = 0;
       try {
-         // Calculate start and end dates based on age range
-         LocalDate today = LocalDate.now();
-
-         // Calculate the date of birth range
-         LocalDate startDate = today.minusYears(request.searchAgeCountFields.startAge());  // Subtract end age
-         LocalDate endDate = (today.minusYears(request.searchAgeCountFields.endAge())).plusDays(1);  // Subtract start age
-         // Format the dates as strings in "YYYYMMDD" format
-         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-         String startDob = startDate.format(formatter);
-         String endDob = endDate.format(formatter);
+         String startDob = request.searchAgeCountFields.startDate();
+         String endDob = request.searchAgeCountFields.endDate();
          LOGGER.info("startDob: {}, endDob: {}", startDob, endDob);
          getCount = libMPI.getAgeGroupCount(startDob, endDob);
          request.replyTo.tell(new GetAgeGroupCountResponse(getCount));
@@ -556,21 +548,21 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> getAverageAgeHandler(final GetAverageAgeRequest request) {
+   private Behavior<Event> getAllListHandler(final GetAllListRequest request) {
       List<String> dobList = new ArrayList<>();
       try {
-         dobList = libMPI.getAverageAge(request.averageAgeRequest);
+         dobList = libMPI.getAllList(request.allListRequest);
          LOGGER.info("dobList size: {}", dobList.size());
-         double averageAge = calculateAverageAge(dobList);
-         request.replyTo.tell(new GetAverageAgeResponse(averageAge));
+         // double allList = calculateAllList(dobList);
+         request.replyTo.tell(new GetAllListResponse(dobList));
       } catch (Exception e) {
          LOGGER.error(e.getLocalizedMessage(), e);
-         LOGGER.error("libMPI.getAverageAge failed for averageAgeRequest: {} with error: {}", request.averageAgeRequest, e.getMessage());
+         LOGGER.error("libMPI.getAllList failed for allListRequest: {} with error: {}", request.allListRequest, e.getMessage());
       }
       return Behaviors.same();
    }
 
-    public static double calculateAverageAge(final List<String> dobList) {
+    public static double calculateAllList(final List<String> dobList) {
         LocalDate today = LocalDate.now();  // Get today's date
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");  // DOB format in YYYYMMDD
         int totalAge = 0;
@@ -703,9 +695,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    public record GetAgeGroupCountResponse(long ageGroupCount) implements EventResponse { }
 
-   public record GetAverageAgeRequest(ActorRef<GetAverageAgeResponse> replyTo, ApiModels.AverageAgeRequest averageAgeRequest) implements Event { }
+   public record GetAllListRequest(ActorRef<GetAllListResponse> replyTo, ApiModels.AllList allListRequest) implements Event { }
 
-   public record GetAverageAgeResponse(double averageAge) implements EventResponse { }
+   public record GetAllListResponse(List<String> allList) implements EventResponse { }
 
    public record GetFieldsConfigurationRequest(ActorRef<GetFieldsConfigurationResponse> replyTo) implements Event { }
 

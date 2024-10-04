@@ -64,7 +64,7 @@ public final class GlobalConstants {
    public static final String SEGMENT_CURRENT_USER = "currentUser";
    public static final String SEGMENT_POST_GOLDEN_RECORD_RESTORE = "restoreGoldenRecord";
    public static final String SEGMENT_GET_AGE_GROUP_COUNT = "getAgeGroupCount";
-   public static final String SEGMENT_GET_AVERAGE_AGE = "getAverageAge";
+   public static final String SEGMENT_GET_ALL_LIST = "getAllList";
    // TIMEOUTS
    public static final int TIMEOUT_DGRAPH_RECONNECT_RETRIES = 5;
    public static final int TIMEOUT_DGRAPH_RECONNECT_SLEEP_SECS = 2;

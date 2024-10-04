@@ -73,7 +73,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"startAge\": \"0\",\n    \"endAge\": \"1\"\n}",
+					"raw": "{\n    \"startDate\": \"20231005\",\n    \"endDate\": \"20241001\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -99,7 +99,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"startDate\": \"20221002\",\n    \"endDate\": \"20241002\"\n}",
+					"raw": "{\n    \"startDate\": \"2024-10-03\",\n    \"endDate\": \"2024-10-05\",\n    \"field\": \"dob\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -107,12 +107,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{LocalApi}}/getAverageAge",
+					"raw": "{{LocalApi}}/getAllList",
 					"host": [
 						"{{LocalApi}}"
 					],
 					"path": [
-						"getAverageAge"
+						"getAllList"
 					]
 				}
 			},

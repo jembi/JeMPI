@@ -584,11 +584,11 @@ public final class Routes {
                            }));
    }
 
-   private static Route getAverageAge(
+   private static Route getAllList(
       final ActorSystem<Void> actorSystem,
       final ActorRef<BackEnd.Event> backEnd) {
-  return entity(Jackson.unmarshaller(ApiModels.AverageAgeRequest.class),
-          request -> onComplete(Ask.getAverageAge(actorSystem, backEnd, request),
+  return entity(Jackson.unmarshaller(ApiModels.AllList.class),
+          request -> onComplete(Ask.getAllList(actorSystem, backEnd, request),
                   result -> {
                       if (!result.isSuccess()) {
                           return handleError(result.failed().get());
@@ -714,8 +714,8 @@ public final class Routes {
                                () -> Routes.getFieldCount(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_AGE_GROUP_COUNT,
                                () -> Routes.getAgeGroupCount(actorSystem, backEnd)),
-                          path(GlobalConstants.SEGMENT_GET_AVERAGE_AGE,
-                               () -> Routes.getAverageAge(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_ALL_LIST,
+                               () -> Routes.getAllList(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
                                () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_PROXY_POST_CR_UPDATE_FIELDS,
