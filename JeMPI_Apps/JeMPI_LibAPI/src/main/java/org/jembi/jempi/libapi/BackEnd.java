@@ -539,7 +539,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          String startDob = request.searchAgeCountFields.startDate();
          String endDob = request.searchAgeCountFields.endDate();
          LOGGER.info("startDob: {}, endDob: {}", startDob, endDob);
-         getCount = libMPI.getAgeGroupCount(startDob, endDob);
+         getCount = libMPI.getAgeGroupCount(request.searchAgeCountFields);
          request.replyTo.tell(new GetAgeGroupCountResponse(getCount));
       } catch (Exception e) {
          LOGGER.error(e.getLocalizedMessage(), e);

@@ -154,9 +154,9 @@ public final class LibMPI {
        return client.getFieldCount(countFields);
    }
 
-   public long getAgeGroupCount(final String startDate, final String endDate) {
+   public long getAgeGroupCount(final ApiModels.SearchAgeCountFields searchAgeCountFields) {
       client.connect();
-      return client.getAgeGroupCount(startDate, endDate);
+      return client.getAgeGroupCount(searchAgeCountFields);
    }
 
    public List<String> getAllList(final ApiModels.AllList allListRequest) {

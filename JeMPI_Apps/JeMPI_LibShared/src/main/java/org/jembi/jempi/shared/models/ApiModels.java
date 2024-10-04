@@ -415,7 +415,8 @@ public abstract class ApiModels {
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record SearchAgeCountFields(
             String startDate,
-            String endDate
+            String endDate,
+            String field
           ) {
    }
 

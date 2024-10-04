@@ -1260,17 +1260,20 @@ final class DgraphQueries {
     * @param endDate The end date of the age range (inclusive)
     * @return A string containing the JSON response with the count
     */
-    public static long getAgeGroupCount(final String startDate, final String endDate) {
+    public static long getAgeGroupCount(final ApiModels.SearchAgeCountFields searchAgeCountFields) {
       // Constructing the query string
+      String field = searchAgeCountFields.field();
+      String startDate = searchAgeCountFields.startDate();  // Empty means no start date
+      String endDate = searchAgeCountFields.endDate();
       String query = String.format(Locale.ROOT,
           """
           {
-            list(func: has(GoldenRecord.dob)) @filter(ge(GoldenRecord.dob, "%s") AND le(GoldenRecord.dob, "%s")) {
+            list(func: has(GoldenRecord.%s)) @filter(ge(GoldenRecord.%s, "%s") AND le(GoldenRecord.%s, "%s")) {
               count(uid)
             }
           }
           """,
-          startDate, endDate);  // Order of %s matches the date range
+          field, field, startDate, field, endDate);  // Order of %s matches the date range
       try {
           LOGGER.info("Query: {}", query);
           return getCount(query);

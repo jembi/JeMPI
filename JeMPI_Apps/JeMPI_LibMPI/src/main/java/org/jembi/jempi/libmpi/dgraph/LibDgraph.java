@@ -83,8 +83,8 @@ public final class LibDgraph implements LibMPIClientInterface {
       return DgraphQueries.getFieldCount(countFields);
    }
 
-   public long getAgeGroupCount(final String startDate, final String endDate) {
-      return DgraphQueries.getAgeGroupCount(startDate, endDate);
+   public long getAgeGroupCount(final ApiModels.SearchAgeCountFields searchAgeCountFields) {
+      return DgraphQueries.getAgeGroupCount(searchAgeCountFields);
    }
 
    public List<String> getAllList(final ApiModels.AllList allList) {

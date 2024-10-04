@@ -57,7 +57,7 @@ public interface LibMPIClientInterface {
 
    String getFieldCount(ApiModels.CountFields countFields);
 
-   long getAgeGroupCount(String startDate, String endDate);
+   long getAgeGroupCount(ApiModels.SearchAgeCountFields searchAgeCountFields);
 
    List<String> getAllList(ApiModels.AllList allListRequest);
 
