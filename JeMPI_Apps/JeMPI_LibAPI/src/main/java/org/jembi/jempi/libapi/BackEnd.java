@@ -553,7 +553,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       try {
          dobList = libMPI.getAllList(request.allListRequest);
          LOGGER.info("dobList size: {}", dobList.size());
-         // double allList = calculateAllList(dobList);
+         // double allList = calculateAvarageAge(dobList);
          request.replyTo.tell(new GetAllListResponse(dobList));
       } catch (Exception e) {
          LOGGER.error(e.getLocalizedMessage(), e);
@@ -562,7 +562,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-    public static double calculateAllList(final List<String> dobList) {
+    public static double calculateAvarageAge(final List<String> dobList) {
         LocalDate today = LocalDate.now();  // Get today's date
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");  // DOB format in YYYYMMDD
         int totalAge = 0;
