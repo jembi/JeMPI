@@ -29,7 +29,11 @@ import java.nio.file.*;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
@@ -165,6 +169,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                     .onMessage(PostUploadCsvFileRequest.class, this::postUploadCsvFileHandler)
                     .onMessage(SQLDashboardDataRequest.class, this::getSqlDashboardDataHandler)
                     .onMessage(GetConfigurationRequest.class, this::getConfigurationHandler)
+                    .onMessage(GetFieldCountRequest.class, this::getFieldCountHandler)
+                    .onMessage(GetAgeGroupCountRequest.class, this::getAgeGroupCountHandler)
+                    .onMessage(GetAllListRequest.class, this::getAllListHandler)
                     .onMessage(PostConfigurationRequest.class, this::postConfigurationHandler)
                     .onMessage(GetFieldsConfigurationRequest.class, this::getFieldsConfigurationHandler)
                     .build();
@@ -514,6 +521,69 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
+   private Behavior<Event> getFieldCountHandler(final GetFieldCountRequest request) {
+      String getCount = null;
+      try {
+         getCount = libMPI.getFieldCount(request.countFields);
+         request.replyTo.tell(new GetFieldCountResponse(getCount));
+      } catch (Exception e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+         LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}", e.getMessage());
+      }
+      return Behaviors.same();
+   }
+
+   private Behavior<Event> getAgeGroupCountHandler(final GetAgeGroupCountRequest request) {
+      long getCount = 0;
+      try {
+         String startDob = request.searchAgeCountFields.startDate();
+         String endDob = request.searchAgeCountFields.endDate();
+         LOGGER.info("startDob: {}, endDob: {}", startDob, endDob);
+         getCount = libMPI.getAgeGroupCount(request.searchAgeCountFields);
+         request.replyTo.tell(new GetAgeGroupCountResponse(getCount));
+      } catch (Exception e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+         LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}", e.getMessage());
+      }
+      return Behaviors.same();
+   }
+
+   private Behavior<Event> getAllListHandler(final GetAllListRequest request) {
+      List<String> dobList = new ArrayList<>();
+      try {
+         dobList = libMPI.getAllList(request.allListRequest);
+         LOGGER.info("dobList size: {}", dobList.size());
+         // double allList = calculateAvarageAge(dobList);
+         request.replyTo.tell(new GetAllListResponse(dobList));
+      } catch (Exception e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+         LOGGER.error("libMPI.getAllList failed for allListRequest: {} with error: {}", request.allListRequest, e.getMessage());
+      }
+      return Behaviors.same();
+   }
+
+    public static double calculateAvarageAge(final List<String> dobList) {
+        LocalDate today = LocalDate.now();  // Get today's date
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");  // DOB format in YYYYMMDD
+        int totalAge = 0;
+        int count = 0;
+        // Iterate through the list of DOBs and calculate the age for each
+        for (String dob : dobList) {
+            if (!dob.isEmpty()) {
+               try {
+                LocalDate birthDate = LocalDate.parse(dob, formatter);  // Try to convert DOB to LocalDate
+                int age = Period.between(birthDate, today).getYears();  // Calculate age in years
+                totalAge += age;
+                count++;
+               } catch (DateTimeParseException e) {
+                  LOGGER.error("Invalid date format for dob: " + dob + ". Skipping this record.");
+               }
+            }
+        }
+        // Calculate and return average age
+        return count > 0 ? (double) totalAge / count : 0;
+    }
+
    private Behavior<Event> getFieldsConfigurationHandler(final GetFieldsConfigurationRequest request) {
       final var separator = FileSystems.getDefault().getSeparator();
       final String configDir = System.getenv("SYSTEM_CONFIG_DIRS");
@@ -616,6 +686,18 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record GetConfigurationRequest(ActorRef<GetConfigurationResponse> replyTo) implements Event { }
 
    public record GetConfigurationResponse(Configuration configuration) implements EventResponse { }
+
+   public record GetFieldCountRequest(ActorRef<GetFieldCountResponse> replyTo, ApiModels.CountFields countFields) implements Event { }
+
+   public record GetFieldCountResponse(String genderCount) implements EventResponse { }
+
+   public record GetAgeGroupCountRequest(ActorRef<GetAgeGroupCountResponse> replyTo, ApiModels.SearchAgeCountFields searchAgeCountFields) implements Event { }
+
+   public record GetAgeGroupCountResponse(long ageGroupCount) implements EventResponse { }
+
+   public record GetAllListRequest(ActorRef<GetAllListResponse> replyTo, ApiModels.AllList allListRequest) implements Event { }
+
+   public record GetAllListResponse(List<String> records) implements EventResponse { }
 
    public record GetFieldsConfigurationRequest(ActorRef<GetFieldsConfigurationResponse> replyTo) implements Event { }
 

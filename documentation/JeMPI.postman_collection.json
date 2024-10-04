@@ -1,32 +1,15 @@
 {
 	"info": {
-		"_postman_id": "6fd7ff41-f8f9-442d-83d1-d3e0e186140b",
+		"_postman_id": "9fc3ba02-f957-49e9-8d92-1cc2ca1f07e1",
 		"name": "JeMPI",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "12338305"
 	},
 	"item": [
 		{
-			"name": "Count Interactions",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": "{{LocalApi}}/countInteractions",
-					"host": [
-						"{{LocalApi}}"
-					],
-					"path": [
-						"countInteractions"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Count Golden Records",
 			"request": {
-				"method": "POST",
+				"method": "GET",
 				"header": [],
 				"url": {
 					"raw": "{{LocalApi}}/countGoldenRecords",
@@ -41,9 +24,105 @@
 			"response": []
 		},
 		{
-			"name": "Count Records",
+			"name": "Count Interactions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{LocalApi}}/countInteractions",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"countInteractions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "genderCount",
 			"request": {
 				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"fieldName\": \"gender\",\n    \"value\": [\"male\", \"female\"], //Optional you can pass null\n    \"recordType\": \"GoldenRecord\", // Use GoldenRecord or Interaction\n    \"startDate\": \"2024-10-01\", //Optional you can pass null\n    \"endDate\": \"2024-10-04\"  //Optional you can pass null\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{LocalApi}}/getFieldCount",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"getFieldCount"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get Age Group Count",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"startDate\": \"10001005\", \n    \"endDate\": \"20241001\",\n    \"field\": \"dob\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{LocalApi}}/getAgeGroupCount",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"getAgeGroupCount"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All Data List of Field",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"startDate\": \"2024-10-03\", //Optional you can pass null\n    \"endDate\": \"2024-10-05\", //Optional you can pass null\n    \"field\": \"dob\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{LocalApi}}/getDataList",
+					"host": [
+						"{{LocalApi}}"
+					],
+					"path": [
+						"getDataList"
+					]
+				},
+				"description": "### Get All List\n\nThis endpoint allows you to retrieve a list based on specified criteria.\n\n#### Request Body\n\n- `startDate` (optional string): The start date for filtering the list. You can pass null if not required.\n- `endDate` (optional string): The end date for filtering the list. You can pass null if not required.\n- `field` (string): The field based on which the list will be filtered.\n    \n\n#### Response\n\n- Status: 200\n- Content-Type: application/json\n- `allList` (array of strings): The list of items retrieved based on the specified criteria."
+			},
+			"response": []
+		},
+		{
+			"name": "Count Records",
+			"request": {
+				"method": "GET",
 				"header": [],
 				"url": {
 					"raw": "{{LocalApi}}/countRecords",
@@ -60,7 +139,7 @@
 		{
 			"name": "Get Golden Ids All",
 			"request": {
-				"method": "POST",
+				"method": "GET",
 				"header": [],
 				"url": {
 					"raw": "{{LocalApi}}/gidsAll",
@@ -133,7 +212,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"gid\":\"0x2b20\"\n}",
+					"raw": "{\n    \"gid\": \"0x272e\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -159,7 +238,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"uidList\": [\n        \"0x4d03\",\n        \"0x3a07\",\n        \"0x2b20\"\n    ]\n}",
+					"raw": "{\n    \"uidList\": [\n        \"0x272e\"\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -205,13 +284,120 @@
 			"response": []
 		},
 		{
+			"name": "Get Golden Ids All BackupRestore",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:50010/JeMPI/gidsAll",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "50010",
+					"path": [
+						"JeMPI",
+						"gidsAll"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Expanded Golden Record Backup-Restore",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"gid\": \"0x41\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:50010/JeMPI/expandedGoldenRecord",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "50010",
+					"path": [
+						"JeMPI",
+						"expandedGoldenRecord"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Expanded Golden Records Using UidList Backup-Restore'",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"uidList\": [\n        \"0x940\",\n        \"0x5\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:50010/JeMPI/expandedGoldenRecords",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "50010",
+					"path": [
+						"JeMPI",
+						"expandedGoldenRecords"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Restore Golden Record Backup-Restore",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"goldenRecord\": {\n            \"uid\": \"0x4e28\",\n            \"sourceId\": [\n                {\n                    \"uid\": \"0x4e26\",\n                    \"facility\": \"Church & Dwight Co., Inc.\",\n                    \"patient\": \"672861\"\n                },\n                {\n                    \"uid\": \"0x4e29\",\n                    \"facility\": \"Jubilant HollisterStier LLC\",\n                    \"patient\": \"672861\"\n                },\n                {\n                    \"uid\": \"0x4e2b\",\n                    \"facility\": \"REMEDYREPACK INC.\",\n                    \"patient\": \"672861\"\n                },\n                {\n                    \"uid\": \"0x4e2d\",\n                    \"facility\": \"Amerisource Bergen\",\n                    \"patient\": \"672861\"\n                },\n                {\n                    \"uid\": \"0x4e2f\",\n                    \"facility\": \"GREENBRIER INTERNATIONAL\",\n                    \"patient\": \"672861\"\n                },\n                {\n                    \"uid\": \"0x4e31\",\n                    \"facility\": \"Sandoz Inc\",\n                    \"patient\": \"672861\"\n                }\n            ],\n            \"uniqueGoldenRecordData\": {\n                \"auxDateCreated\": \"2016-10-30T14:22:25.00Z\",\n                \"auxAutoUpdateEnabled\": true,\n                \"auxId\": \"672861\",\n                \"auxGid\": \"1\"\n            },\n            \"demographicData\": {\n                \"givenName\": \"felekech\",\n                \"familyName\": \"eyob\",\n                \"gender\": \"male\",\n                \"dob\": \"19791014\",\n                \"city\": \"granica\",\n                \"phoneNumber\": \"0582212007\",\n                \"nationalId\": \"19791014\"\n            }\n        },\n        \"interactionsWithScore\": [\n            {\n                \"interaction\": {\n                    \"uid\": \"0x4e27\",\n                    \"sourceId\": {\n                        \"uid\": \"0x4e26\",\n                        \"facility\": \"Church & Dwight Co., Inc.\",\n                        \"patient\": \"672861\"\n                    },\n                    \"uniqueInteractionData\": {\n                        \"auxDateCreated\": \"2016-10-30T14:22:25.00Z\",\n                        \"auxId\": \"672861\",\n                        \"auxClinicalData\": \"672861\",\n                        \"auxIid\": \"1\"\n                    },\n                    \"demographicData\": {\n                        \"givenName\": \"felekech\",\n                        \"familyName\": \"eyob\",\n                        \"gender\": \"male\",\n                        \"dob\": \"19791014\",\n                        \"city\": \"granica\",\n                        \"phoneNumber\": \"0582212007\",\n                        \"nationalId\": \"19791014\"\n                    }\n                },\n                \"score\": 1.0\n            },\n            {\n                \"interaction\": {\n                    \"uid\": \"0x4e2a\",\n                    \"sourceId\": {\n                        \"uid\": \"0x4e29\",\n                        \"facility\": \"Jubilant HollisterStier LLC\",\n                        \"patient\": \"672861\"\n                    },\n                    \"uniqueInteractionData\": {\n                        \"auxDateCreated\": \"2016-10-30T14:22:25.00Z\",\n                        \"auxId\": \"672861\",\n                        \"auxClinicalData\": \"672861\",\n                        \"auxIid\": \"2\"\n                    },\n                    \"demographicData\": {\n                        \"givenName\": \"felekecb\",\n                        \"familyName\": \"eyob\",\n                        \"gender\": \"male\",\n                        \"dob\": \"19791014\",\n                        \"city\": \"tangu\",\n                        \"phoneNumber\": \"0582213007\",\n                        \"nationalId\": \"19791014\"\n                    }\n                },\n                \"score\": 1.0\n            },\n            {\n                \"interaction\": {\n                    \"uid\": \"0x4e2c\",\n                    \"sourceId\": {\n                        \"uid\": \"0x4e2b\",\n                        \"facility\": \"REMEDYREPACK INC.\",\n                        \"patient\": \"672861\"\n                    },\n                    \"uniqueInteractionData\": {\n                        \"auxDateCreated\": \"2016-10-30T14:22:25.00Z\",\n                        \"auxId\": \"672861\",\n                        \"auxClinicalData\": \"672861\",\n                        \"auxIid\": \"3\"\n                    },\n                    \"demographicData\": {\n                        \"givenName\": \"felekech\",\n                        \"familyName\": \"eyob\",\n                        \"gender\": \"male\",\n                        \"dob\": \"19791014\",\n                        \"city\": \"niebocko\",\n                        \"phoneNumber\": \"0582212007\",\n                        \"nationalId\": \"19791014\"\n                    }\n                },\n                \"score\": 1.0\n            },\n            {\n                \"interaction\": {\n                    \"uid\": \"0x4e2e\",\n                    \"sourceId\": {\n                        \"uid\": \"0x4e2d\",\n                        \"facility\": \"Amerisource Bergen\",\n                        \"patient\": \"672861\"\n                    },\n                    \"uniqueInteractionData\": {\n                        \"auxDateCreated\": \"2016-10-30T14:22:25.00Z\",\n                        \"auxId\": \"672861\",\n                        \"auxClinicalData\": \"672861\",\n                        \"auxIid\": \"4\"\n                    },\n                    \"demographicData\": {\n                        \"givenName\": \"felekech\",\n                        \"familyName\": \"eyob\",\n                        \"gender\": \"male\",\n                        \"dob\": \"19791014\",\n                        \"city\": \"palca\",\n                        \"phoneNumber\": \"0582212007\",\n                        \"nationalId\": \"19791014\"\n                    }\n                },\n                \"score\": 1.0\n            },\n            {\n                \"interaction\": {\n                    \"uid\": \"0x4e30\",\n                    \"sourceId\": {\n                        \"uid\": \"0x4e2f\",\n                        \"facility\": \"GREENBRIER INTERNATIONAL\",\n                        \"patient\": \"672861\"\n                    },\n                    \"uniqueInteractionData\": {\n                        \"auxDateCreated\": \"2016-10-30T14:22:25.00Z\",\n                        \"auxId\": \"672861\",\n                        \"auxClinicalData\": \"672861\",\n                        \"auxIid\": \"5\"\n                    },\n                    \"demographicData\": {\n                        \"givenName\": \"felekech\",\n                        \"familyName\": \"eyob\",\n                        \"gender\": \"female\",\n                        \"dob\": \"19791014\",\n                        \"city\": \"cinunjang\",\n                        \"phoneNumber\": \"0582212007\",\n                        \"nationalId\": \"19791014\"\n                    }\n                },\n                \"score\": 1.0\n            },\n            {\n                \"interaction\": {\n                    \"uid\": \"0x4e32\",\n                    \"sourceId\": {\n                        \"uid\": \"0x4e31\",\n                        \"facility\": \"Sandoz Inc\",\n                        \"patient\": \"672861\"\n                    },\n                    \"uniqueInteractionData\": {\n                        \"auxDateCreated\": \"2016-10-30T14:22:25.00Z\",\n                        \"auxId\": \"672861\",\n                        \"auxClinicalData\": \"672861\",\n                        \"auxIid\": \"6\"\n                    },\n                    \"demographicData\": {\n                        \"givenName\": \"felekech\",\n                        \"familyName\": \"eyob\",\n                        \"gender\": \"female\",\n                        \"dob\": \"19791014\",\n                        \"city\": \"maceo\",\n                        \"phoneNumber\": \"0582212007\",\n                        \"nationalId\": \"19791014\"\n                    }\n                },\n                \"score\": 1.0\n            }\n        ]\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:50010/JeMPI/restoreGoldenRecord",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "50010",
+					"path": [
+						"JeMPI",
+						"restoreGoldenRecord"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get Expanded Interaction Records Using CSV Copy",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"uidList\": [\n        \"0x2b1f\"\n    ]\n}",
+					"raw": "{\n    \"uidList\": [\n        \"0x272e\"\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -237,7 +423,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"gid\":\"0x2b20\"\n}",
+					"raw": "{\n    \"gid\":\"0x272e\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -661,7 +847,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"goldenId\": \"0x2aee\",\n  \"fields\": [\n    {\n      \"name\": \"givenName\",\n      \"value\": \"Shankar\"\n    },\n    {\n      \"name\": \"familyName\",\n      \"value\": \"S\"\n    }\n  ]\n}",
+					"raw": "{\n  \"goldenId\": \"0x568a\",\n  \"fields\": [\n    {\n      \"name\": \"facility\",\n      \"value\": \"FA3\"\n    }\n  ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -718,6 +904,35 @@
 					],
 					"path": [
 						"dashboardData"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Increase Lease",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:6080/assign?what=uids&num=50000000000000",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6080",
+					"path": [
+						"assign"
+					],
+					"query": [
+						{
+							"key": "what",
+							"value": "uids"
+						},
+						{
+							"key": "num",
+							"value": "50000000000000"
+						}
 					]
 				}
 			},
