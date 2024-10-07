@@ -31,7 +31,8 @@ export const options = [
   { value: 0, label: 'Exact' },
   { value: 1, label: 'Low Fuzziness' },
   { value: 2, label: 'Medium Fuzziness' },
-  { value: 3, label: 'High Fuzziness' }
+  { value: 3, label: 'High Fuzziness' },
+  { value: 4, label: 'Null' }
 ]
 
 export enum Operator {
@@ -125,20 +126,29 @@ const DeterministicContent = ({
     if (row.rowIndex !== undefined) {
       setEditedRowIndex(row.rowIndex)
     }
-
-    const regex = /(eq|match)\(([^),]+)(?:, (\d+))?\)/g
+    const regex = /(eq|match|null)\(([^),]+)(?:, (\d+))?\)/g
     const matchedFields: string[] = []
     const matchedComparators: number[] = []
     let match
 
     while ((match = regex.exec(row.ruleText)) !== null) {
       matchedFields.push(match[2])
-      matchedComparators.push(match[1] === 'eq' ? 0 : parseInt(match[3], 10))
+
+      if (match[1] === 'eq') {
+        matchedComparators.push(0)
+      } else if (match[1] === 'match') {
+        matchedComparators.push(parseInt(match[3], 10))
+      } else if (match[1] === 'null') {
+        matchedComparators.push(4)
+      }
     }
 
     setComparators(matchedComparators)
     setFields(matchedFields)
-    setOperators(new Array(matchedFields.length - 1).fill(Operator.AND))
+
+    const operatorsLength = Math.max(matchedFields.length - 1, 0)
+    setOperators(new Array(operatorsLength).fill(Operator.AND))
+
     setViewType(1)
   }
 
@@ -163,12 +173,20 @@ const DeterministicContent = ({
         const operator =
           index > 0 ? ` ${operators[index - 1].toLowerCase()} ` : ''
         const comparator = comparators[index]
-        const comparatorFunction =
-          comparator === 0 ? `eq(${field})` : `match(${field},${comparator})`
+        let comparatorFunction
+
+        if (comparator === 4) {
+          comparatorFunction = `null(${field})`
+        } else {
+          comparatorFunction =
+            comparator === 0 ? `eq(${field})` : `match(${field},${comparator})`
+        }
+
         return `${operator}${comparatorFunction}`
       })
       .join('')
 
+    console.log('rule', vars, text)
     const rule: Rule = { vars, text }
 
     handleUpdateConfiguration(rule)
@@ -228,37 +246,40 @@ const DeterministicContent = ({
 
   const handleDeleteRow = (index: number) => {
     const updateArray = (arr: any[], idx: number) => {
-      const newArr = [...arr];
-      newArr.splice(idx, 1);
-      return newArr;
-    };
-  
-    setComparators(updateArray(comparators, index));
-    setFields(updateArray(fields, index));
-    if (index > 0) {
-      setOperators(updateArray(operators, index - 1));
+      const newArr = [...arr]
+      newArr.splice(idx, 1)
+      return newArr
     }
-  
-    const updatedConfiguration = { ...configuration };
+
+    setComparators(updateArray(comparators, index))
+    setFields(updateArray(fields, index))
+    if (index > 0) {
+      setOperators(updateArray(operators, index - 1))
+    }
+
+    const updatedConfiguration = { ...configuration }
     const ruleType =
       currentTab === 'link'
         ? 'link'
         : currentTab === 'validate'
         ? 'validate'
-        : 'matchNotification';
-  
+        : 'matchNotification'
+
     if (fields.length === 0) {
-      const newRules = updateArray(rules, index);
-      setRules(newRules);
-  
+      const newRules = updateArray(rules, index)
+      setRules(newRules)
+
       if (updatedConfiguration.rules?.[ruleType]) {
-        updatedConfiguration.rules[ruleType].deterministic.splice(index, 1);
+        updatedConfiguration.rules[ruleType].deterministic.splice(index, 1)
       }
-  
-      setConfiguration(updatedConfiguration as Configuration);
-      localStorage.setItem('configuration', JSON.stringify(updatedConfiguration));
+
+      setConfiguration(updatedConfiguration as Configuration)
+      localStorage.setItem(
+        'configuration',
+        JSON.stringify(updatedConfiguration)
+      )
     }
-  };
+  }
   return (
     <Box>
       <Box
