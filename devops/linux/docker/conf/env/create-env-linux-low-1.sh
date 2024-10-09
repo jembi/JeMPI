@@ -32,6 +32,7 @@ export POSTGRESQL_USERS_DB="users_db"
 export POSTGRESQL_NOTIFICATIONS_DB="notifications_db"
 export POSTGRESQL_AUDIT_DB="audit_db"
 export POSTGRESQL_KC_TEST_DB="kc_test_db"
+export POSTGRESQL_CONFIGURATION_DB="configuration_db"
 
 export KAFKA_SERVERS="kafka-01:9092"
 export DGRAPH_HOSTS="alpha-01"
