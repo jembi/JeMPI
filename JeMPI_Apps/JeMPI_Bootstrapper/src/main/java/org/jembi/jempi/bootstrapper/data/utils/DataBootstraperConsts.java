@@ -6,4 +6,5 @@ public class DataBootstraperConsts {
    public static final String POSTGRES_INIT_SCHEMA_AUDIT_DB = "/data/postgres/audit-schema.sql";
    public static final String POSTGRES_INIT_SCHEMA_NOTIFICATION_DB = "/data/postgres/notifications-schema.sql";
    public static final String POSTGRES_INIT_SCHEMA_USERS_DB = "/data/postgres/users-schema.sql";
+   public static final String POSTGRES_INIT_SCHEMA_CONFIGURATION_DB = "/data/postgres/configuration-schema.sql";
 }

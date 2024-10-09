@@ -41,6 +41,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private final String pgAuditDb;
    private final PsqlNotifications psqlNotifications;
    private final PsqlAuditTrail psqlAuditTrail;
+   private final String pgConfigurationDb;
    private final String systemConfigDirectory;
    private final String configReferenceFileName;
    private final String configMasterFileName;
@@ -60,6 +61,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String sqlPassword,
          final String sqlNotificationsDb,
          final String sqlAuditDb,
+         final String sqlConfigurationDb,
          final String kafkaBootstrapServers,
          final String kafkaClientId,
          final String systemConfigDirectory,
@@ -77,6 +79,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          this.pgPassword = sqlPassword;
          this.pgNotificationsDb = sqlNotificationsDb;
          this.pgAuditDb = sqlAuditDb;
+         this.pgConfigurationDb = sqlConfigurationDb;
          this.systemConfigDirectory = systemConfigDirectory;
          this.configReferenceFileName = configReferenceFileName;
          this.configMasterFileName = configMasterFileName;
@@ -101,6 +104,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String sqlPassword,
          final String sqlNotificationsDb,
          final String sqlAuditDb,
+         final String sqlConfigurationDb,
          final String kafkaBootstrapServers,
          final String kafkaClientId,
          final String systemConfigDirectory,
@@ -117,6 +121,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                     sqlPassword,
                                                     sqlNotificationsDb,
                                                     sqlAuditDb,
+                                                    sqlConfigurationDb,
                                                     kafkaBootstrapServers,
                                                     kafkaClientId,
                                                     systemConfigDirectory,

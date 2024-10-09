@@ -31,9 +31,14 @@ pushd .
       docker exec -e PGPASSWORD=${POSTGRESQL_PASSWORD} $(docker ps -q -f name=${STACK_NAME}_postgres) psql -U ${POSTGRESQL_USERNAME} -d ${POSTGRESQL_DATABASE} -c "CREATE DATABASE ${POSTGRESQL_USERS_DB}"
   fi
 
+  EXISTING_CONFIGURATION_DB=$(docker exec -e PGPASSWORD=${POSTGRESQL_PASSWORD} $(docker ps -q -f name=${STACK_NAME}_postgres) psql -U ${POSTGRESQL_USERNAME} -d ${POSTGRESQL_DATABASE} -tAc "SELECT 1 FROM pg_database WHERE datname='${POSTGRESQL_CONFIGURATION_DB}'")
+  if [ -z "$EXISTING_CONFIGURATION_DB" ]; then
+      docker exec -e PGPASSWORD=${POSTGRESQL_PASSWORD} $(docker ps -q -f name=${STACK_NAME}_postgres) psql -U ${POSTGRESQL_USERNAME} -d ${POSTGRESQL_DATABASE} -c "CREATE DATABASE ${POSTGRESQL_CONFIGURATION_DB}"
+  fi
 
 
   docker exec -e PGPASSWORD=${POSTGRESQL_PASSWORD} $(docker ps -q -f name=${STACK_NAME}_postgresql) psql -U ${POSTGRESQL_USERNAME} -d ${POSTGRESQL_USERS_DB}         -a -f /conf/config-users.sql
   docker exec -e PGPASSWORD=${POSTGRESQL_PASSWORD} $(docker ps -q -f name=${STACK_NAME}_postgresql) psql -U ${POSTGRESQL_USERNAME} -d ${POSTGRESQL_NOTIFICATIONS_DB} -a -f /conf/config-notifications.sql
   docker exec -e PGPASSWORD=${POSTGRESQL_PASSWORD} $(docker ps -q -f name=${STACK_NAME}_postgresql) psql -U ${POSTGRESQL_USERNAME} -d ${POSTGRESQL_AUDIT_DB}         -a -f /conf/config-audit.sql
+  docker exec -e PGPASSWORD=${POSTGRESQL_PASSWORD} $(docker ps -q -f name=${STACK_NAME}_postgresql) psql -U ${POSTGRESQL_USERNAME} -d ${POSTGRESQL_CONFIGURATION_DB} -a -f /conf/config-configuration.sql
 popd

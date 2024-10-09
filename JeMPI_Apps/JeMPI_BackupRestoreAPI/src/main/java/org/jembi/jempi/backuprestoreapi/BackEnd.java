@@ -24,6 +24,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private final String pgPassword;
    private final String pgNotificationsDb;
    private final String pgAuditDb;
+   private final String pgConfigurationDb;
    private final PsqlNotifications psqlNotifications;
    private LibMPI libMPI = null;
    private String[] dgraphHosts = null;
@@ -40,6 +41,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String sqlPassword,
          final String sqlNotificationsDb,
          final String sqlAuditDb,
+         final String sqlConfigurationDb,
          final String kafkaBootstrapServers,
          final String kafkaClientId) {
       super(context);
@@ -53,6 +55,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          this.pgPassword = sqlPassword;
          this.pgNotificationsDb = sqlNotificationsDb;
          this.pgAuditDb = sqlAuditDb;
+         this.pgConfigurationDb = sqlConfigurationDb;
          psqlNotifications = new PsqlNotifications(sqlIP, sqlPort, sqlNotificationsDb, sqlUser, sqlPassword);
          openMPI(kafkaBootstrapServers, kafkaClientId, debugLevel);
       } catch (Exception e) {
@@ -72,6 +75,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          final String sqlPassword,
          final String sqlNotificationsDb,
          final String sqlAuditDb,
+         final String sqlConfigurationDb,
          final String kafkaBootstrapServers,
          final String kafkaClientId) {
       return Behaviors.setup(context -> new BackEnd(level,
@@ -84,6 +88,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
                                                     sqlPassword,
                                                     sqlNotificationsDb,
                                                     sqlAuditDb,
+                                                    sqlConfigurationDb,
                                                     kafkaBootstrapServers,
                                                     kafkaClientId));
    }

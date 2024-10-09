@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS configuration (
+    id SERIAL PRIMARY KEY,
+    key VARCHAR(255) NOT NULL,
+    json JSON NOT NULL,
+    dateCreated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    dateUpdated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create an index on the key column for faster lookups
+CREATE INDEX IF NOT EXISTS idx_configuration_key ON configuration(key);
+
+\dt;
