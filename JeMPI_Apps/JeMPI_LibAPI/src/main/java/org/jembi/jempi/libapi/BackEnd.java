@@ -91,7 +91,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          psqlAuditTrail = new PsqlAuditTrail(sqlIP, sqlPort, sqlAuditDb, sqlUser, sqlPassword);
          openMPI(kafkaBootstrapServers, kafkaClientId, debugLevel);
          psqlClient = new PsqlClient(sqlIP, sqlPort, sqlConfigurationDb, sqlUser, sqlPassword);
-         this.postgresClientDao = new PostgresClientDaoImpl(sqlIP, sqlPort, sqlConfigurationDb, sqlUser, sqlPassword);
+         this.postgresClientDao = PostgresClientDaoImpl.create(sqlIP, sqlPort, sqlConfigurationDb, sqlUser, sqlPassword);
       } catch (Exception e) {
          LOGGER.error(e.getMessage(), e);
          throw e;
@@ -505,10 +505,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> getConfigurationHandler(final GetConfigurationRequest request) {
       try {
-         postgresClientDao.connect();
          Configuration configuration = postgresClientDao.getConfiguration();
          request.replyTo.tell(new GetConfigurationResponse(configuration));
-      } catch (SQLException e) {
+      } catch (Exception e) {
          LOGGER.error("getConfigurationHandler failed with error: {}", e.getMessage());
       }
       return Behaviors.same();
@@ -516,10 +515,9 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> getFieldsConfigurationHandler(final GetFieldsConfigurationRequest request) {
       try {
-         postgresClientDao.connect();
          List<FieldsConfiguration.Field> fields = postgresClientDao.getFieldsConfiguration();
          request.replyTo.tell(new GetFieldsConfigurationResponse(fields));
-      } catch (SQLException e) {
+      } catch (Exception e) {
          LOGGER.error("getFieldsConfigurationHandler failed with error: {}", e.getMessage());
       }
       return Behaviors.same();
@@ -527,17 +525,10 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> postConfigurationHandler(final PostConfigurationRequest request) {
       try {
-         postgresClientDao.connect();
          postgresClientDao.saveConfiguration(request.configuration);
          request.replyTo.tell(new PostConfigurationResponse("ok"));
-      } catch (SQLException e) {
+      } catch (Exception e) {
          LOGGER.error("postConfigurationHandler failed with error: {}", e.getMessage());
-      } finally {
-         try {
-            postgresClientDao.disconnect();
-         } catch (SQLException e) {
-            LOGGER.error("Error disconnecting from database: {}", e.getMessage());
-         }
       }
       return Behaviors.same();
    }
@@ -728,4 +719,3 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record PostUploadCsvFileResponse() implements EventResponse { }
 
 }
-

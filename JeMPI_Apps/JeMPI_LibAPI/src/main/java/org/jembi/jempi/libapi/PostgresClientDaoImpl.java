@@ -1,6 +1,5 @@
 package org.jembi.jempi.libapi;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,7 +14,7 @@ import java.util.List;
  * Implementation of PostgresClientDao interface for interacting with a PostgreSQL database.
  * This class can be extended to provide custom behavior for database operations.
  */
-public class PostgresClientDaoImpl implements PostgresClientDao {
+public final class PostgresClientDaoImpl implements PostgresClientDao {
     private static final Logger LOGGER = LogManager.getLogger(PostgresClientDaoImpl.class);
     private final PsqlClient psqlClient;
 
@@ -28,7 +27,7 @@ public class PostgresClientDaoImpl implements PostgresClientDao {
      * @param pgUser     The username for database authentication
      * @param pgPassword The password for database authentication
      */
-    public PostgresClientDaoImpl(
+    private PostgresClientDaoImpl(
             final String pgIP,
             final int pgPort,
             final String pgDatabase,
@@ -38,13 +37,36 @@ public class PostgresClientDaoImpl implements PostgresClientDao {
     }
 
     /**
+     * Creates a new instance of PostgresClientDaoImpl with the given database connection parameters.
+     *
+     * @param ip       The IP address of the PostgreSQL server
+     * @param port     The port number of the PostgreSQL server
+     * @param db       The name of the database to connect to
+     * @param user     The username for database authentication
+     * @param password The password for database authentication
+     */
+    public static PostgresClientDaoImpl create(
+            final String ip,
+            final int port,
+            final String db,
+            final String user,
+            final String password) {
+        return new PostgresClientDaoImpl(
+            ip,
+            port,
+            db,
+            user,
+            password);
+    }
+
+    /**
      * Establishes a connection to the PostgreSQL database.
      * This method can be overridden to provide custom connection logic.
      *
      * @throws SQLException if a database access error occurs
      */
     @Override
-    public void connect() throws SQLException {
+    public void connect() {
         LOGGER.info("Connecting to PostgreSQL database");
         psqlClient.connect();
         LOGGER.info("Successfully connected to PostgreSQL database");
@@ -57,7 +79,7 @@ public class PostgresClientDaoImpl implements PostgresClientDao {
      * @throws SQLException if a database access error occurs
      */
     @Override
-    public void disconnect() throws SQLException {
+    public void disconnect()  {
         LOGGER.info("Disconnecting from PostgreSQL database");
         psqlClient.disconnect();
         LOGGER.info("Successfully disconnected from PostgreSQL database");
@@ -71,7 +93,8 @@ public class PostgresClientDaoImpl implements PostgresClientDao {
      * @throws SQLException if a database access error occurs or the retrieved JSON is invalid
      */
     @Override
-    public Configuration getConfiguration() throws SQLException {
+    public Configuration getConfiguration() {
+        this.connect();
         LOGGER.info("Retrieving configuration from database");
         String sql = "SELECT json FROM CONFIGURATION WHERE key = 'config' ORDER BY id DESC LIMIT 1";
         try (PreparedStatement preparedStatement = psqlClient.prepareStatement(sql);
@@ -87,9 +110,11 @@ public class PostgresClientDaoImpl implements PostgresClientDao {
                 LOGGER.info("No configuration found in the database");
                 return null;
             }
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Error parsing configuration JSON: {}", e.getMessage());
-        }
+        } catch (Exception e) {
+            LOGGER.error(e);
+         }
+         this.disconnect();
+         return null;
     }
 
     /**
@@ -100,7 +125,8 @@ public class PostgresClientDaoImpl implements PostgresClientDao {
      * @throws SQLException if a database access error occurs or the retrieved JSON is invalid
      */
     @Override
-    public List<FieldsConfiguration.Field> getFieldsConfiguration() throws SQLException {
+    public List<FieldsConfiguration.Field> getFieldsConfiguration() {
+        this.connect();
         LOGGER.info("Retrieving fields configuration from database");
         String sql = "SELECT json FROM CONFIGURATION WHERE key = 'config-api' ORDER BY id DESC LIMIT 1";
         try (PreparedStatement preparedStatement = psqlClient.prepareStatement(sql);
@@ -119,9 +145,11 @@ public class PostgresClientDaoImpl implements PostgresClientDao {
                 LOGGER.info("No fields configuration found in the database");
                 return null;
             }
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Error parsing fields configuration JSON: {}", e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error(e);
         }
+        this.disconnect();
+        return null;
     }
 
     /**
@@ -132,8 +160,9 @@ public class PostgresClientDaoImpl implements PostgresClientDao {
      * @throws SQLException if a database access error occurs or the configuration cannot be converted to JSON
      */
     @Override
-    public void saveConfiguration(final Configuration configuration) throws SQLException {
+    public void saveConfiguration(final Configuration configuration) {
         LOGGER.info("Saving configuration to database");
+        this.connect();
         String sql = "INSERT INTO CONFIGURATION (key, json) VALUES (?, ?::json)";
         try (PreparedStatement preparedStatement = psqlClient.prepareStatement(sql)) {
             String jsonConfig = AppUtils.OBJECT_MAPPER.writeValueAsString(configuration);
@@ -141,10 +170,9 @@ public class PostgresClientDaoImpl implements PostgresClientDao {
             preparedStatement.setString(2, jsonConfig);
             int rowsAffected = preparedStatement.executeUpdate();
             LOGGER.info("Successfully saved configuration to database. Rows affected: {}", rowsAffected);
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Error converting configuration to JSON: {}", e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error(e);
         }
+        this.disconnect();
     }
 }
-
-
