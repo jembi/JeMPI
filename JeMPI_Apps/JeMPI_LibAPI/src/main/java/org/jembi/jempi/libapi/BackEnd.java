@@ -4,9 +4,6 @@ import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
 import akka.http.javadsl.server.directives.FileInfo;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vavr.control.Either;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -26,14 +23,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+
 
 public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
@@ -55,6 +50,8 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    private LibMPI libMPI = null;
    private String[] dgraphHosts = null;
    private int[] dgraphPorts = null;
+
+   private final PostgresClientDao postgresClientDao;
 
    private BackEnd(
          final Level debugLevel,
@@ -94,6 +91,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          psqlAuditTrail = new PsqlAuditTrail(sqlIP, sqlPort, sqlAuditDb, sqlUser, sqlPassword);
          openMPI(kafkaBootstrapServers, kafkaClientId, debugLevel);
          psqlClient = new PsqlClient(sqlIP, sqlPort, sqlConfigurationDb, sqlUser, sqlPassword);
+         this.postgresClientDao = new PostgresClientDaoImpl(sqlIP, sqlPort, sqlConfigurationDb, sqlUser, sqlPassword);
       } catch (Exception e) {
          LOGGER.error(e.getMessage(), e);
          throw e;
@@ -505,131 +503,42 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       return Behaviors.same();
    }
 
-   private Behavior<Event> getConfigurationHandlers(final GetConfigurationRequest request) {
-      Path configMasterJsonFilePath = Paths.get(systemConfigDirectory, configMasterFileName);
-      Path configReferenceJsonFilePath = Paths.get(systemConfigDirectory, configReferenceFileName);
-
-      Path configFilePath = configMasterJsonFilePath;
-      if (!Files.exists(configFilePath)) {
-         configFilePath = configReferenceJsonFilePath;
-      }
-
-      try {
-         String configFileContent = new String(Files.readAllBytes(configFilePath), StandardCharsets.UTF_8);
-         ObjectMapper mapper = new ObjectMapper();
-         Configuration configuration = mapper.readValue(configFileContent, Configuration.class);
-         request.replyTo.tell(new GetConfigurationResponse(configuration));
-      } catch (Exception exception) {
-         LOGGER.error("getConfigurationHandler failed with error: {}", exception.getMessage());
-      }
-
-      return Behaviors.same();
-   }
-
    private Behavior<Event> getConfigurationHandler(final GetConfigurationRequest request) {
       try {
-         psqlClient.connect();
-         String sql = "SELECT json FROM CONFIGURATION WHERE key = 'config' ORDER BY id DESC LIMIT 1";
-         try (PreparedStatement preparedStatement = psqlClient.prepareStatement(sql);
-               ResultSet rs = preparedStatement.executeQuery()) {
-
-               if (rs.next()) {
-                  LOGGER.info("rs.....getConfigurationHandler.........................................: {}", rs);
-                  String configFileContent = rs.getString("json");
-                  LOGGER.info("configFileContent..........getConfigurationHandler....................................: {}", configFileContent);
-                  ObjectMapper mapper = new ObjectMapper();
-                  Configuration configuration = mapper.readValue(configFileContent, Configuration.class);
-                  request.replyTo.tell(new GetConfigurationResponse(configuration));
-               } else {
-                  LOGGER.warn("No configuration found in the database.");
-                  request.replyTo.tell(new GetConfigurationResponse(null));
-               }
-         }
-      } catch (SQLException | JsonProcessingException e) {
+         postgresClientDao.connect();
+         Configuration configuration = postgresClientDao.getConfiguration();
+         request.replyTo.tell(new GetConfigurationResponse(configuration));
+      } catch (SQLException e) {
          LOGGER.error("getConfigurationHandler failed with error: {}", e.getMessage());
       }
-
       return Behaviors.same();
    }
 
    private Behavior<Event> getFieldsConfigurationHandler(final GetFieldsConfigurationRequest request) {
       try {
-         psqlClient.connect();
-         String sql = "SELECT json FROM CONFIGURATION WHERE key = 'config-api' ORDER BY id DESC LIMIT 1";
-         try (PreparedStatement preparedStatement = psqlClient.prepareStatement(sql);
-               ResultSet rs = preparedStatement.executeQuery()) {
-
-               if (rs.next()) {
-                  LOGGER.info("rs...............getFieldsConfigurationHandler...............................: {}", rs);
-                  String configFileContent = rs.getString("json");
-                  LOGGER.info("configFileContent...........getFieldsConfigurationHandler...................................: {}", configFileContent);
-                  FieldsConfiguration fieldsConfiguration = AppUtils.OBJECT_MAPPER.readValue(configFileContent, FieldsConfiguration.class);
-                  ArrayList<FieldsConfiguration.Field> fields = new ArrayList<>();
-                  fields.addAll(fieldsConfiguration.systemFields());
-                  fields.addAll(fieldsConfiguration.fields());
-                  request.replyTo.tell(new GetFieldsConfigurationResponse(fields));
-               } else {
-                  LOGGER.warn("No configuration found in the database.");
-                  request.replyTo.tell(new GetFieldsConfigurationResponse(null));
-               }
-         }
-      } catch (SQLException | JsonProcessingException e) {
-         LOGGER.error("getConfigurationHandler failed with error: {}", e.getMessage());
-      }
-
-      return Behaviors.same();
-   }
-
-   private Behavior<Event> getFieldsConfigurationHandlers(final GetFieldsConfigurationRequest request) {
-      final var separator = FileSystems.getDefault().getSeparator();
-      final String configDir = System.getenv("SYSTEM_CONFIG_DIRS");
-      Path filePath = Paths.get(""); // Start with an empty path
-        // Create ubuntuFilePath
-      Path ubuntuFilePath = new File(String.format("%sapp%sconf_system%s%s", separator, separator, separator, fieldsConfigurationFileName)).toPath();
-      // Check if ubuntuFilePath exists
-      if (Files.exists(ubuntuFilePath)) {
-         filePath = ubuntuFilePath;
-      } else {
-         // If ubuntuFilePath does not exist, assign the alternative path
-         filePath = Paths.get(configDir, "config-api.json");
-      }
-      try {
-         String configFileContent = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
-         FieldsConfiguration fieldsConfiguration = AppUtils.OBJECT_MAPPER.readValue(configFileContent, FieldsConfiguration.class);
-         ArrayList<FieldsConfiguration.Field> fields = new ArrayList<>();
-         fields.addAll(fieldsConfiguration.systemFields());
-         fields.addAll(fieldsConfiguration.fields());
+         postgresClientDao.connect();
+         List<FieldsConfiguration.Field> fields = postgresClientDao.getFieldsConfiguration();
          request.replyTo.tell(new GetFieldsConfigurationResponse(fields));
-      } catch (Exception exception) {
-         LOGGER.error("getFieldsConfigurationHandler failed with error: {}", exception.getLocalizedMessage());
+      } catch (SQLException e) {
+         LOGGER.error("getFieldsConfigurationHandler failed with error: {}", e.getMessage());
       }
-
       return Behaviors.same();
    }
 
    private Behavior<Event> postConfigurationHandler(final PostConfigurationRequest request) {
-      Path configMasterJsonFilePath = Paths.get(systemConfigDirectory, configMasterFileName);
-      ObjectMapper objectMapper = new ObjectMapper();
-      Configuration configJson = request.configuration;
-
-      if (configJson == null) {
-         request.replyTo.tell(new PostConfigurationResponse("error: configuration is missing"));
-         LOGGER.error("postConfigurationHandler failed: configuration is missing in the request");
-         return Behaviors.same();
-      }
-
       try {
-         String jsonConfig = objectMapper.writeValueAsString(configJson);
-         Files.write(configMasterJsonFilePath,
-                     jsonConfig.getBytes(StandardCharsets.UTF_8),
-                     StandardOpenOption.CREATE,
-                     StandardOpenOption.TRUNCATE_EXISTING);
+         postgresClientDao.connect();
+         postgresClientDao.saveConfiguration(request.configuration);
          request.replyTo.tell(new PostConfigurationResponse("ok"));
-      } catch (Exception exception) {
-         LOGGER.error("postConfigurationHandler failed with error: {}", exception.getMessage());
-         request.replyTo.tell(new PostConfigurationResponse("error: " + exception.getMessage()));
+      } catch (SQLException e) {
+         LOGGER.error("postConfigurationHandler failed with error: {}", e.getMessage());
+      } finally {
+         try {
+            postgresClientDao.disconnect();
+         } catch (SQLException e) {
+            LOGGER.error("Error disconnecting from database: {}", e.getMessage());
+         }
       }
-
       return Behaviors.same();
    }
 
@@ -819,3 +728,4 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
    public record PostUploadCsvFileResponse() implements EventResponse { }
 
 }
+
