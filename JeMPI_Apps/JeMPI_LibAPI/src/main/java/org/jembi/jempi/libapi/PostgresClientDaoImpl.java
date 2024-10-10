@@ -93,10 +93,10 @@ public final class PostgresClientDaoImpl implements PostgresClientDao {
      * @throws SQLException if a database access error occurs or the retrieved JSON is invalid
      */
     @Override
-    public Configuration getConfiguration() {
+    public Configuration getConfiguration(final String configKey) {
         this.connect();
         LOGGER.info("Retrieving configuration from database");
-        String sql = "SELECT json FROM CONFIGURATION WHERE key = 'config' ORDER BY id DESC LIMIT 1";
+        String sql = String.format("SELECT json FROM CONFIGURATION WHERE key = '%s' ORDER BY id DESC LIMIT 1", configKey);
         try (PreparedStatement preparedStatement = psqlClient.prepareStatement(sql);
              ResultSet rs = preparedStatement.executeQuery()) {
 
@@ -125,10 +125,10 @@ public final class PostgresClientDaoImpl implements PostgresClientDao {
      * @throws SQLException if a database access error occurs or the retrieved JSON is invalid
      */
     @Override
-    public List<FieldsConfiguration.Field> getFieldsConfiguration() {
+    public List<FieldsConfiguration.Field> getFieldsConfiguration(final String configKey) {
         this.connect();
         LOGGER.info("Retrieving fields configuration from database");
-        String sql = "SELECT json FROM CONFIGURATION WHERE key = 'config-api' ORDER BY id DESC LIMIT 1";
+        String sql = String.format("SELECT json FROM CONFIGURATION WHERE key = '%s' ORDER BY id DESC LIMIT 1", configKey);
         try (PreparedStatement preparedStatement = psqlClient.prepareStatement(sql);
              ResultSet rs = preparedStatement.executeQuery()) {
             if (rs.next()) {
@@ -160,14 +160,14 @@ public final class PostgresClientDaoImpl implements PostgresClientDao {
      * @throws SQLException if a database access error occurs or the configuration cannot be converted to JSON
      */
     @Override
-    public void saveConfiguration(final Configuration configuration) {
+    public void saveConfiguration(final Configuration configuration, final String configKey) {
         LOGGER.info("Saving configuration to database");
         this.connect();
-        String sql = "INSERT INTO CONFIGURATION (key, json) VALUES (?, ?::json)";
+        String sql = "UPDATE CONFIGURATION SET json = ?::jsonb WHERE key = ?";
         try (PreparedStatement preparedStatement = psqlClient.prepareStatement(sql)) {
             String jsonConfig = AppUtils.OBJECT_MAPPER.writeValueAsString(configuration);
-            preparedStatement.setString(1, "config-api");
-            preparedStatement.setString(2, jsonConfig);
+            preparedStatement.setString(1, jsonConfig);
+            preparedStatement.setString(2, configKey);
             int rowsAffected = preparedStatement.executeUpdate();
             LOGGER.info("Successfully saved configuration to database. Rows affected: {}", rowsAffected);
         } catch (Exception e) {

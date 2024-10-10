@@ -71,6 +71,10 @@ public final class GlobalConstants {
    public static final int TIMEOUT_GENERAL_SECS = 60;
    public static final int TIMEOUT_TEA_TIME_SECS = 30;
 
+   //Configuration Key
+   public static final String CONFIGURATION_CONFIG_KEY = "config";
+   public static final String CONFIGURATION_CONFIG_API_KEY = "config-api";
+
    private GlobalConstants() {
    }
 

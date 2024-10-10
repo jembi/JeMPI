@@ -7,7 +7,7 @@ import java.util.List;
 public interface PostgresClientDao {
     void connect();
     void disconnect();
-    Configuration getConfiguration();
-    List<FieldsConfiguration.Field> getFieldsConfiguration();
-    void saveConfiguration(Configuration configuration);
+    Configuration getConfiguration(String configKey);
+    List<FieldsConfiguration.Field> getFieldsConfiguration(String configKey);
+    void saveConfiguration(Configuration configuration, String configKey);
 }

@@ -505,7 +505,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> getConfigurationHandler(final GetConfigurationRequest request) {
       try {
-         Configuration configuration = postgresClientDao.getConfiguration();
+         Configuration configuration = postgresClientDao.getConfiguration(GlobalConstants.CONFIGURATION_CONFIG_KEY);
          request.replyTo.tell(new GetConfigurationResponse(configuration));
       } catch (Exception e) {
          LOGGER.error("getConfigurationHandler failed with error: {}", e.getMessage());
@@ -515,7 +515,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> getFieldsConfigurationHandler(final GetFieldsConfigurationRequest request) {
       try {
-         List<FieldsConfiguration.Field> fields = postgresClientDao.getFieldsConfiguration();
+         List<FieldsConfiguration.Field> fields = postgresClientDao.getFieldsConfiguration(GlobalConstants.CONFIGURATION_CONFIG_API_KEY);
          request.replyTo.tell(new GetFieldsConfigurationResponse(fields));
       } catch (Exception e) {
          LOGGER.error("getFieldsConfigurationHandler failed with error: {}", e.getMessage());
@@ -525,7 +525,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
 
    private Behavior<Event> postConfigurationHandler(final PostConfigurationRequest request) {
       try {
-         postgresClientDao.saveConfiguration(request.configuration);
+         postgresClientDao.saveConfiguration(request.configuration, GlobalConstants.CONFIGURATION_CONFIG_KEY);
          request.replyTo.tell(new PostConfigurationResponse("ok"));
       } catch (Exception e) {
          LOGGER.error("postConfigurationHandler failed with error: {}", e.getMessage());
