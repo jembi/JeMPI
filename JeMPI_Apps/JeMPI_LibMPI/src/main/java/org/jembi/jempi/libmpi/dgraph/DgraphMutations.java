@@ -574,6 +574,8 @@ final class DgraphMutations {
             + DGRAPH_CONFIG.mutationCreateGoldenRecordFields
             + System.lineSeparator()
             + DGRAPH_CONFIG.mutationCreateInteractionFields;
+
+
       try {
          final DgraphProto.Operation operation = DgraphProto.Operation.newBuilder().setSchema(schema).build();
          DgraphClient.getInstance().alter(operation);

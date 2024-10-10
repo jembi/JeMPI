@@ -16,5 +16,7 @@ source ./helper/scripts/d-stack-deploy-0.sh
 sleep 2
 source ./helper/scripts/d-stack-up-hub-containers.sh
 sleep 2
+source ./helper/postgres/create-mpi-schema.sh
+sleep 2
 source ./helper/scripts/d-stack-up-app-containers.sh
 

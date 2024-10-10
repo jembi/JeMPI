@@ -263,7 +263,7 @@
             <dependency>
                 <groupId>io.dgraph</groupId>
                 <artifactId>dgraph4j</artifactId>
-                <version>21.03.2</version>
+                <version>24.0.0</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->

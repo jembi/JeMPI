@@ -6,7 +6,8 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.libmpi.dgraph.LibDgraph;
+//import org.jembi.jempi.libmpi.dgraph.LibDgraph;
+import org.jembi.jempi.libmpi.postgresql.LibPostgreSQL;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
@@ -44,7 +45,8 @@ public final class LibMPI {
                                               new StringSerializer(),
                                               new JsonPojoSerializer<>(),
                                               kafkaClientId);
-      client = new LibDgraph(level, host, port);
+//      client = new LibDgraph(level, host, port);
+      client = new LibPostgreSQL(level, host, port);
       client.connect();
    }
 
