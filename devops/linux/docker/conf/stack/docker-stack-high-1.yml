@@ -836,6 +836,9 @@ services:
       KAFKA_APPLICATION_ID: app-id-bootstrapper
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
+      API_CONFIG_REFERENCE_FILENAME: ${API_CONFIG_REFERENCE_FILENAME}
+      API_FIELDS_CONFIG_FILENAME: ${API_FIELDS_CONFIG_FILENAME}
+      SYSTEM_CONFIG_DIR: /app/conf_system
     deploy:
       mode: global
 

@@ -2,6 +2,7 @@ package org.jembi.jempi.bootstrapper.data.sql.postgres;
 
 import org.jembi.jempi.bootstrapper.data.DataBootstrapper;
 import org.jembi.jempi.bootstrapper.data.utils.DataBootstraperConsts;
+import org.jembi.jempi.shared.models.GlobalConstants;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -150,7 +151,7 @@ public class PostgresDataBootstrapper extends DataBootstrapper {
    }
 
    private String[][] getConfigFiles(final String configurationTable) {
-      String configDir = Optional.of(Paths.get("/app/conf_system"))
+      String configDir = Optional.of(Paths.get(this.loadedConfig.SYSTEM_CONFIG_DIR))
                                .filter(Files::exists)
                                .map(Path::toString)
                                .orElseGet(() -> System.getenv("SYSTEM_CSV_DIR"));
@@ -159,11 +160,11 @@ public class PostgresDataBootstrapper extends DataBootstrapper {
       LOGGER.info("configDir " + configDir);
       // Define an array of config file paths and their corresponding keys
       String[][] configFiles = {
-          {configDir + "/config.json", "config"},
-          {configDir + "/config-api.json", "config-api"},
-          // Add more configuration files as needed
-      };
-      return configFiles;
+         {configDir + "/" + this.loadedConfig.API_CONFIG_REFERENCE_FILENAME, GlobalConstants.CONFIGURATION_CONFIG_KEY},
+         {configDir + "/" + this.loadedConfig.API_FIELDS_CONFIG_FILENAME, GlobalConstants.CONFIGURATION_CONFIG_API_KEY},
+         // Add more configuration files as needed
+     };
+     return configFiles;
    }
 
    private String readJsonFile(final String filePath) throws IOException {
