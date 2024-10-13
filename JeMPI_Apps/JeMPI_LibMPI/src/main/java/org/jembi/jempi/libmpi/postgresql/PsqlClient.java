@@ -31,6 +31,7 @@ final class PsqlClient {
                                           POSTGRESQL_PORT,
                                           POSTGRESQL_DB);
             connection = DriverManager.getConnection(url, POSTGRESQL_USER, POSTGRESQL_PASSWORD);
+            connection.setAutoCommit(true);
             return connection.isValid(5);
          } catch (SQLException e) {
             LOGGER.error(e.getLocalizedMessage(), e);
@@ -65,7 +66,6 @@ final class PsqlClient {
          return false;
       }
    }
-
 
    void setAutoCommit(final boolean autoCommit) {
       try {

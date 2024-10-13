@@ -52,13 +52,13 @@ public final class LibPostgreSQL implements LibMPIClientInterface {
 
    @Override
    public long countInteractions() {
-      LOGGER.debug("countInteractions");
+//      LOGGER.debug("countInteractions");
       return PsqlQueries.countInteractions();
    }
 
    @Override
    public long countGoldenRecords() {
-      LOGGER.debug("countGoldenRecords");
+//      LOGGER.debug("countGoldenRecords");
       return PsqlQueries.countGoldenRecords();
    }
 
@@ -104,13 +104,13 @@ public final class LibPostgreSQL implements LibMPIClientInterface {
 
    @Override
    public PaginatedResultSet<ExpandedGoldenRecord> findExpandedGoldenRecords(final List<String> goldenIds) {
-      LOGGER.debug("findExpandedGoldenRecords");
+//      LOGGER.debug("findExpandedGoldenRecords");
       return PsqlQueries.findExpandedGoldenRecords(goldenIds);
    }
 
    @Override
    public List<String> findGoldenIds() {
-      LOGGER.debug("findGoldenIds");
+//      LOGGER.debug("findGoldenIds");
       return PsqlQueries.findGoldenIds();
    }
 
@@ -124,7 +124,7 @@ public final class LibPostgreSQL implements LibMPIClientInterface {
 
    @Override
    public List<GoldenRecord> findLinkCandidates(final DemographicData demographicData) {
-      LOGGER.debug("findLinkCandidates");
+//      LOGGER.debug("findLinkCandidates");
       return PsqlQueries.findLinkCandidates(demographicData);
    }
 
@@ -147,8 +147,8 @@ public final class LibPostgreSQL implements LibMPIClientInterface {
          final Integer limit,
          final String sortBy,
          final Boolean sortAsc) {
-      LOGGER.error("LibPostgreSQL simpleSearchGoldenRecords error");
-      return null;
+//      LOGGER.debug("customSearchGoldenRecords");
+      return PsqlQueries.simpleSearchGoldenRecords(params, offset, limit, sortBy, sortAsc);
    }
 
    @Override
@@ -213,7 +213,7 @@ public final class LibPostgreSQL implements LibMPIClientInterface {
          final String interactionUID,
          final String goldenRecordUid,
          final Float score) {
-      LOGGER.debug("Set Score");
+//      LOGGER.debug("Set Score");
       return PsqlMutations.setScore(interactionUID, goldenRecordUid, score);
    }
 
@@ -222,7 +222,7 @@ public final class LibPostgreSQL implements LibMPIClientInterface {
          final String goldenId,
          final String fieldName,
          final String value) {
-      LOGGER.debug("updateGoldenRecordField");
+//      LOGGER.debug("updateGoldenRecordField");
       return PsqlMutations.updateField(goldenId, fieldName, value);
    }
 
@@ -258,8 +258,8 @@ public final class LibPostgreSQL implements LibMPIClientInterface {
          final String currentGoldenId,
          final String interactionId,
          final Float score) {
-      LOGGER.error("LibPostgreSQL linkToNewGoldenRecord error");
-      return null;
+//      LOGGER.debug("linkToNewGoldenRecord");
+      return PsqlMutations.linkToNewGoldenRecord(currentGoldenId, interactionId, score);
    }
 
    @Override
@@ -268,15 +268,15 @@ public final class LibPostgreSQL implements LibMPIClientInterface {
          final String newGoldenId,
          final String interactionId,
          final Float score) {
-      LOGGER.error("LibPostgreSQL updateLink error");
-      return null;
+//      LOGGER.debug("updateLink");
+      return PsqlMutations.updateLink(goldenId, newGoldenId, interactionId, score);
    }
 
    @Override
    public LinkInfo createInteractionAndLinkToExistingGoldenRecord(
          final Interaction interaction,
          final GoldenIdScore goldenIdScore) {
-      LOGGER.debug("createInteractionAndLinkToExistingGoldenRecord ");
+//      LOGGER.debug("createInteractionAndLinkToExistingGoldenRecord ");
       return PsqlMutations.createInteractionAndLinkToExistingGoldenRecord(interaction, goldenIdScore);
    }
 
@@ -284,7 +284,7 @@ public final class LibPostgreSQL implements LibMPIClientInterface {
    public LinkInfo createInteractionAndLinkToClonedGoldenRecord(
          final Interaction interaction,
          final Float score) {
-      LOGGER.debug("createInteractionAndLinkToClonedGoldenRecord");
+//      LOGGER.debug("createInteractionAndLinkToClonedGoldenRecord");
       return PsqlMutations.createInteractionAndLinkToClonedGoldenRecord(interaction, score);
    }
 }

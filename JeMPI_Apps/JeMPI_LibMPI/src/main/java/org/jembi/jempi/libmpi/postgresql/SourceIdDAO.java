@@ -90,18 +90,6 @@ public final class SourceIdDAO extends GenericDAO<SourceIdDAO.SqlSourceId> {
    }
 
    @Override
-   List<SqlSourceId> getAll(final PsqlClient client) throws SQLException {
-      return List.of();
-   }
-
-   @Override
-   void update(
-         final PsqlClient client,
-         final SqlSourceId entity) throws SQLException {
-
-   }
-
-   @Override
    protected String getTableName() {
       return "source_id";
    }

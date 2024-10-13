@@ -2,7 +2,9 @@ DROP TABLE IF EXISTS encounters;
 DROP TABLE IF EXISTS source_id;
 DROP TABLE IF EXISTS golden_records;
 
-CREATE EXTENSION fuzzystrmatch;
+CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+SET pg_trgm.similarity_threshold = 0.5;
 
 CREATE TABLE IF NOT EXISTS golden_records
 (
@@ -19,6 +21,16 @@ CREATE TABLE IF NOT EXISTS golden_records
     aux_auto_update_enabled BOOLEAN DEFAULT TRUE,
     aux_id                  VARCHAR(50)
 );
+CREATE INDEX golden_records_pin                     ON golden_records (pin);
+CREATE INDEX golden_records_aux_date_created        ON golden_records (aux_date_created);
+CREATE INDEX golden_records_first_name_trgm_idx     ON golden_records USING gin(first_name    gin_trgm_ops);
+CREATE INDEX golden_records_middle_name_trgm_idx    ON golden_records USING gin(middle_name   gin_trgm_ops);
+CREATE INDEX golden_records_surname_trgm_idx        ON golden_records USING gin(surname       gin_trgm_ops);
+CREATE INDEX golden_records_dob_trgm_idx            ON golden_records USING gin(dob           gin_trgm_ops);
+CREATE INDEX golden_records_chiefdom_code_trgm_idx  ON golden_records USING gin(chiefdom_code gin_trgm_ops);
+CREATE INDEX golden_records_cell_phone_trgm_idx     ON golden_records USING gin(cell_phone    gin_trgm_ops);
+CREATE INDEX golden_records_pin_trgm_idx            ON golden_records USING gin(pin           gin_trgm_ops);
+
 
 CREATE TABLE IF NOT EXISTS source_id
 (

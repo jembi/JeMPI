@@ -4,9 +4,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.config.Config;
-import org.jembi.jempi.shared.models.AuxInteractionData;
+import org.jembi.jempi.shared.models.*;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -35,8 +36,9 @@ public final class EncounterDAO extends GenericDAO<EncounterDAO.SqlEncounter> {
                             golden_record_uid,
                             score,
                             source_id_uid,
+                            aux_date_created,
                             aux_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);
             """.stripIndent(), getTableName());
       try (var pstmt = client.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
          for (int i = 0; i < Config.FIELDS_CONFIG.demographicFields.size(); i++) {
@@ -50,7 +52,8 @@ public final class EncounterDAO extends GenericDAO<EncounterDAO.SqlEncounter> {
          pstmt.setObject(9, entity.goldenRecordUid);
          pstmt.setFloat(10, entity.score());
          pstmt.setObject(11, entity.sourceIdUid());
-         pstmt.setString(12, entity.auxId());
+         pstmt.setTimestamp(12, Timestamp.valueOf(entity.auxDateCreated));
+         pstmt.setString(13, entity.auxId());
          final var affectedRows = pstmt.executeUpdate();
          if (affectedRows > 0) {
             try (ResultSet rs = pstmt.getGeneratedKeys()) {
@@ -65,11 +68,48 @@ public final class EncounterDAO extends GenericDAO<EncounterDAO.SqlEncounter> {
       return uuid;
    }
 
+   int countEncountersForGoldenId(
+         final PsqlClient client,
+         final UUID goldenRecordUid) throws SQLException {
+      final var sql = "select count(*) from encounters where golden_record_uid = ?;";
+      try (PreparedStatement pstmt = client.prepareStatement(sql)) {
+         pstmt.setObject(1, goldenRecordUid);
+         ResultSet rs = pstmt.executeQuery();
+         if (rs.next()) {
+            return rs.getInt("count");
+         }
+      }
+      return -1;
+   }
+
    @Override
    SqlEncounter getById(
          final PsqlClient client,
          final UUID id) throws SQLException {
-      return null;
+      final var sql = "select * from encounters where uid = ?;";
+      SqlEncounter entity = null;
+      try (PreparedStatement pstmt = client.prepareStatement(sql)) {
+         pstmt.setObject(1, id);
+         ResultSet rs = pstmt.executeQuery();
+         if (rs.next()) {
+            entity = new SqlEncounter(
+                  rs.getObject("uid", UUID.class),
+                  rs.getString(Config.FIELDS_CONFIG.demographicFields.get(0).scName()),
+                  rs.getString(Config.FIELDS_CONFIG.demographicFields.get(1).scName()),
+                  rs.getString(Config.FIELDS_CONFIG.demographicFields.get(2).scName()),
+                  rs.getString(Config.FIELDS_CONFIG.demographicFields.get(3).scName()),
+                  rs.getString(Config.FIELDS_CONFIG.demographicFields.get(4).scName()),
+                  rs.getString(Config.FIELDS_CONFIG.demographicFields.get(5).scName()),
+                  rs.getString(Config.FIELDS_CONFIG.demographicFields.get(6).scName()),
+                  rs.getString(Config.FIELDS_CONFIG.demographicFields.get(7).scName()),
+                  id,
+                  rs.getFloat("score"),
+                  rs.getObject("source_id_uid", UUID.class),
+                  rs.getTimestamp(Config.FIELDS_CONFIG.auxInteractionFields.get(0).scName()).toLocalDateTime(),
+                  rs.getString(Config.FIELDS_CONFIG.userAuxInteractionFields.get(0).scName()));
+         }
+      }
+      return entity;
    }
 
    List<SqlEncounter> getEncountersForGoldenId(
@@ -95,24 +135,28 @@ public final class EncounterDAO extends GenericDAO<EncounterDAO.SqlEncounter> {
                   id,
                   rs.getFloat("score"),
                   rs.getObject("source_id_uid", UUID.class),
-                  null,
-                  rs.getString(Config.FIELDS_CONFIG.userAuxGoldenRecordFields.get(0).scName()));
+                  rs.getTimestamp(Config.FIELDS_CONFIG.auxInteractionFields.get(0).scName()).toLocalDateTime(),
+                  rs.getString(Config.FIELDS_CONFIG.userAuxInteractionFields.get(0).scName()));
             entities.add(entity);
          }
       }
       return entities;
    }
 
-   @Override
-   List<SqlEncounter> getAll(final PsqlClient client) throws SQLException {
-      return List.of();
-   }
-
-   @Override
-   void update(
-         final PsqlClient client,
-         final SqlEncounter entity) throws SQLException {
-
+   Interaction mapToInteraction(
+         final SqlEncounter sqlEncounter,
+         final SourceIdDAO.SqlSourceId sqlSourceId) {
+      final var demographicData = new DemographicData();
+      for (int i = 0; i < Config.FIELDS_CONFIG.demographicFields.size(); i++) {
+         demographicData.fields.add(
+               new DemographicData.DemographicField(
+                     Config.FIELDS_CONFIG.demographicFields.get(i).ccName(),
+                     sqlEncounter.getDemographicField(i)));
+      }
+      return new Interaction(sqlEncounter.uid().toString(),
+                             new SourceId(sqlSourceId.uid().toString(), sqlSourceId.facilityCode(), sqlSourceId.patientId()),
+                             sqlEncounter.getAuxInteractionData(),
+                             demographicData);
    }
 
    boolean updateScore(
@@ -125,7 +169,6 @@ public final class EncounterDAO extends GenericDAO<EncounterDAO.SqlEncounter> {
          pstmt.setFloat(1, score);
          pstmt.setObject(2, encounterUid);
          final var rs = pstmt.executeUpdate();
-         client.commit();
          return rs == 1;
       }
    }
@@ -148,7 +191,7 @@ public final class EncounterDAO extends GenericDAO<EncounterDAO.SqlEncounter> {
          UUID goldenRecordUid,
          float score,
          UUID sourceIdUid,
-         String auxDateCreated,
+         LocalDateTime auxDateCreated,
          String auxId) {
 
       AuxInteractionData getAuxInteractionData() {
@@ -157,7 +200,7 @@ public final class EncounterDAO extends GenericDAO<EncounterDAO.SqlEncounter> {
                Config.FIELDS_CONFIG.userAuxInteractionFields.getFirst().scName(),
                Config.FIELDS_CONFIG.userAuxInteractionFields.getFirst().ccName(),
                auxId()));
-         return new AuxInteractionData(null, userAuxList);
+         return new AuxInteractionData(auxDateCreated, userAuxList);
       }
 
       String getDemographicField(final int index) {

@@ -45,7 +45,7 @@ final class PsqlQueries {
          auxUserFields.add(new AuxGoldenRecordData.AuxGoldenRecordUserField(
                Config.FIELDS_CONFIG.userAuxGoldenRecordFields.getFirst().ccName(), sqlGoldenRecord.auxId()));
          final var auxGoldenRecordData = new AuxGoldenRecordData(
-               null,
+               sqlGoldenRecord.auxDateCreated(),
                sqlGoldenRecord.auxAutoUpdate(),
                auxUserFields);
 
@@ -133,14 +133,7 @@ final class PsqlQueries {
          final var expandedGoldenRecord = new ExpandedGoldenRecord(goldenRecord, interactionsWithScore);
          list.add(expandedGoldenRecord);
       }
-      final var result = new PaginatedResultSet<>(list, List.of(new LibMPIPagination(list.size())));
-      try {
-         final var json = OBJECT_MAPPER.writeValueAsString(result);
-         LOGGER.debug(json);
-      } catch (JsonProcessingException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
-      }
-      return result;
+      return new PaginatedResultSet<>(list, List.of(new LibMPIPagination((int) countGoldenRecords())));
    }
 
    static List<GoldenRecord> findLinkCandidates(final DemographicData demographicData) {
@@ -174,6 +167,26 @@ final class PsqlQueries {
          LOGGER.error(e.getLocalizedMessage(), e);
       }
       return list;
+   }
+
+   static PaginatedResultSet<ExpandedGoldenRecord> simpleSearchGoldenRecords(
+         final List<ApiModels.ApiSearchParameter> params,
+         final Integer offset,
+         final Integer limit,
+         final String sortBy,
+         final Boolean sortAsc) {
+      try {
+         LOGGER.debug("[{}] [{}] [{}] [{}] [{}]", OBJECT_MAPPER.writeValueAsString(params), offset, limit, sortBy, sortAsc);
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
+      try {
+         final var uidList = GOLDEN_RECORD_DAO.getPaginatedUID(PSQL_CLIENT, offset, limit, sortBy, sortAsc);
+         return findExpandedGoldenRecords(uidList.stream().map(UUID::toString).toList());
+      } catch (SQLException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+         return new PaginatedResultSet<>(List.of(), List.of(new LibMPIPagination(0)));
+      }
    }
 
 }
