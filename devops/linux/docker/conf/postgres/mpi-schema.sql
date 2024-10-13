@@ -7,17 +7,17 @@ CREATE EXTENSION fuzzystrmatch;
 CREATE TABLE IF NOT EXISTS golden_records
 (
     uid uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    first_name        VARCHAR(50),
-    middle_name       VARCHAR(50),
-    surname           VARCHAR(50),
-    dob               VARCHAR(50),
-    sex               VARCHAR(50),
-    chiefdom_code     VARCHAR(10),
-    cell_phone        VARCHAR(50),
-    pin               VARCHAR(50),
-    aux_date_created  timestamp,
-    aux_auto_update   BOOLEAN DEFAULT TRUE,
-    aux_id            VARCHAR(50)
+    first_name              VARCHAR(50),
+    middle_name             VARCHAR(50),
+    surname                 VARCHAR(50),
+    dob                     VARCHAR(50),
+    sex                     VARCHAR(50),
+    chiefdom_code           VARCHAR(10),
+    cell_phone              VARCHAR(50),
+    pin                     VARCHAR(50),
+    aux_date_created        timestamp,
+    aux_auto_update_enabled BOOLEAN DEFAULT TRUE,
+    aux_id                  VARCHAR(50)
 );
 
 CREATE TABLE IF NOT EXISTS source_id

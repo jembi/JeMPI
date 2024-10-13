@@ -17,20 +17,19 @@ public final class LibPostgreSQL implements LibMPIClientInterface {
 
    private static final Logger LOGGER = LogManager.getLogger(LibPostgreSQL.class);
 
-   PsqlMPI psqlMPI;
-
    public LibPostgreSQL(
          final Level level,
          final String[] host,
          final int[] port) {
       LOGGER.info("{}", "LibPostgreSQL Constructor");
       LOGGER.info("{} {}", host, port);
-      psqlMPI = new PsqlMPI();
+      PsqlQueries.connect();
+      PsqlMutations.connect();
    }
 
    @Override
    public void connect() {
-      psqlMPI.connect();
+      PsqlQueries.connect();
    }
 
    @Override
@@ -53,14 +52,14 @@ public final class LibPostgreSQL implements LibMPIClientInterface {
 
    @Override
    public long countInteractions() {
-      LOGGER.error("LibPostgreSQL countInteractions error");
-      return 0;
+      LOGGER.debug("countInteractions");
+      return PsqlQueries.countInteractions();
    }
 
    @Override
    public long countGoldenRecords() {
-      LOGGER.error("LibPostgreSQL countGoldenRecords error");
-      return 0;
+      LOGGER.debug("countGoldenRecords");
+      return PsqlQueries.countGoldenRecords();
    }
 
    @Override
@@ -105,14 +104,14 @@ public final class LibPostgreSQL implements LibMPIClientInterface {
 
    @Override
    public PaginatedResultSet<ExpandedGoldenRecord> findExpandedGoldenRecords(final List<String> goldenIds) {
-      LOGGER.error("LibPostgreSQL findExpandedGoldenRecords error");
-      return null;
+      LOGGER.debug("findExpandedGoldenRecords");
+      return PsqlQueries.findExpandedGoldenRecords(goldenIds);
    }
 
    @Override
    public List<String> findGoldenIds() {
-      LOGGER.error("LibPostgreSQL findGoldenIds error");
-      return List.of();
+      LOGGER.debug("findGoldenIds");
+      return PsqlQueries.findGoldenIds();
    }
 
    @Override
@@ -125,7 +124,8 @@ public final class LibPostgreSQL implements LibMPIClientInterface {
 
    @Override
    public List<GoldenRecord> findLinkCandidates(final DemographicData demographicData) {
-      return psqlMPI.findLinkCandidates(demographicData);
+      LOGGER.debug("findLinkCandidates");
+      return PsqlQueries.findLinkCandidates(demographicData);
    }
 
    @Override
@@ -213,8 +213,8 @@ public final class LibPostgreSQL implements LibMPIClientInterface {
          final String interactionUID,
          final String goldenRecordUid,
          final Float score) {
-      LOGGER.error("LibPostgreSQL setScore error");
-      return false;
+      LOGGER.debug("Set Score");
+      return PsqlMutations.setScore(interactionUID, goldenRecordUid, score);
    }
 
    @Override
@@ -222,8 +222,8 @@ public final class LibPostgreSQL implements LibMPIClientInterface {
          final String goldenId,
          final String fieldName,
          final String value) {
-      LOGGER.error("LibPostgreSQL updateGoldenRecordField error");
-      return false;
+      LOGGER.debug("updateGoldenRecordField");
+      return PsqlMutations.updateField(goldenId, fieldName, value);
    }
 
    @Override
@@ -276,14 +276,15 @@ public final class LibPostgreSQL implements LibMPIClientInterface {
    public LinkInfo createInteractionAndLinkToExistingGoldenRecord(
          final Interaction interaction,
          final GoldenIdScore goldenIdScore) {
-      LOGGER.error("LibPostgreSQL createInteractionAndLinkToExistingGoldenRecord error");
-      return null;
+      LOGGER.debug("createInteractionAndLinkToExistingGoldenRecord ");
+      return PsqlMutations.createInteractionAndLinkToExistingGoldenRecord(interaction, goldenIdScore);
    }
 
    @Override
    public LinkInfo createInteractionAndLinkToClonedGoldenRecord(
          final Interaction interaction,
          final Float score) {
-      return psqlMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, score);
+      LOGGER.debug("createInteractionAndLinkToClonedGoldenRecord");
+      return PsqlMutations.createInteractionAndLinkToClonedGoldenRecord(interaction, score);
    }
 }

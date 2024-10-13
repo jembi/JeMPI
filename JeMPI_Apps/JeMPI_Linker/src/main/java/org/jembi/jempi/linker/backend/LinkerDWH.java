@@ -96,16 +96,16 @@ public final class LinkerDWH {
    private static String patientName(final Interaction interaction) {
       var patientRecord = interaction.demographicData();
       String givenName = patientRecord.fields.stream()
-         .filter(field -> "given_name".equals(field.ccTag()))
-         .map(DemographicData.DemographicField::value)
-         .findFirst()
-         .orElse("");
+                                             .filter(field -> "given_name".equals(field.ccTag()))
+                                             .map(DemographicData.DemographicField::value)
+                                             .findFirst()
+                                             .orElse("");
       String familyName = patientRecord.fields.stream()
-         .filter(field -> "family_name".equals(field.ccTag()))
-         .map(DemographicData.DemographicField::value)
-         .findFirst()
-         .orElse("");
-         return (givenName + " " + familyName).trim();
+                                              .filter(field -> "family_name".equals(field.ccTag()))
+                                              .map(DemographicData.DemographicField::value)
+                                              .findFirst()
+                                              .orElse("");
+      return (givenName + " " + familyName).trim();
    }
 
    /**
@@ -339,13 +339,17 @@ public final class LinkerDWH {
             // Get a list of candidates above the supplied threshold
             final var belowThresholdNotifications = new ArrayList<Notification.MatchData>();
             final var aboveThresholdNotifications = new ArrayList<Notification.MatchData>();
-            final var candidatesAboveMatchThreshold = allCandidateScores.stream().peek(v -> {
-               if (v.score() > minThreshold_ && v.score() < matchThreshold_) {
-                  belowThresholdNotifications.add(new Notification.MatchData(v.goldenRecord().goldenId(), v.score()));
-               } else if (v.score() >= matchThreshold_ && v.score() < maxThreshold_) {
-                  aboveThresholdNotifications.add(new Notification.MatchData(v.goldenRecord().goldenId(), v.score()));
-               }
-            }).filter(v -> v.score() >= matchThreshold_).collect(Collectors.toCollection(ArrayList::new));
+            final var candidatesAboveMatchThreshold = allCandidateScores
+                  .stream()
+                  .peek(v -> {
+                     if (v.score() > minThreshold_ && v.score() < matchThreshold_) {
+                        belowThresholdNotifications.add(new Notification.MatchData(v.goldenRecord().goldenId(), v.score()));
+                     } else if (v.score() >= matchThreshold_ && v.score() < maxThreshold_) {
+                        aboveThresholdNotifications.add(new Notification.MatchData(v.goldenRecord().goldenId(), v.score()));
+                     }
+                  })
+                  .filter(v -> v.score() >= matchThreshold_)
+                  .collect(Collectors.toCollection(ArrayList::new));
             if (candidatesAboveMatchThreshold.isEmpty()) {
                if (candidatesInExternalLinkRange.isEmpty()) {
                   linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);

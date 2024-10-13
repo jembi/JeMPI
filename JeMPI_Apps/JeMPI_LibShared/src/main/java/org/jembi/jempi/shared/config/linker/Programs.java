@@ -336,7 +336,7 @@ public final class Programs {
                       })
                       .collect(Collectors.joining(System.lineSeparator()))
                 + """
-                                    
+                  
                      all(func:type(GoldenRecord)) @filter(%s) {
                         uid
                         GoldenRecord.source_id {
@@ -589,6 +589,9 @@ public final class Programs {
                                            operation.aux()));
          }
          if (Boolean.TRUE.equals(evalStack.pop())) {
+//            LOGGER.debug("Deterministic match: {}={}",
+//                         goldenRecord.fields.get(Config.FIELDS_CONFIG.findIndexOfDemographicField("pin")),
+//                         interaction.fields.get(Config.FIELDS_CONFIG.findIndexOfDemographicField("pin")));
             return true;
          }
       }
