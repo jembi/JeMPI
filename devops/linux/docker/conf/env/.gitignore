@@ -1,2 +1,4 @@
-cluster-ip.sh
-conf.env
+*
+.gitignore
+!create-env-*.sh
+!conf-env*.template
