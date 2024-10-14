@@ -1,0 +1,4 @@
+*
+!.gitignore
+!use.sh
+!config-reference-*.json
