@@ -201,6 +201,12 @@ public final class LibDgraph implements LibMPIClientInterface {
     * *******************************************************
     */
 
+   public Either<MpiGeneralError,  ApiModels.ApiCivilRecordResponse> insertCivilRecord(
+         final String auxId,
+         final DemographicData demographicData) {
+      return Either.left(new MpiServiceError.NotImplementedError("insertCivilRecord not implemented for DGraph"));
+   }
+
    public boolean setScore(
          final String interactionUID,
          final String goldenRecordUid,

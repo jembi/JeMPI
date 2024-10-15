@@ -296,6 +296,28 @@ final class Routes {
                     }));
    }
 
+   static Route proxyPostCivilRecord(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Request> backEnd) {
+      return entity(Jackson.unmarshaller(ApiModels.ApiCivilRecordRequest.class),
+                    obj -> onComplete(Ask.postCivilRecord(actorSystem, backEnd, obj), response -> {
+                       if (!response.isSuccess()) {
+                          final var e = response.failed().get();
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                       }
+                       final var rsp = response.get();
+                       if (rsp.response().isLeft()) {
+                          return mapError(rsp.response().getLeft());
+                       } else {
+                          return complete(StatusCodes.OK,
+                                          rsp.response().get(),
+                                          Jackson.marshaller());
+                       }
+                    }));
+   }
+
+
    static Route createRoute(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
@@ -319,7 +341,9 @@ final class Routes {
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CANDIDATE_GOLDEN_RECORDS,
                                                             () -> proxyPostCandidatesWithScore(actorSystem, backEnd)),
                                                        path(GlobalConstants.SEGMENT_PROXY_POST_CR_UPDATE_FIELDS,
-                                                            () -> proxyPostCrUpdateField(actorSystem, backEnd))
+                                                            () -> proxyPostCrUpdateField(actorSystem, backEnd)),
+                                                       path(GlobalConstants.SEGMENT_PROXY_POST_CIVIL_RECORD,
+                                                            () -> proxyPostCivilRecord(actorSystem, backEnd))
                                                       ))
                                     ));
    }

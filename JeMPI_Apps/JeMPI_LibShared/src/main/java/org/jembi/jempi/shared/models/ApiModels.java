@@ -184,7 +184,6 @@ public abstract class ApiModels {
             String name,
             String value) {
       }
-
    }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -194,6 +193,18 @@ public abstract class ApiModels {
          List<String> failed) {
    }
 
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCivilRecordRequest(
+         @JsonProperty("auxId") String auxId,
+         @JsonProperty("demographicData") JsonNode demographicData) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record ApiCivilRecordResponse(
+         @JsonProperty("goldenId") String goldenId,
+         @JsonProperty("sourceId") String sourceId,
+         @JsonProperty("interactionId") String interactionId) {
+   }
 
    @JsonInclude(JsonInclude.Include.NON_NULL)
    public record ApiSimpleSearchRequestPayload(

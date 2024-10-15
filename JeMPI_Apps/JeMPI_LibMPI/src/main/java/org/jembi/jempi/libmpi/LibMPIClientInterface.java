@@ -114,6 +114,11 @@ public interface LibMPIClientInterface {
     * *****************************************************************************
     * *
     */
+
+   Either<MpiGeneralError,  ApiModels.ApiCivilRecordResponse> insertCivilRecord(
+         String auxId,
+         DemographicData demographicData);
+
    boolean setScore(
          String interactionUID,
          String goldenRecordUid,

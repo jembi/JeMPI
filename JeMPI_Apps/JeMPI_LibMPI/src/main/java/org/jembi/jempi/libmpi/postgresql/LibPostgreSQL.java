@@ -209,6 +209,13 @@ public final class LibPostgreSQL implements LibMPIClientInterface {
    }
 
    @Override
+   public Either<MpiGeneralError,  ApiModels.ApiCivilRecordResponse> insertCivilRecord(
+         final String auxId,
+         final DemographicData demographicData) {
+      return PsqlMutations.insertCivilRecord(auxId, demographicData);
+   }
+
+   @Override
    public boolean setScore(
          final String interactionUID,
          final String goldenRecordUid,

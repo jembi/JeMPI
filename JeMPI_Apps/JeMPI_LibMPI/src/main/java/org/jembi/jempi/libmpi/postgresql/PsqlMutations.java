@@ -6,12 +6,12 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPIClientInterface;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
-import org.jembi.jempi.shared.models.Interaction;
-import org.jembi.jempi.shared.models.LinkInfo;
-import org.jembi.jempi.shared.models.SourceId;
+import org.jembi.jempi.shared.config.Config;
+import org.jembi.jempi.shared.models.*;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.UUID;
 
 final class PsqlMutations {
@@ -246,6 +246,63 @@ final class PsqlMutations {
          }
       }
       return Either.right(new LinkInfo(newGoldenId, interactionId, sourceId.toString(), score));
+   }
+
+   static Either<MpiGeneralError, ApiModels.ApiCivilRecordResponse> insertCivilRecord(
+         final String auxId,
+         final DemographicData demographicData) {
+      LOGGER.debug("civil record: {}", auxId);
+      try {
+         final var sqlGoldenRecord = new GoldenRecordDAO.SqlGoldenRecord(
+               null,
+               demographicData.fields.get(0).value().toLowerCase(Locale.ROOT),
+               demographicData.fields.get(1).value().toLowerCase(Locale.ROOT),
+               demographicData.fields.get(2).value().toLowerCase(Locale.ROOT),
+               demographicData.fields.get(3).value().toLowerCase(Locale.ROOT),
+               demographicData.fields.get(4).value().toLowerCase(Locale.ROOT),
+               demographicData.fields.get(5).value().toLowerCase(Locale.ROOT),
+               demographicData.fields.get(6).value().toLowerCase(Locale.ROOT),
+               demographicData.fields.get(7).value().toLowerCase(Locale.ROOT),
+               LocalDateTime.now(),
+               false,
+               auxId);
+         PSQL_CLIENT.connect();
+         PSQL_CLIENT.setAutoCommit(false);
+         final var gUuid = GOLDEN_RECORD_DAO.insert(PSQL_CLIENT, sqlGoldenRecord);
+         final var sqlSourceId = new SourceIdDAO.SqlSourceId(
+               null,
+               "CIVIL",
+               demographicData.fields.get(Config.FIELDS_CONFIG.findIndexOfDemographicField("pin")).value(),
+               gUuid);
+         final var sUuid = SOURCE_ID_DAO.insert(PSQL_CLIENT, sqlSourceId);
+         final var sqlEncounter = new EncounterDAO.SqlEncounter(
+               null,
+               demographicData.fields.get(0).value().toLowerCase(Locale.ROOT),
+               demographicData.fields.get(1).value().toLowerCase(Locale.ROOT),
+               demographicData.fields.get(2).value().toLowerCase(Locale.ROOT),
+               demographicData.fields.get(3).value().toLowerCase(Locale.ROOT),
+               demographicData.fields.get(4).value().toLowerCase(Locale.ROOT),
+               demographicData.fields.get(5).value().toLowerCase(Locale.ROOT),
+               demographicData.fields.get(6).value().toLowerCase(Locale.ROOT),
+               demographicData.fields.get(7).value().toLowerCase(Locale.ROOT),
+               gUuid,
+               1.0F,
+               sUuid,
+               LocalDateTime.now(),
+               auxId);
+         final var eUuid = ENCOUNTER_DAO.insert(PSQL_CLIENT, sqlEncounter);
+         PSQL_CLIENT.commit();
+         PSQL_CLIENT.setAutoCommit(true);
+         return Either.right(new ApiModels.ApiCivilRecordResponse(gUuid.toString(),
+                                                                  sUuid.toString(),
+                                                                  eUuid.toString()));
+      } catch (SQLException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+         PSQL_CLIENT.rollback();
+         return Either.left(new MpiServiceError.GeneralError(e.getLocalizedMessage()));
+      } finally {
+         PSQL_CLIENT.setAutoCommit(true);
+      }
    }
 
    static void connect() {

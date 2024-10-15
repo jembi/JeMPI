@@ -145,6 +145,18 @@ final class Ask {
       return stage.thenApply(response -> response);
    }
 
+   static CompletionStage<BackEnd.CivilRecordResponse> postCivilRecord(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Request> backEnd,
+         final ApiModels.ApiCivilRecordRequest body) {
+      CompletionStage<BackEnd.CivilRecordResponse> stage = AskPattern
+            .ask(backEnd,
+                 replyTo -> new BackEnd.CivilRecordRequest(body, replyTo),
+                 java.time.Duration.ofSeconds(GlobalConstants.TIMEOUT_DGRAPH_QUERY_SECS),
+                 actorSystem.scheduler());
+      return stage.thenApply(response -> response);
+   }
+
    static CompletionStage<BackEnd.SyncLinkInteractionResponse> postLinkInteraction(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd,

@@ -461,6 +461,52 @@ public final class ProxyRoutes {
                     });
    }
 
+   private static CompletionStage<HttpResponse> proxyPostCivilRecordDoIt(
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http,
+         final ApiModels.ApiCivilRecordRequest body) throws JsonProcessingException {
+      final byte[] json;
+      try {
+         json = OBJECT_MAPPER.writeValueAsBytes(body);
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+         throw e;
+      }
+      final var request = HttpRequest.create(String.format(Locale.ROOT,
+                                                           "http://%s:%d/JeMPI/%s",
+                                                           linkerIP,
+                                                           linkerPort,
+                                                           GlobalConstants.SEGMENT_PROXY_POST_CIVIL_RECORD))
+                                     .withMethod(HttpMethods.POST)
+                                     .withEntity(ContentTypes.APPLICATION_JSON, json);
+      final var stage = http.singleRequest(request);
+      return stage.thenApply(response -> response);
+   }
+
+   static Route proxyPostCivilRecord(
+         final String linkerIP,
+         final Integer linkerPort,
+         final Http http) {
+      return entity(Jackson.unmarshaller(ApiModels.ApiCivilRecordRequest.class),
+                    obj -> {
+                       try {
+                          return onComplete(proxyPostCivilRecordDoIt(linkerIP, linkerPort, http, obj),
+                                            response -> {
+                                               if (!response.isSuccess()) {
+                                                  final var e = response.failed().get();
+                                                  LOGGER.error(e.getLocalizedMessage(), e);
+                                                  return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                               }
+                                               return complete(response.get());
+                                            });
+                       } catch (JsonProcessingException e) {
+                          LOGGER.error(e.getLocalizedMessage(), e);
+                          return complete(ApiModels.getHttpErrorResponse(StatusCodes.UNPROCESSABLE_ENTITY));
+                       }
+                    });
+   }
+
    private static CompletionStage<HttpResponse> proxyGetCandidatesWithScoreDoIt(
          final String linkerIP,
          final Integer linkerPort,

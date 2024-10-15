@@ -58,6 +58,7 @@ public final class GlobalConstants {
    public static final String SEGMENT_PROXY_POST_DASHBOARD_DATA = "dashboardData";
    public static final String SEGMENT_PROXY_ON_NOTIFICATION_RESOLUTION = "onNotificationResolution";
    public static final String SEGMENT_PROXY_POST_CR_LINK = "crLink";
+   public static final String SEGMENT_PROXY_POST_CIVIL_RECORD = "civilRecord";
    public static final String SEGMENT_VALIDATE_OAUTH = "authenticate";
    public static final String SEGMENT_LOGOUT = "logout";
    public static final String SEGMENT_CURRENT_USER = "currentUser";

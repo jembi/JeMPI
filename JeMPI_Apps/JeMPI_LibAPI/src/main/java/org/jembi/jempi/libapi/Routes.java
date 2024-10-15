@@ -664,7 +664,10 @@ public final class Routes {
                           path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
                                () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_PROXY_POST_CR_UPDATE_FIELDS,
-                               () -> ProxyRoutes.proxyPostCrUpdateFields(linkerIP, linkerPort, http)))),
+                               () -> ProxyRoutes.proxyPostCrUpdateFields(linkerIP, linkerPort, http)),
+                          path(GlobalConstants.SEGMENT_PROXY_POST_CIVIL_RECORD,
+                               () -> ProxyRoutes.proxyPostCivilRecord(linkerIP, linkerPort, http))
+                          )),
                     get(() -> concat(
                           path(GlobalConstants.SEGMENT_COUNT_INTERACTIONS,
                                () -> Routes.countInteractions(actorSystem, backEnd)),

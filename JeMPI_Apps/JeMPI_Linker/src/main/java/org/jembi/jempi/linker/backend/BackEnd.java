@@ -105,6 +105,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                 .onMessage(CrLinkBySourceIdRequest.class, this::crLinkBySourceId)
                                 .onMessage(CrLinkBySourceIdUpdateRequest.class, this::crLinkBySourceIdUpdate)
                                 .onMessage(CrUpdateFieldRequest.class, this::crUpdateField)
+                                .onMessage(CivilRecordRequest.class, this::civilRecordHandler)
                                 .onMessage(FindCandidatesWithScoreRequest.class, this::findCandidateWithScoreHandler)
                                 .build();
    }
@@ -138,6 +139,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    private Behavior<Request> crUpdateField(final CrUpdateFieldRequest req) {
       final var result = LinkerCR.crUpdateField(libMPI, req.crUpdateFields);
       req.replyTo.tell(new CrUpdateFieldResponse(result));
+      return Behaviors.same();
+   }
+
+   private Behavior<Request> civilRecordHandler(final CivilRecordRequest req) {
+      final var demographciData = DemographicData.fromCustomDemographicData(req.civilRecordRequest.demographicData());
+      final var result = libMPI.insertCivilRecord(req.civilRecordRequest.auxId(), demographciData);
+      req.replyTo.tell(new CivilRecordResponse(result));
       return Behaviors.same();
    }
 
@@ -441,5 +449,13 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       }
    }
 
+   public record CivilRecordRequest(
+         ApiModels.ApiCivilRecordRequest civilRecordRequest,
+         ActorRef<CivilRecordResponse> replyTo) implements Request {
+   }
+
+   public record CivilRecordResponse(
+         Either<MpiGeneralError, ApiModels.ApiCivilRecordResponse> response) implements Response {
+   }
 
 }

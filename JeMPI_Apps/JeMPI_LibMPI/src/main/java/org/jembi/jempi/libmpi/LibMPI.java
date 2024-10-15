@@ -6,7 +6,6 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-//import org.jembi.jempi.libmpi.dgraph.LibDgraph;
 import org.jembi.jempi.libmpi.postgresql.LibPostgreSQL;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
@@ -269,6 +268,12 @@ public final class LibMPI {
     * *
     */
 
+   public Either<MpiGeneralError,  ApiModels.ApiCivilRecordResponse> insertCivilRecord(
+         final String auxId,
+         final DemographicData demographicData) {
+      return client.insertCivilRecord(auxId, demographicData);
+   }
+
    public boolean setScore(
          final String interactionID,
          final String goldenID,
@@ -417,10 +422,10 @@ public final class LibMPI {
                                                      deterministicValidation,
                                                      probabilisticValidation),
                                       (metadata, exception) -> {
-                                       if (exception != null) {
-                                          LOGGER.error(exception.getMessage(), exception);
-                                       }
-                                    });
+                                         if (exception != null) {
+                                            LOGGER.error(exception.getMessage(), exception);
+                                         }
+                                      });
       } else {
          sendAuditEvent(interaction.interactionId(),
                         goldenIdScore.goldenId(),

@@ -75,6 +75,14 @@ final class PsqlClient {
       }
    }
 
+   void rollback() {
+      try {
+         connection.rollback();
+      } catch (SQLException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
+   }
+
    void commit() {
       try {
          connection.commit();
