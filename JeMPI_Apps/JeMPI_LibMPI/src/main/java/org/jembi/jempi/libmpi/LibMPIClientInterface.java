@@ -55,6 +55,12 @@ public interface LibMPIClientInterface {
 
    PaginatedResultSet<ExpandedGoldenRecord> findExpandedGoldenRecords(List<String> goldenIds);
 
+   String getFieldCount(ApiModels.CountFields countFields);
+
+   long getAgeGroupCount(ApiModels.SearchAgeCountFields searchAgeCountFields);
+
+   List<String> getAllList(ApiModels.AllList allListRequest);
+
    List<String> findGoldenIds();
 
    List<String> fetchGoldenIds(
