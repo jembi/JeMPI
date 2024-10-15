@@ -9,6 +9,47 @@ env_vars = dotenv_values('../conf.env')
 
 host = env_vars['NODE1_IP']
 port = "50010"
+endpoint = "http://" + host + ":6080"
+new_lease_value = 50000000000000
+
+def get_current_lease(endpoint):
+    """Fetches the current maxLeasedUid from the Dgraph Zero /state endpoint."""
+    try:
+        response = requests.get(f"{endpoint}/state")
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        data = response.json()
+        # Extracting the maxLeasedUid from the JSON response
+        max_leased_uid = data.get('maxUID', None)
+        if max_leased_uid is not None:
+            print(f"Current maxLeasedUid: {max_leased_uid}")
+            return max_leased_uid
+        else:
+            print("Error: maxLeasedUid not found in the response.")
+            return None
+    except requests.RequestException as e:
+        print(f"Error fetching current lease: {e}")
+        return None
+
+def increase_lease(endpoint, new_value):
+    """Increases the lease value if it's below the new_value."""
+    current_value = get_current_lease(endpoint)
+    current_value = int(current_value)
+    if current_value is None:
+        print("Unable to fetch the current lease value. Exiting.")
+        return
+
+    if current_value < new_value:
+        try:
+            # Assuming a POST request with form data to increase lease size
+            data = {'what': 'uids', 'num': new_value}
+            response = requests.get(f"{endpoint}/assign", params=data)
+            response.raise_for_status()  # Raise an exception for HTTP errors
+            print(f"Lease increased to {new_value}.")
+        except requests.RequestException as e:
+            print(f"Error increasing lease: {e}")
+            print(f"Response Content: {response.content}")  # Debug print to see response content
+    else:
+        print(f"Current lease ({current_value}) is already greater than or equal to {new_value}. No action taken.")
 
 
 def main(json_file):
@@ -54,16 +95,15 @@ def convert_datetime_format(date_str):
             continue
     else:
         return date_str  # If the format is not correct, return the original string
-    
+
     output_format = "%Y-%m-%dT%H:%M:%S.%fZ"
     output_str = dt.strftime(output_format)
     output_str = output_str[:26] + 'Z'  # Keep only the first 2 decimal places of the seconds part
     return output_str
 
 def process_json_data(golden_records):
-    
+    increase_lease(endpoint, new_lease_value)
     for golden_record in golden_records:
-        
         golden_record['goldenRecord']['uniqueGoldenRecordData']['auxDateCreated'] = convert_datetime_format(golden_record['goldenRecord']['uniqueGoldenRecordData']['auxDateCreated'])
         for interaction in golden_record['interactionsWithScore']:
             interaction['interaction']['uniqueInteractionData']['auxDateCreated'] = convert_datetime_format(
@@ -73,7 +113,7 @@ def process_json_data(golden_records):
         response = send_golden_record_to_api(golden_record)
         if response:
             print("After Restore Golden ID--"+ response.text)
-    
+
 def send_golden_record_to_api(golden_record_payload):
     get_expanded_golden_record_url = f'http://{host}:{port}/JeMPI/restoreGoldenRecord'
     # Normalize date fields in the payload
