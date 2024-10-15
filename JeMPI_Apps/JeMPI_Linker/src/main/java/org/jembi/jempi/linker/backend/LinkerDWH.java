@@ -95,15 +95,16 @@ public final class LinkerDWH {
 
    private static String patientName(final Interaction interaction) {
       var patientRecord = interaction.demographicData();
+      Map<String, String> fieldMap = patientRecord.fields.stream()
+                                                         .collect(Collectors.toMap(DemographicData.DemographicField::ccTag,
+                                                                                   DemographicData.DemographicField::value));
+
       String patientDisplayName = FIELDS_CONFIG.nameFieldsForNotificationDisplay.stream()
-                                                                      .map(fieldName -> patientRecord.fields.stream()
-                                                                                                            .filter(field -> fieldName.equals(
-                                                                                                                  field.ccTag()))
-                                                                                                            .map(DemographicData.DemographicField::value)
-                                                                                                            .findFirst()
-                                                                                                            .orElse(""))
-                                                                      .collect(Collectors.joining(" "))
-                                                                      .trim();
+                                                                                .map(fieldName -> fieldMap.getOrDefault(fieldName,
+                                                                                                                        ""))
+                                                                                .filter(StringUtils::isNotBlank)
+                                                                                .collect(Collectors.joining(" "))
+                                                                                .trim();
       return patientDisplayName;
    }
 
