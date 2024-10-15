@@ -31,6 +31,8 @@ public final class FieldsConfig {
    public final List<AuxField> userAuxInteractionFields;
    public final List<AuxField> userAuxGoldenRecordFields;
    public final List<DemographicField> demographicFields;
+   public final List<String> fieldsForKafkaKeyGen;
+   public final List<String> nameFieldsForNotificationDisplay;
    public final List<AdditionalNode> additionalNodes;
 
    public FieldsConfig(final JsonConfig jsonConfig) {
@@ -88,6 +90,13 @@ public final class FieldsConfig {
                        );
       optionalInteractionAuxIdIdx = auxInteractionAuxIdIdx[0];
 
+      fieldsForKafkaKeyGen = jsonConfig.fieldsForKafkaKeyGen() != null
+            ? List.copyOf(jsonConfig.fieldsForKafkaKeyGen())
+            : List.of();
+
+      nameFieldsForNotificationDisplay = jsonConfig.nameFieldsForNotificationDisplay() != null
+            ? List.copyOf(jsonConfig.nameFieldsForNotificationDisplay())
+            : List.of();
 
       demographicFields = jsonConfig.demographicFields()
                                     .stream()

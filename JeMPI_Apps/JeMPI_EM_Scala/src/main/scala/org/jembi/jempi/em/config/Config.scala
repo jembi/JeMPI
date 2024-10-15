@@ -61,9 +61,11 @@ case class Rules(
 )
 
 case class Config(
-    auxInteractionFields: Option[Array[auxField]],
-    auxGoldenRecordFields: Option[Array[auxField]],
-    additionalNodes: Option[Array[AdditionalNode]],
-    demographicFields: Array[DemographicField],
-    rules: Rules
+                   auxInteractionFields: Option[Array[auxField]],
+                   auxGoldenRecordFields: Option[Array[auxField]],
+                   additionalNodes: Option[Array[AdditionalNode]],
+                   demographicFields: Array[DemographicField],
+                   rules: Rules,
+                   fieldsForKafkaKeyGen: Option[List[String]],
+                   nameFieldsForNotificationDisplay: Option[List[String]]
 )
