@@ -1,6 +1,5 @@
 package org.jembi.jempi.libmpi.postgresql;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.common.PaginatedResultSet;
@@ -11,8 +10,6 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
-
-import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 final class PsqlQueries {
    private static final Logger LOGGER = LogManager.getLogger(PsqlQueries.class);
@@ -175,11 +172,6 @@ final class PsqlQueries {
          final Integer limit,
          final String sortBy,
          final Boolean sortAsc) {
-      try {
-         LOGGER.debug("[{}] [{}] [{}] [{}] [{}]", OBJECT_MAPPER.writeValueAsString(params), offset, limit, sortBy, sortAsc);
-      } catch (JsonProcessingException e) {
-         LOGGER.error(e.getLocalizedMessage(), e);
-      }
       try {
          final var uidList = GOLDEN_RECORD_DAO.getPaginatedUID(PSQL_CLIENT, offset, limit, sortBy, sortAsc);
          return findExpandedGoldenRecords(uidList.stream().map(UUID::toString).toList());

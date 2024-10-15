@@ -264,7 +264,7 @@ final class PsqlMutations {
                demographicData.fields.get(6).value().toLowerCase(Locale.ROOT),
                demographicData.fields.get(7).value().toLowerCase(Locale.ROOT),
                LocalDateTime.now(),
-               false,
+               true,
                auxId);
          PSQL_CLIENT.connect();
          PSQL_CLIENT.setAutoCommit(false);

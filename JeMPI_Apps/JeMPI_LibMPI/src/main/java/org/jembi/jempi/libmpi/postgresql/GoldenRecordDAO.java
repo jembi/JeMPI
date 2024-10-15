@@ -124,25 +124,28 @@ public final class GoldenRecordDAO extends GenericDAO<GoldenRecordDAO.SqlGoldenR
          final PsqlClient client,
          final DemographicData demographicData) throws SQLException {
       final var list = new LinkedList<SqlGoldenRecord>();
-      final var sql = "select * from golden_records where pin = ?;";
-      try (PreparedStatement preparedStatement = client.prepareStatement(sql)) {
-         preparedStatement.setString(1, demographicData.fields.get(DEMOGRAPHIC_IDX_PIN).value());
+      final var pin = demographicData.fields.get(Config.FIELDS_CONFIG.findIndexOfDemographicField("pin")).value();
+      if (!(StringUtils.isBlank(pin) || "999999999999999".equals(pin))) {
+         final var sql = "select * from golden_records where pin = ?;";
+         try (PreparedStatement preparedStatement = client.prepareStatement(sql)) {
+            preparedStatement.setString(1, demographicData.fields.get(DEMOGRAPHIC_IDX_PIN).value());
 
-         final var rs = preparedStatement.executeQuery();
-         while (rs.next()) {
-            list.add(new SqlGoldenRecord(
-                  rs.getObject("uid", java.util.UUID.class),
-                  rs.getString(Config.FIELDS_CONFIG.demographicFields.get(0).scName()),
-                  rs.getString(Config.FIELDS_CONFIG.demographicFields.get(1).scName()),
-                  rs.getString(Config.FIELDS_CONFIG.demographicFields.get(2).scName()),
-                  rs.getString(Config.FIELDS_CONFIG.demographicFields.get(3).scName()),
-                  rs.getString(Config.FIELDS_CONFIG.demographicFields.get(4).scName()),
-                  rs.getString(Config.FIELDS_CONFIG.demographicFields.get(5).scName()),
-                  rs.getString(Config.FIELDS_CONFIG.demographicFields.get(6).scName()),
-                  rs.getString(Config.FIELDS_CONFIG.demographicFields.get(7).scName()),
-                  rs.getTimestamp(Config.FIELDS_CONFIG.auxGoldenRecordFields.get(0).scName()).toLocalDateTime(),
-                  rs.getBoolean(Config.FIELDS_CONFIG.auxGoldenRecordFields.get(1).scName()),
-                  rs.getString(Config.FIELDS_CONFIG.userAuxGoldenRecordFields.getFirst().scName())));
+            final var rs = preparedStatement.executeQuery();
+            while (rs.next()) {
+               list.add(new SqlGoldenRecord(
+                     rs.getObject("uid", java.util.UUID.class),
+                     rs.getString(Config.FIELDS_CONFIG.demographicFields.get(0).scName()),
+                     rs.getString(Config.FIELDS_CONFIG.demographicFields.get(1).scName()),
+                     rs.getString(Config.FIELDS_CONFIG.demographicFields.get(2).scName()),
+                     rs.getString(Config.FIELDS_CONFIG.demographicFields.get(3).scName()),
+                     rs.getString(Config.FIELDS_CONFIG.demographicFields.get(4).scName()),
+                     rs.getString(Config.FIELDS_CONFIG.demographicFields.get(5).scName()),
+                     rs.getString(Config.FIELDS_CONFIG.demographicFields.get(6).scName()),
+                     rs.getString(Config.FIELDS_CONFIG.demographicFields.get(7).scName()),
+                     rs.getTimestamp(Config.FIELDS_CONFIG.auxGoldenRecordFields.get(0).scName()).toLocalDateTime(),
+                     rs.getBoolean(Config.FIELDS_CONFIG.auxGoldenRecordFields.get(1).scName()),
+                     rs.getString(Config.FIELDS_CONFIG.userAuxGoldenRecordFields.getFirst().scName())));
+            }
          }
       }
       return list;
@@ -159,7 +162,6 @@ public final class GoldenRecordDAO extends GenericDAO<GoldenRecordDAO.SqlGoldenR
                       similarity(middle_name,?)   > 0.6  and  similarity(surname,?)     > 0.6  or
                       similarity(dob,?)           > 0.8                                        or
                       similarity(cell_phone,?)    > 0.8                                        or
-                      similarity(pin,?)           > 0.8                                        or
                       similarity(chiefdom_code,?) > 0.8  and  similarity(cell_phone,?)  > 0.8;
                       """.stripIndent();
       try (PreparedStatement pstmt = client.prepareStatement(sql)) {
@@ -171,9 +173,8 @@ public final class GoldenRecordDAO extends GenericDAO<GoldenRecordDAO.SqlGoldenR
          pstmt.setString(6, demographicData.fields.get(DEMOGRAPHIC_IDX_SURNAME).value());
          pstmt.setString(7, demographicData.fields.get(DEMOGRAPHIC_IDX_DOB).value());
          pstmt.setString(8, demographicData.fields.get(DEMOGRAPHIC_IDX_CELL_PHONE).value());
-         pstmt.setString(9, demographicData.fields.get(DEMOGRAPHIC_IDX_PIN).value());
-         pstmt.setString(10, demographicData.fields.get(DEMOGRAPHIC_IDX_CHIEFDOM).value());
-         pstmt.setString(11, demographicData.fields.get(DEMOGRAPHIC_IDX_CELL_PHONE).value());
+         pstmt.setString(9, demographicData.fields.get(DEMOGRAPHIC_IDX_CHIEFDOM).value());
+         pstmt.setString(10, demographicData.fields.get(DEMOGRAPHIC_IDX_CELL_PHONE).value());
 
          final var rs = pstmt.executeQuery();
          while (rs.next()) {
