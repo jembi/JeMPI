@@ -113,9 +113,13 @@
       "indexGoldenRecord": "@index(exact)"
     }
   ],
-  "nameValidationFields": [
-            "given_name",
-            "family_name"
+  "fieldsForKafkaKeyGen": [
+    "given_name",
+    "family_name"
+  ],
+  "nameFieldsForNotificationDisplay": [
+    "given_name",
+    "family_name"
   ],
   "rules": {
     "link": {
