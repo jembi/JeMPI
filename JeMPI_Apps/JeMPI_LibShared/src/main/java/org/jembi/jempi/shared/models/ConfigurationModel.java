@@ -16,7 +16,8 @@ public record ConfigurationModel(
                         List<Field> auxGoldenRecordFields,
                         List<Node> additionalNodes,
                         List<DemographicField> demographicFields,
-                        List<String> nameValidationFields,
+                        List<String> fieldsForKafkaKeyGen,
+                        List<String> nameFieldsForNotificationDisplay,
                         Rules rules) {
         }
 

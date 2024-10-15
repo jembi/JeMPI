@@ -95,19 +95,16 @@ public final class LinkerDWH {
 
    private static String patientName(final Interaction interaction) {
       var patientRecord = interaction.demographicData();
-      String givenNameField = FIELDS_CONFIG.nameValidationFields.get(0);
-      String familyNameField = FIELDS_CONFIG.nameValidationFields.get(1);
-      String givenName = patientRecord.fields.stream()
-         .filter(field -> givenNameField.equals(field.ccTag()))
-         .map(DemographicData.DemographicField::value)
-         .findFirst()
-         .orElse("");
-      String familyName = patientRecord.fields.stream()
-         .filter(field -> familyNameField.equals(field.ccTag()))
-         .map(DemographicData.DemographicField::value)
-         .findFirst()
-         .orElse("");
-         return (givenName + " " + familyName).trim();
+      String patientDisplayName = FIELDS_CONFIG.nameFieldsForNotificationDisplay.stream()
+                                                                      .map(fieldName -> patientRecord.fields.stream()
+                                                                                                            .filter(field -> fieldName.equals(
+                                                                                                                  field.ccTag()))
+                                                                                                            .map(DemographicData.DemographicField::value)
+                                                                                                            .findFirst()
+                                                                                                            .orElse(""))
+                                                                      .collect(Collectors.joining(" "))
+                                                                      .trim();
+      return patientDisplayName;
    }
 
    /**
