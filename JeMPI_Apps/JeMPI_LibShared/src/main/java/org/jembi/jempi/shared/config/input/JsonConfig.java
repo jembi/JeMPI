@@ -19,6 +19,8 @@ public record JsonConfig(
       @JsonProperty("auxGoldenRecordFields") List<AuxGoldenRecordField> auxGoldenRecordFields,
       List<AdditionalNode> additionalNodes,
       List<DemographicField> demographicFields,
+      @JsonProperty("fieldsForKafkaKeyGen") List<String> fieldsForKafkaKeyGen,
+      @JsonProperty("nameFieldsForNotificationDisplay") List<String> nameFieldsForNotificationDisplay,
       Rules rules) {
 
    private static final Logger LOGGER = LogManager.getLogger(JsonConfig.class);

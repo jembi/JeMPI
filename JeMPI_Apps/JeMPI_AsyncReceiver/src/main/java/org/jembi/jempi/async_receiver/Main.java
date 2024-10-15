@@ -15,6 +15,7 @@ import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 import org.jembi.jempi.shared.utils.AppUtils;
 import org.apache.commons.codec.language.Soundex;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -153,28 +154,7 @@ public final class Main {
 
             for (CSVRecord csvRecord : csvParser) {
                final var patientRecord = demographicData(csvRecord);
-               String givenName = patientRecord.fields.stream()
-                  .filter(field -> "given_name".equals(field.ccTag()))
-                  .map(DemographicData.DemographicField::value)
-                  .findFirst()
-                  .orElse("");
-               String familyName = patientRecord.fields.stream()
-                  .filter(field -> "family_name".equals(field.ccTag()))
-                  .map(DemographicData.DemographicField::value)
-                  .findFirst()
-                  .orElse("");
-
-               String partitionKey = "";
-               if (!givenName.isEmpty()) {
-                  partitionKey += new Soundex().soundex(givenName);
-               }
-               if (!familyName.isEmpty()) {
-                  partitionKey += new Soundex().soundex(familyName);
-               }
-               if (givenName.isEmpty() && familyName.isEmpty()) {
-                  partitionKey += "Unknown";
-               }
-               LOGGER.info("Using Kafka topic/partition: " + partitionKey);
+               String partitionKey = generateKafkaPartitionKey(patientRecord);
 
                final var interactionEnvelop = new InteractionEnvelop(InteractionEnvelop.ContentType.BATCH_INTERACTION,
                                                                      tag,
@@ -201,6 +181,30 @@ public final class Main {
       } catch (IOException ex) {
          LOGGER.error(ex.getLocalizedMessage(), ex);
       }
+   }
+
+   private static @NotNull String generateKafkaPartitionKey(final DemographicData patientRecord) {
+      StringBuilder partitionKey = new StringBuilder();
+
+      for (String field : FIELDS_CONFIG.fieldsForKafkaKeyGen) {
+         String value = patientRecord.fields.stream()
+                                            .filter(fieldData -> field.equals(fieldData.ccTag()))
+                                            .map(DemographicData.DemographicField::value)
+                                            .findFirst()
+                                            .orElse("");
+
+         if (!value.isEmpty()) {
+            partitionKey.append(new Soundex().soundex(value));
+         }
+      }
+
+      if (partitionKey.length() == 0) {
+         partitionKey.append("Unknown");
+      }
+
+      String partitionKeyStr = partitionKey.toString();
+      LOGGER.info("Using Kafka topic/partition: {}", partitionKeyStr);
+      return partitionKeyStr;
    }
 
    private String updateStan(

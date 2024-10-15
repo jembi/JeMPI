@@ -222,6 +222,14 @@
       "matchMetaData": null
     }
   ],
+  "fieldsForKafkaKeyGen": [
+    "given_name",
+    "family_name"
+  ],
+  "nameFieldsForNotificationDisplay": [
+    "given_name",
+    "family_name"
+  ],
   "rules": {
     "link": {
       "deterministic": [
