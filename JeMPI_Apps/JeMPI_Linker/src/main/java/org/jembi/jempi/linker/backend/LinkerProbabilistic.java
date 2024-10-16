@@ -38,15 +38,15 @@ public final class LinkerProbabilistic {
    private static final float MISSING_PENALTY = 0.925F;
    static List<ProbabilisticField> currentProbabilisticLinkFields = LINKER_CONFIG.probabilisticLinkFields
          .stream()
-         .map(f -> new ProbabilisticField(getSimilarityFunction(f.similarityScore()), f.comparisonLevels(), f.m(), f.u()))
+         .map(f -> new ProbabilisticField(getSimilarityFunction(SimilarityFunctionName.valueOf(f.similarityScore())), f.comparisonLevels(), f.m(), f.u()))
          .toList();
    static List<ProbabilisticField> currentProbabilisticValidateFields = LINKER_CONFIG.probabilisticValidateFields
          .stream()
-         .map(f -> new ProbabilisticField(getSimilarityFunction(f.similarityScore()), f.comparisonLevels(), f.m(), f.u()))
+         .map(f -> new ProbabilisticField(getSimilarityFunction(SimilarityFunctionName.valueOf(f.similarityScore())), f.comparisonLevels(), f.m(), f.u()))
          .toList();
    static List<ProbabilisticField> currentProbabilisticMatchFields = LINKER_CONFIG.probabilisticMatchNotificationFields
          .stream()
-         .map(f -> new ProbabilisticField(getSimilarityFunction(f.similarityScore()), f.comparisonLevels(), f.m(), f.u()))
+         .map(f -> new ProbabilisticField(getSimilarityFunction(SimilarityFunctionName.valueOf(f.similarityScore())), f.comparisonLevels(), f.m(), f.u()))
          .toList();
 
    static List<ProbabilisticField> updatedProbabilisticLinkFields = null;
@@ -67,22 +67,30 @@ public final class LinkerProbabilistic {
       final var list = new ArrayList<ProbabilisticField>();
       for (int i = 0; i < mu.size(); i++) {
          list.add(new ProbabilisticField(
-               getSimilarityFunction(probabilisticMetaData.get(i).similarityScore()),
+               getSimilarityFunction(SimilarityFunctionName.valueOf(probabilisticMetaData.get(i).similarityScore())),
                probabilisticMetaData.get(i).comparisonLevels(),
                mu.get(i).m(), mu.get(i).u()));
       }
       return list;
    }
 
-   static SimilarityScore<Double> getSimilarityFunction(final String func) {
+   public enum SimilarityFunctionName {
+      JARO_WINKLER_SIMILARITY,
+      JARO_SIMILARITY,
+      JACCARD_SIMILARITY,
+      SOUNDEX_SIMILARITY,
+      EXACT_SIMILARITY
+   }
+
+   static SimilarityScore<Double> getSimilarityFunction(final SimilarityFunctionName func) {
       switch (func) {
-         case "JARO_WINKLER_SIMILARITY":
+         case JARO_WINKLER_SIMILARITY:
             return JARO_WINKLER_SIMILARITY;
-         case "JARO_SIMILARITY":
+         case JARO_SIMILARITY:
             return JARO_SIMILARITY;
-         case "JACCARD_SIMILARITY":
+         case JACCARD_SIMILARITY:
             return JACCARD_SIMILARITY;
-         case "SOUNDEX_SIMILARITY":
+         case SOUNDEX_SIMILARITY:
             return SOUNDEX_SIMILARITY;
          default:
             return EXACT_SIMILARITY;
@@ -297,7 +305,7 @@ public final class LinkerProbabilistic {
             return 0.5;
          }
 
-         return StringUtils.equals(soundex.soundex((String) left), soundex.soundex((String) right))
+         return StringUtils.equals(soundex.soundex(left.toString()), soundex.soundex(right.toString()))
                ? 1.0
                : 0.0;
       }
