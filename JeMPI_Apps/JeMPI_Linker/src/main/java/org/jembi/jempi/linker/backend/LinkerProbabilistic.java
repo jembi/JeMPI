@@ -1,6 +1,7 @@
 package org.jembi.jempi.linker.backend;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.commons.codec.language.Soundex;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.JaccardSimilarity;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
@@ -27,6 +28,7 @@ public final class LinkerProbabilistic {
    static final JaccardSimilarity JACCARD_SIMILARITY = new JaccardSimilarity();
    static final JaroSimilarity JARO_SIMILARITY = new JaroSimilarity();
    static final ExactSimilarity EXACT_SIMILARITY = new ExactSimilarity();
+   static final SoundexSimilarity SOUNDEX_SIMILARITY = new SoundexSimilarity();
    private static final int METRIC_MIN = 0;
    private static final int METRIC_MAX = 1;
    private static final int METRIC_SCORE = 2;
@@ -73,10 +75,17 @@ public final class LinkerProbabilistic {
    }
 
    static SimilarityScore<Double> getSimilarityFunction(final String func) {
-      if ("JARO_WINKLER_SIMILARITY".equals(func)) {
-         return JARO_WINKLER_SIMILARITY;
-      } else {
-         return JACCARD_SIMILARITY;
+      switch (func) {
+         case "JARO_WINKLER_SIMILARITY":
+            return JARO_WINKLER_SIMILARITY;
+         case "JARO_SIMILARITY":
+            return JARO_SIMILARITY;
+         case "JACCARD_SIMILARITY":
+            return JACCARD_SIMILARITY;
+         case "SOUNDEX_SIMILARITY":
+            return SOUNDEX_SIMILARITY;
+         default:
+            return EXACT_SIMILARITY;
       }
    }
 
@@ -268,8 +277,27 @@ public final class LinkerProbabilistic {
          if (StringUtils.isEmpty(left) || StringUtils.isEmpty(right)) {
             return 0.5;
          }
-         //  assert - we have 2 non-empty strings
+
          return StringUtils.equals(left, right)
+               ? 1.0
+               : 0.0;
+      }
+
+   }
+
+   static class SoundexSimilarity implements SimilarityScore<Double> {
+
+      private final Soundex soundex = new Soundex();
+
+      @Override
+      public Double apply(
+            final CharSequence left,
+            final CharSequence right) {
+         if (StringUtils.isEmpty(left) || StringUtils.isEmpty(right)) {
+            return 0.5;
+         }
+
+         return StringUtils.equals(soundex.soundex((String) left), soundex.soundex((String) right))
                ? 1.0
                : 0.0;
       }
