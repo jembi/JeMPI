@@ -224,6 +224,7 @@ final class PsqlMutations {
       try {
          sourceId = ENCOUNTER_DAO.getFieldUuidValueById(PSQL_CLIENT, UUID.fromString(interactionId), "sourceIdUid");
       } catch (SQLException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
          return Either.left(new MpiServiceError.GoldenIdInteractionConflictError("no sourceId", goldenId, interactionId));
       }
       if (!newGoldenId.equals(goldenId)) {
@@ -238,6 +239,7 @@ final class PsqlMutations {
                                                 UUID.fromString(newGoldenId));
             final var count = ENCOUNTER_DAO.countEncountersForGoldenId(PSQL_CLIENT, UUID.fromString(goldenId));
             if (count == 0) {
+               LOGGER.info("Delete orphaned goldenRecord: {}", goldenId);
                GOLDEN_RECORD_DAO.delete(PSQL_CLIENT, UUID.fromString(goldenId));
             }
          } catch (SQLException e) {

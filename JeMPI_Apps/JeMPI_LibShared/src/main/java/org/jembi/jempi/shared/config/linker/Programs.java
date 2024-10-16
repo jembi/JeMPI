@@ -58,13 +58,21 @@ public final class Programs {
       evalStack.push(isMatch(l, r));
    }
 
+   private static void neq(
+         final Deque<Boolean> evalStack,
+         final Arguments arguments) {
+      final var l = arguments.interaction.get(arguments.field).value();
+      final var r = arguments.auxString;
+      evalStack.push(!isMatch(l, r));
+   }
+
    private static void switched(
          final Deque<Boolean> evalStack,
          final Arguments arguments) {
       final var p1L = arguments.interaction.get(arguments.field).value();
       final var p1R = arguments.goldenRecord.get(arguments.field).value();
-      final var p2L = arguments.interaction.get(arguments.aux).value();
-      final var p2R = arguments.goldenRecord.get(arguments.aux).value();
+      final var p2L = arguments.interaction.get(arguments.auxInteger).value();
+      final var p2R = arguments.goldenRecord.get(arguments.auxInteger).value();
       evalStack.push(isMatch(p1L, p1R) && isMatch(p2L, p2R)
                      || isMatch(p1L, p2R) && isMatch(p2L, p1R));
    }
@@ -76,7 +84,7 @@ public final class Programs {
       final var r = arguments.goldenRecord.get(arguments.field).value();
       evalStack.push(!StringUtils.isEmpty(l)
                      && !StringUtils.isEmpty(r)
-                     && DISTANCE.apply(l, r) <= arguments.aux);
+                     && DISTANCE.apply(l, r) <= arguments.auxInteger);
    }
 
    private static void isNull(
@@ -123,7 +131,6 @@ public final class Programs {
             final var matcher = pattern.matcher(s);
             if (matcher.find()) {
                final var field = matcher.group("field");
-//               final var distance = Integer.valueOf(matcher.group("distance"));
                int i = 0;
                while (i < vars.size() && !field.equals(vars.get(i))) {
                   i++;
@@ -394,8 +401,21 @@ public final class Programs {
                if (matcher.find()) {
                   final var field = matcher.group("field");
                   final var fieldIndex = fieldIndexOf(jsonConfig, field);
-                  canApplyProgram.add(new Operation(Programs::interactionFieldNotBlank, fieldIndex, null));
-                  program.add(new Operation(Programs::eq, fieldIndex, null));
+                  canApplyProgram.add(new Operation(Programs::interactionFieldNotBlank, fieldIndex, null, null));
+                  program.add(new Operation(Programs::eq, fieldIndex, null, null));
+                  stackDepth += 1;
+               } else {
+                  LOGGER.error("Match error: [{}]", s);
+               }
+            } else if (s.startsWith("neq")) {
+               final var pattern = Pattern.compile("^neq\\((?<field>\\w+),(?<value>\\w+)\\)$");
+               final var matcher = pattern.matcher(s);
+               if (matcher.find()) {
+                  final var field = matcher.group("field");
+                  final var value = matcher.group("value");
+                  final var fieldIndex = fieldIndexOf(jsonConfig, field);
+                  canApplyProgram.add(new Operation(Programs::interactionFieldNotBlank, fieldIndex, null, null));
+                  program.add(new Operation(Programs::neq, fieldIndex, null, value));
                   stackDepth += 1;
                } else {
                   LOGGER.error("Match error: [{}]", s);
@@ -407,8 +427,8 @@ public final class Programs {
                   final var field = matcher.group("field");
                   final var distance = Integer.valueOf(matcher.group("distance"));
                   final var fieldIndex = fieldIndexOf(jsonConfig, field);
-                  canApplyProgram.add(new Operation(Programs::interactionFieldNotBlank, fieldIndex, null));
-                  program.add(new Operation(Programs::match, fieldIndex, distance));
+                  canApplyProgram.add(new Operation(Programs::interactionFieldNotBlank, fieldIndex, null, null));
+                  program.add(new Operation(Programs::match, fieldIndex, distance, null));
                   stackDepth += 1;
                } else {
                   LOGGER.error("Match error: [{}]", s);
@@ -419,8 +439,8 @@ public final class Programs {
                if (matcher.find()) {
                   final var field = matcher.group("field");
                   final var fieldIndex = fieldIndexOf(jsonConfig, field);
-                  canApplyProgram.add(new Operation(Programs::interactionFieldIsBlank, fieldIndex, null));
-                  program.add(new Operation(Programs::isNull, fieldIndex, null));
+                  canApplyProgram.add(new Operation(Programs::interactionFieldIsBlank, fieldIndex, null, null));
+                  program.add(new Operation(Programs::isNull, fieldIndex, null, null));
                   stackDepth += 1;
                } else {
                   LOGGER.error("Match error: [{}]", s);
@@ -433,19 +453,19 @@ public final class Programs {
                   final var field2 = matcher.group("field2");
                   final var field1Index = fieldIndexOf(jsonConfig, field1);
                   final var field2Index = fieldIndexOf(jsonConfig, field2);
-                  canApplyProgram.add(new Operation(Programs::interactionFieldNotBlank, field1Index, null));
-                  program.add(new Operation(Programs::switched, field1Index, field2Index));
+                  canApplyProgram.add(new Operation(Programs::interactionFieldNotBlank, field1Index, null, null));
+                  program.add(new Operation(Programs::switched, field1Index, field2Index, null));
                   stackDepth += 1;
                } else {
                   LOGGER.error("Match error: [{}]", s);
                }
             } else if (s.startsWith("and")) {
-               canApplyProgram.add(new Operation(Programs::andOperator, null, null));
-               program.add(new Operation(Programs::andOperator, null, null));
+               canApplyProgram.add(new Operation(Programs::andOperator, null, null, null));
+               program.add(new Operation(Programs::andOperator, null, null, null));
                stackDepth -= 1;
             } else if (s.startsWith("or")) {
-               canApplyProgram.add(new Operation(Programs::orOperator, null, null));
-               program.add(new Operation(Programs::orOperator, null, null));
+               canApplyProgram.add(new Operation(Programs::orOperator, null, null, null));
+               program.add(new Operation(Programs::orOperator, null, null, null));
                stackDepth -= 1;
             } else {
                LOGGER.error("NOT HANDLED: [{}]", s);
@@ -488,8 +508,8 @@ public final class Programs {
                if (matcher.find()) {
                   final var field = matcher.group("field");
                   final var fieldIndex = fieldIndexOf(jsonConfig, field);
-                  canApplyProgram.add(new Operation(Programs::interactionFieldNotBlank, fieldIndex, null));
-                  program.add(new Operation(Programs::eq, fieldIndex, null));
+                  canApplyProgram.add(new Operation(Programs::interactionFieldNotBlank, fieldIndex, null, null));
+                  program.add(new Operation(Programs::eq, fieldIndex, null, null));
                   stackDepth += 1;
                } else {
                   LOGGER.error("Match error: [{}]", s);
@@ -501,8 +521,8 @@ public final class Programs {
                   final var field = matcher.group("field");
                   final var distance = Integer.valueOf(matcher.group("distance"));
                   final var fieldIndex = fieldIndexOf(jsonConfig, field);
-                  canApplyProgram.add(new Operation(Programs::interactionFieldNotBlank, fieldIndex, null));
-                  program.add(new Operation(Programs::match, fieldIndex, distance));
+                  canApplyProgram.add(new Operation(Programs::interactionFieldNotBlank, fieldIndex, null, null));
+                  program.add(new Operation(Programs::match, fieldIndex, distance, null));
                   stackDepth += 1;
                } else {
                   LOGGER.error("Match error: [{}]", s);
@@ -513,8 +533,8 @@ public final class Programs {
                if (matcher.find()) {
                   final var field = matcher.group("field");
                   final var fieldIndex = fieldIndexOf(jsonConfig, field);
-                  canApplyProgram.add(new Operation(Programs::interactionFieldIsBlank, fieldIndex, null));
-                  program.add(new Operation(Programs::isNull, fieldIndex, null));
+                  canApplyProgram.add(new Operation(Programs::interactionFieldIsBlank, fieldIndex, null, null));
+                  program.add(new Operation(Programs::isNull, fieldIndex, null, null));
                   stackDepth += 1;
                } else {
                   LOGGER.error("Match error: [{}]", s);
@@ -527,19 +547,19 @@ public final class Programs {
                   final var field2 = matcher.group("field2");
                   final var field1Index = fieldIndexOf(jsonConfig, field1);
                   final var field2Index = fieldIndexOf(jsonConfig, field2);
-                  canApplyProgram.add(new Operation(Programs::interactionFieldNotBlank, field1Index, null));
-                  program.add(new Operation(Programs::switched, field1Index, field2Index));
+                  canApplyProgram.add(new Operation(Programs::interactionFieldNotBlank, field1Index, null, null));
+                  program.add(new Operation(Programs::switched, field1Index, field2Index, null));
                   stackDepth += 1;
                } else {
                   LOGGER.error("Match error: [{}]", s);
                }
             } else if (s.startsWith("and")) {
-               canApplyProgram.add(new Operation(Programs::andOperator, null, null));
-               program.add(new Operation(Programs::andOperator, null, null));
+               canApplyProgram.add(new Operation(Programs::andOperator, null, null, null));
+               program.add(new Operation(Programs::andOperator, null, null, null));
                stackDepth -= 1;
             } else if (s.startsWith("or")) {
-               canApplyProgram.add(new Operation(Programs::orOperator, null, null));
-               program.add(new Operation(Programs::orOperator, null, null));
+               canApplyProgram.add(new Operation(Programs::orOperator, null, null, null));
+               program.add(new Operation(Programs::orOperator, null, null, null));
                stackDepth -= 1;
             } else {
                LOGGER.error("NOT HANDLED: [{}]", s);
@@ -586,7 +606,8 @@ public final class Programs {
                              new Arguments(interaction.fields,
                                            goldenRecord.fields,
                                            operation.field(),
-                                           operation.aux()));
+                                           operation.auxInteger(),
+                                           operation.auxString()));
          }
          if (Boolean.TRUE.equals(evalStack.pop())) {
 //            LOGGER.debug("Deterministic match: {}={}",
@@ -612,7 +633,11 @@ public final class Programs {
       for (final var operation : program.canApplyProgram) {
          operation.opcode()
                   .accept(evalStack,
-                          new Arguments(interaction.fields, null, operation.field(), operation.aux()));
+                          new Arguments(interaction.fields,
+                                        null,
+                                        operation.field(),
+                                        operation.auxInteger(),
+                                        operation.auxString()));
       }
       return Boolean.TRUE.equals(evalStack.pop());
    }
@@ -653,7 +678,8 @@ public final class Programs {
    public record Operation(
          BiConsumer<Deque<Boolean>, Arguments> opcode,
          Integer field,
-         Integer aux) {
+         Integer auxInteger,
+         String auxString) {
    }
 
    /**
@@ -663,7 +689,8 @@ public final class Programs {
          List<DemographicData.DemographicField> interaction,
          List<DemographicData.DemographicField> goldenRecord,
          Integer field,
-         Integer aux) {
+         Integer auxInteger,
+         String auxString) {
    }
 
    public record DeterministicProgram(
