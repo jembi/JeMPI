@@ -340,7 +340,7 @@ public final class LinkerProbabilistic {
          double percentage = (levenshteinDistanceValue / maxLength) * 100;
          double invertedPercentage = 100 - percentage;
 
-         return invertedPercentage;
+         return invertedPercentage / 100.0;
       }
 
    }
