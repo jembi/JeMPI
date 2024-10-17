@@ -17,7 +17,6 @@ import org.jembi.jempi.shared.utils.AppUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.abs;
@@ -86,17 +85,21 @@ public final class LinkerProbabilistic {
       LEVENSHTEIN_SIMILARITY_PERCENTAGE
    }
 
-   private static final Map<SimilarityFunctionName, SimilarityScore<Double>> SIMILARITY_FUNCTION_MAP = Map.of(
-       SimilarityFunctionName.JARO_WINKLER_SIMILARITY, JARO_WINKLER_SIMILARITY,
-       SimilarityFunctionName.JARO_SIMILARITY, JARO_SIMILARITY,
-       SimilarityFunctionName.JACCARD_SIMILARITY, JACCARD_SIMILARITY,
-       SimilarityFunctionName.SOUNDEX_SIMILARITY, SOUNDEX_SIMILARITY,
-       SimilarityFunctionName.LEVENSHTEIN_SIMILARITY_PERCENTAGE, LEVENSHTEIN_SIMILARITY_PERCENTAGE,
-       SimilarityFunctionName.EXACT_SIMILARITY, EXACT_SIMILARITY
-                                                                                                             );
-
    static SimilarityScore<Double> getSimilarityFunction(final SimilarityFunctionName func) {
-      return SIMILARITY_FUNCTION_MAP.getOrDefault(func, EXACT_SIMILARITY);
+      switch (func) {
+         case JARO_WINKLER_SIMILARITY:
+            return JARO_WINKLER_SIMILARITY;
+         case JARO_SIMILARITY:
+            return JARO_SIMILARITY;
+         case JACCARD_SIMILARITY:
+            return JACCARD_SIMILARITY;
+         case SOUNDEX_SIMILARITY:
+            return SOUNDEX_SIMILARITY;
+         case LEVENSHTEIN_SIMILARITY_PERCENTAGE:
+            return LEVENSHTEIN_SIMILARITY_PERCENTAGE;
+         default:
+            return EXACT_SIMILARITY;
+      }
    }
 
    public static void updateMU(final MUPacket mu) {
