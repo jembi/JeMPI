@@ -308,7 +308,7 @@ public final class LinkerProbabilistic {
             final CharSequence left,
             final CharSequence right) {
          if (StringUtils.isEmpty(left) || StringUtils.isEmpty(right)) {
-            return 0.5;
+            return 0.0;
          }
 
          return StringUtils.equals(soundex.soundex(left.toString()), soundex.soundex(right.toString()))
