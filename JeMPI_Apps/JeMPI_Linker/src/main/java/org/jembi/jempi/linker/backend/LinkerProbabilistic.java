@@ -5,6 +5,7 @@ import org.apache.commons.codec.language.Soundex;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.JaccardSimilarity;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.apache.commons.text.similarity.SimilarityScore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,6 +30,8 @@ public final class LinkerProbabilistic {
    static final JaroSimilarity JARO_SIMILARITY = new JaroSimilarity();
    static final ExactSimilarity EXACT_SIMILARITY = new ExactSimilarity();
    static final SoundexSimilarity SOUNDEX_SIMILARITY = new SoundexSimilarity();
+   static final LevenshteinSimilarity LEVENSHTEIN_SIMILARITY  = new LevenshteinSimilarity();
+   static final LevenshteinSimilarityPercentage LEVENSHTEIN_SIMILARITY_PERCENTAGE  = new LevenshteinSimilarityPercentage();
    private static final int METRIC_MIN = 0;
    private static final int METRIC_MAX = 1;
    private static final int METRIC_SCORE = 2;
@@ -79,7 +82,9 @@ public final class LinkerProbabilistic {
       JARO_SIMILARITY,
       JACCARD_SIMILARITY,
       SOUNDEX_SIMILARITY,
-      EXACT_SIMILARITY
+      EXACT_SIMILARITY,
+      LEVENSHTEIN_SIMILARITY,
+      LEVENSHTEIN_SIMILARITY_PERCENTAGE
    }
 
    static SimilarityScore<Double> getSimilarityFunction(final SimilarityFunctionName func) {
@@ -92,6 +97,10 @@ public final class LinkerProbabilistic {
             return JACCARD_SIMILARITY;
          case SOUNDEX_SIMILARITY:
             return SOUNDEX_SIMILARITY;
+         case LEVENSHTEIN_SIMILARITY:
+            return LEVENSHTEIN_SIMILARITY;
+         case LEVENSHTEIN_SIMILARITY_PERCENTAGE:
+            return LEVENSHTEIN_SIMILARITY_PERCENTAGE;
          default:
             return EXACT_SIMILARITY;
       }
@@ -308,6 +317,47 @@ public final class LinkerProbabilistic {
          return StringUtils.equals(soundex.soundex(left.toString()), soundex.soundex(right.toString()))
                ? 1.0
                : 0.0;
+      }
+
+   }
+
+   static class LevenshteinSimilarityPercentage implements SimilarityScore<Double> {
+
+      private final LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
+
+      @Override
+      public Double apply(
+            final CharSequence left,
+            final CharSequence right) {
+         if (StringUtils.isEmpty(left) || StringUtils.isEmpty(right)) {
+            return 0.5;
+         }
+
+         int maxLength = Math.max(left.length(), right.length());
+         double levenshteinDistanceValue = levenshteinDistance.apply(left, right);
+
+         // Invert the percentage value
+         double percentage = (levenshteinDistanceValue / maxLength) * 100;
+         double invertedPercentage = 100 - percentage;
+
+         return invertedPercentage;
+      }
+
+   }
+
+   static class LevenshteinSimilarity implements SimilarityScore<Double> {
+
+      private final LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
+
+      @Override
+      public Double apply(
+            final CharSequence left,
+            final CharSequence right) {
+         if (StringUtils.isEmpty(left) || StringUtils.isEmpty(right)) {
+            return 0.5;
+         }
+
+         return Double.valueOf(levenshteinDistance.apply(left, right));
       }
 
    }
