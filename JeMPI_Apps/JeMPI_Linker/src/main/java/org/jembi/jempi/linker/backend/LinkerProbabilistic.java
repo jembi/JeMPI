@@ -17,6 +17,7 @@ import org.jembi.jempi.shared.utils.AppUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.abs;
@@ -95,12 +96,10 @@ public final class LinkerProbabilistic {
        SimilarityFunctionName.LEVENSHTEIN_SIMILARITY, LEVENSHTEIN_SIMILARITY,
        SimilarityFunctionName.LEVENSHTEIN_SIMILARITY_PERCENTAGE, LEVENSHTEIN_SIMILARITY_PERCENTAGE,
        SimilarityFunctionName.EXACT_SIMILARITY, EXACT_SIMILARITY
-   );
+                                                                                                             );
 
    static SimilarityScore<Double> getSimilarityFunction(final SimilarityFunctionName func) {
       return SIMILARITY_FUNCTION_MAP.getOrDefault(func, EXACT_SIMILARITY);
-   }
-      }
    }
 
    public static void updateMU(final MUPacket mu) {
@@ -327,7 +326,7 @@ public final class LinkerProbabilistic {
             final CharSequence left,
             final CharSequence right) {
          if (StringUtils.isEmpty(left) || StringUtils.isEmpty(right)) {
-            return 0.5;
+            return 0.0;
          }
 
          int maxLength = Math.max(left.length(), right.length());
