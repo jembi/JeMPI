@@ -610,9 +610,6 @@ public final class Programs {
                                            operation.auxString()));
          }
          if (Boolean.TRUE.equals(evalStack.pop())) {
-//            LOGGER.debug("Deterministic match: {}={}",
-//                         goldenRecord.fields.get(Config.FIELDS_CONFIG.findIndexOfDemographicField("pin")),
-//                         interaction.fields.get(Config.FIELDS_CONFIG.findIndexOfDemographicField("pin")));
             return true;
          }
       }
