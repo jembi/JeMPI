@@ -31,7 +31,6 @@ public final class LinkerProbabilistic {
    static final JaroSimilarity JARO_SIMILARITY = new JaroSimilarity();
    static final ExactSimilarity EXACT_SIMILARITY = new ExactSimilarity();
    static final SoundexSimilarity SOUNDEX_SIMILARITY = new SoundexSimilarity();
-   static final LevenshteinSimilarity LEVENSHTEIN_SIMILARITY  = new LevenshteinSimilarity();
    static final LevenshteinSimilarityPercentage LEVENSHTEIN_SIMILARITY_PERCENTAGE  = new LevenshteinSimilarityPercentage();
    private static final int METRIC_MIN = 0;
    private static final int METRIC_MAX = 1;
@@ -84,7 +83,6 @@ public final class LinkerProbabilistic {
       JACCARD_SIMILARITY,
       SOUNDEX_SIMILARITY,
       EXACT_SIMILARITY,
-      LEVENSHTEIN_SIMILARITY,
       LEVENSHTEIN_SIMILARITY_PERCENTAGE
    }
 
@@ -93,7 +91,6 @@ public final class LinkerProbabilistic {
        SimilarityFunctionName.JARO_SIMILARITY, JARO_SIMILARITY,
        SimilarityFunctionName.JACCARD_SIMILARITY, JACCARD_SIMILARITY,
        SimilarityFunctionName.SOUNDEX_SIMILARITY, SOUNDEX_SIMILARITY,
-       SimilarityFunctionName.LEVENSHTEIN_SIMILARITY, LEVENSHTEIN_SIMILARITY,
        SimilarityFunctionName.LEVENSHTEIN_SIMILARITY_PERCENTAGE, LEVENSHTEIN_SIMILARITY_PERCENTAGE,
        SimilarityFunctionName.EXACT_SIMILARITY, EXACT_SIMILARITY
                                                                                                              );
@@ -337,23 +334,6 @@ public final class LinkerProbabilistic {
          double invertedPercentage = 100 - percentage;
 
          return invertedPercentage / 100.0;
-      }
-
-   }
-
-   static class LevenshteinSimilarity implements SimilarityScore<Double> {
-
-      private final LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
-
-      @Override
-      public Double apply(
-            final CharSequence left,
-            final CharSequence right) {
-         if (StringUtils.isEmpty(left) || StringUtils.isEmpty(right)) {
-            return 0.5;
-         }
-
-         return Double.valueOf(levenshteinDistance.apply(left, right));
       }
 
    }
