@@ -16,7 +16,7 @@ pushd .
       docker exec -e PGPASSWORD=${POSTGRESQL_PASSWORD} $(docker ps -q -f name=${STACK_NAME}_postgres) psql -U ${POSTGRESQL_USERNAME} -d ${POSTGRESQL_DATABASE} -c "CREATE DATABASE ${POSTGRESQL_MPI_DB}"
   fi
 
-  PGPASSWORD=${POSTGRESQL_PASSWORD} psql -h localhost -p 5432 -U ${POSTGRESQL_USERNAME} -d ${POSTGRESQL_MPI_DB} -f ./conf/postgres/mpi-schema.sql
+#PGPASSWORD=${POSTGRESQL_PASSWORD} psql -h localhost -p 5432 -U ${POSTGRESQL_USERNAME} -d ${POSTGRESQL_MPI_DB} -f ./conf/postgres/mpi-schema.sql
 
-#docker exec -e PGPASSWORD=${POSTGRESQL_PASSWORD} $(docker ps -q -f name=${STACK_NAME}_postgresql) psql -U ${POSTGRESQL_USERNAME} -d ${POSTGRESQL_MPI_DB} -a -f /conf/mpi-schema.sql
+  docker exec -e PGPASSWORD=${POSTGRESQL_PASSWORD} $(docker ps -q -f name=${STACK_NAME}_postgresql) psql -U ${POSTGRESQL_USERNAME} -d ${POSTGRESQL_MPI_DB} -a -f /conf/mpi-schema.sql
 popd

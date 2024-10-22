@@ -222,6 +222,7 @@ final class PsqlMutations {
       LOGGER.debug("updateLink {}", score);
       UUID sourceId;
       try {
+         PSQL_CLIENT.connect();
          sourceId = ENCOUNTER_DAO.getFieldUuidValueById(PSQL_CLIENT, UUID.fromString(interactionId), "sourceIdUid");
       } catch (SQLException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
