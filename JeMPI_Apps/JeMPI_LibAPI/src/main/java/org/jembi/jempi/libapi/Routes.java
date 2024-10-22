@@ -582,10 +582,10 @@ public final class Routes {
                            }));
    }
 
-   private static Route getDataList(
-      final ActorSystem<Void> actorSystem,
-      final ActorRef<BackEnd.Event> backEnd) {
-  return entity(Jackson.unmarshaller(ApiModels.AllList.class),
+   public static Route getDataList(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      return entity(Jackson.unmarshaller(ApiModels.AllList.class),
           request -> onComplete(Ask.getAllList(actorSystem, backEnd, request),
                   result -> {
                       if (!result.isSuccess()) {
@@ -595,7 +595,7 @@ public final class Routes {
                   }));
 }
 
-   private static Route getFieldsConfiguration(
+   public static Route getFieldsConfiguration(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(Ask.getFieldsConfiguration(actorSystem, backEnd),
@@ -607,7 +607,7 @@ public final class Routes {
                         });
    }
 
-   private static Route postConfiguration(
+   public static Route postConfiguration(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return entity(Jackson.unmarshaller(Configuration.class),

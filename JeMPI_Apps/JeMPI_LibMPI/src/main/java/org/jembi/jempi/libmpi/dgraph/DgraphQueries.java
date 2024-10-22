@@ -489,7 +489,7 @@ final class DgraphQueries {
     String endDate = countFields.endDate(); // Assume endDate is of LocalDate type
     
     boolean hasValues = fieldValues != null && !fieldValues.isEmpty();
-    boolean hasDateRange = startDate != null && endDate != null && !startDate.isEmpty() && !endDate.isEmpty();
+    boolean hasDateRange = startDate != null && endDate != null;
 
     StringBuilder queryBuilder = new StringBuilder();
     queryBuilder.append("query count() {");
@@ -1329,7 +1329,7 @@ final class DgraphQueries {
         JsonNode recordArray = jsonNode.get("peopleInDateRange");
 
         // Extract each `dob` and add to the list
-        if (recordArray != null) {
+        if (recordArray != null && recordArray.isArray()) {
             for (JsonNode person : recordArray) {
                   if (person.has("GoldenRecord.dob")) {
                      dobList.add(person.get("GoldenRecord.dob").asText());
