@@ -8,7 +8,6 @@ import akka.http.javadsl.marshalling.Marshaller;
 import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.Route;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.MpiServiceError;
@@ -559,10 +558,9 @@ public final class Routes {
                             if (!result.isSuccess()) {
                                 return handleError(result.failed().get());
                             }
-                            ObjectMapper objectMapper = new ObjectMapper();
                             JsonNode jsonResponse = null;
                             try {
-                                jsonResponse = objectMapper.readTree(result.get().genderCount());
+                                jsonResponse = OBJECT_MAPPER.readTree(result.get().genderCount());
                             } catch (JsonProcessingException e) {
                                 throw new RuntimeException(e);
                             }

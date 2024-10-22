@@ -528,7 +528,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          request.replyTo.tell(new GetFieldCountResponse(getCount));
       } catch (Exception e) {
          LOGGER.error(e.getLocalizedMessage(), e);
-         LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}", e.getMessage());
+         LOGGER.error("libMPI.getFieldCount failed for goldenId: {} with error: {}", e.getMessage());
       }
       return Behaviors.same();
    }
@@ -543,7 +543,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          request.replyTo.tell(new GetAgeGroupCountResponse(getCount));
       } catch (Exception e) {
          LOGGER.error(e.getLocalizedMessage(), e);
-         LOGGER.error("libMPI.findExpandedGoldenRecord failed for goldenId: {} with error: {}", e.getMessage());
+         LOGGER.error("libMPI.getAgeGroupCountHandler failed for goldenId: {} with error: {}", e.getMessage());
       }
       return Behaviors.same();
    }
@@ -569,14 +569,14 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
         int count = 0;
         // Iterate through the list of DOBs and calculate the age for each
         for (String dob : dobList) {
-            if (!dob.isEmpty()) {
+            if (dob != null && !dob.isEmpty()) {
                try {
                 LocalDate birthDate = LocalDate.parse(dob, formatter);  // Try to convert DOB to LocalDate
                 int age = Period.between(birthDate, today).getYears();  // Calculate age in years
                 totalAge += age;
                 count++;
                } catch (DateTimeParseException e) {
-                  LOGGER.error("Invalid date format for dob: " + dob + ". Skipping this record.");
+                  LOGGER.error("Invalid date format for dob: {}. Skipping this record.", dob);
                }
             }
         }

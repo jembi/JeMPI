@@ -489,7 +489,7 @@ final class DgraphQueries {
     String endDate = countFields.endDate(); // Assume endDate is of LocalDate type
     
     boolean hasValues = fieldValues != null && !fieldValues.isEmpty();
-    boolean hasDateRange = startDate != null && endDate != null;
+    boolean hasDateRange = startDate != null && endDate != null && !startDate.isEmpty() && !endDate.isEmpty();
 
     StringBuilder queryBuilder = new StringBuilder();
     queryBuilder.append("query count() {");
@@ -1292,7 +1292,7 @@ final class DgraphQueries {
 
          // Build the query dynamically based on date range availability
          String query;
-         if (!startDate.isEmpty() && !endDate.isEmpty()) {
+         if (startDate != null && endDate != null && !startDate.isEmpty() && !endDate.isEmpty()) {
             query = String.format("""
                {
                      peopleInDateRange(func: has(GoldenRecord.%s)) 
@@ -1326,14 +1326,16 @@ final class DgraphQueries {
         List<String> dobList = new ArrayList<>();
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(responseJson);
-        JsonNode peopleArray = jsonNode.get("peopleInDateRange");
+        JsonNode recordArray = jsonNode.get("peopleInDateRange");
 
         // Extract each `dob` and add to the list
-        for (JsonNode person : peopleArray) {
-            if (person.has("GoldenRecord.dob")) {
-                dobList.add(person.get("GoldenRecord.dob").asText());
+        if (recordArray != null) {
+            for (JsonNode person : recordArray) {
+                  if (person.has("GoldenRecord.dob")) {
+                     dobList.add(person.get("GoldenRecord.dob").asText());
+                  }
             }
-        }
+      }
         return dobList;
     }
 

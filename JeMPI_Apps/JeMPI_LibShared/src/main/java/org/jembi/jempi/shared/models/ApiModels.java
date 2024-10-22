@@ -444,6 +444,7 @@ public abstract class ApiModels {
          Boolean sortAsc) {
          }
 
+   @JsonInclude(JsonInclude.Include.NON_NULL)
    public record AllList(String field, String startDate, String endDate) { }
 
    public record AverageAgeResponse(double averageAge) { }
