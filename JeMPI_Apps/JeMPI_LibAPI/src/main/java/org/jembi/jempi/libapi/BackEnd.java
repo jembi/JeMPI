@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.LibMPI;
 import org.jembi.jempi.libmpi.MpiGeneralError;
 import org.jembi.jempi.libmpi.MpiServiceError;
+import org.jembi.jempi.shared.config.Config;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.models.ConfigurationModel.Configuration;
 import org.jembi.jempi.shared.models.dashboard.NotificationStats;
@@ -91,6 +92,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          psqlAuditTrail = new PsqlAuditTrail(sqlIP, sqlPort, sqlAuditDb, sqlUser, sqlPassword);
          openMPI(kafkaBootstrapServers, kafkaClientId, debugLevel);
          psqlClient = new PsqlClient(sqlIP, sqlPort, sqlConfigurationDb, sqlUser, sqlPassword);
+         Config.create(sqlIP, sqlPort, sqlConfigurationDb, sqlUser, sqlPassword);
          this.postgresClientDao = PostgresClientDaoImpl.create(sqlIP, sqlPort, sqlConfigurationDb, sqlUser, sqlPassword);
       } catch (Exception e) {
          LOGGER.error(e.getMessage(), e);
