@@ -12,10 +12,13 @@ import org.jembi.jempi.libmpi.common.PartialFunction;
 import org.jembi.jempi.shared.config.linker.Programs;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.utils.AppUtils;
-
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.IntStream;
+
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.jembi.jempi.shared.config.Config.*;
 import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
@@ -422,6 +425,15 @@ final class DgraphQueries {
       return 0L;
    }
 
+   private static String getFieldsCount(final String query) {
+      try {
+         return DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
+      } catch (Exception e) {
+         LOGGER.error(e.getLocalizedMessage());
+         return e.getLocalizedMessage();
+      }
+   }
+
    /**
     * Count golden records long.
     *
@@ -467,6 +479,70 @@ final class DgraphQueries {
                         }""";
       return getCount(query);
    }
+
+   static String getFieldCount(final ApiModels.CountFields countFields) {
+    String fieldName = countFields.fieldName();
+    String fieldType = countFields.recordType();
+    List<String> fieldValues = countFields.value();
+    
+    String startDate = countFields.startDate(); // Assume startDate is of LocalDate type
+    String endDate = countFields.endDate(); // Assume endDate is of LocalDate type
+    
+    boolean hasValues = fieldValues != null && !fieldValues.isEmpty();
+    boolean hasDateRange = startDate != null && endDate != null;
+
+    StringBuilder queryBuilder = new StringBuilder();
+    queryBuilder.append("query count() {");
+
+    // Count based on the conditions
+    if (!hasValues && !hasDateRange) {
+        // Count field when values and date range are absent
+        queryBuilder.append(String.format("""
+            totalCount(func: type(%s)) {
+                total: count(uid)
+            }
+            """, fieldType));
+    } else if (!hasValues && hasDateRange) {
+        // Count field with date range when values are absent
+        queryBuilder.append(String.format("""
+            totalCount(func: has(%s.%s)) @filter(ge(%s.aux_date_created, "%s") AND le(%s.aux_date_created, "%s")) {
+                total: count(uid)
+            }
+            """, fieldType, fieldName, fieldType, startDate, fieldType, endDate));
+    } else if (hasValues && !hasDateRange) {
+        // Count values when date range is absent
+        for (String value : fieldValues) {
+            queryBuilder.append(String.format("""
+                %s(func: eq(%s.%s, "%s")) {
+                    total: count(uid)
+                }
+                """, value.toLowerCase(), fieldType, fieldName, value));
+        }
+    } else if (hasValues && hasDateRange) {
+        // Count values with date range present
+        for (String value : fieldValues) {
+            queryBuilder.append(String.format("""
+                %s(func: eq(%s.%s, "%s")) @filter(ge(%s.aux_date_created, "%s") AND le(%s.aux_date_created, "%s")) {
+                    total: count(uid)
+                }
+                """, value.toLowerCase(), fieldType, fieldName, value, fieldType, startDate, fieldType, endDate));
+        }
+    } else if (hasDateRange) {
+        // Only count field with date range present
+        queryBuilder.append(String.format("""
+            totalCount(func: has(%s.%s)) @filter(ge(%s.aux_date_created, "%s") AND le(%s.aux_date_created, "%s")) {
+                total: count(uid)
+            }
+            """, fieldType, fieldName, fieldType, startDate, fieldType, endDate));
+    }
+
+    queryBuilder.append("}");
+    String query = queryBuilder.toString();
+
+    // Call the getFieldsCount method with the constructed query
+    return getFieldsCount(query);
+}
+
 
    private static LinkedList<GoldenRecord> deterministicSelectGoldenRecords(
          final List<PartialFunction<DemographicData, List<GoldenRecord>>> queryFunctions,
@@ -1176,5 +1252,91 @@ final class DgraphQueries {
          super(errorMessage);
       }
    }
+
+   /**
+    * Get age group count based on start and end dates for DOB.
+    *
+    * @param startDate The start date of the age range (inclusive)
+    * @param endDate The end date of the age range (inclusive)
+    * @return A string containing the JSON response with the count
+    */
+    public static long getAgeGroupCount(final ApiModels.SearchAgeCountFields searchAgeCountFields) {
+      // Constructing the query string
+      String field = searchAgeCountFields.field();
+      String startDate = searchAgeCountFields.startDate();  // Empty means no start date
+      String endDate = searchAgeCountFields.endDate();
+      String query = String.format(Locale.ROOT,
+          """
+          {
+            list(func: has(GoldenRecord.%s)) @filter(ge(GoldenRecord.%s, "%s") AND le(GoldenRecord.%s, "%s")) {
+              count(uid)
+            }
+          }
+          """,
+          field, field, startDate, field, endDate);  // Order of %s matches the date range
+      try {
+          LOGGER.info("Query: {}", query);
+          return getCount(query);
+      } catch (Exception e) {
+          LOGGER.error("Error executing age group count query", e);
+          return 0L; // Return default count in case of error
+      }
+  }
+
+   public static List<String> getAllList(final ApiModels.AllList allListRequest) {
+      try {
+            // Assume these values come from a request
+         String field = allListRequest.field();
+         String startDate = allListRequest.startDate();  // Empty means no start date
+         String endDate = allListRequest.endDate();    // Empty means no end date
+
+         // Build the query dynamically based on date range availability
+         String query;
+         if (startDate != null && endDate != null && !startDate.isEmpty() && !endDate.isEmpty()) {
+            query = String.format("""
+               {
+                     peopleInDateRange(func: has(GoldenRecord.%s)) 
+                     @filter(ge(GoldenRecord.aux_date_created, "%s") AND le(GoldenRecord.aux_date_created, "%s")) {
+                        GoldenRecord.%s
+                     }
+               }
+            """, field, startDate, endDate, field);
+         } else {
+            query = String.format("""
+               {
+                     peopleInDateRange(func: has(GoldenRecord.%s)) {
+                        GoldenRecord.%s
+                     }
+               }
+            """, field, field);
+         }
+         LOGGER.info("Query: {}", query);
+         // Assuming `DgraphClient` is set up to make requests
+         String responseJson = DgraphClient.getInstance().executeReadOnlyTransaction(query, null);
+         // Parse the JSON response to extract DOBs
+         List<String> dobList = parseDobFromResponse(responseJson);
+         return dobList;
+      } catch (Exception e) {
+            e.printStackTrace();
+            return List.of("Error: " + e.getMessage());
+      }
+   }
+
+  private static List<String> parseDobFromResponse(final String responseJson) throws JsonMappingException, JsonProcessingException {
+        List<String> dobList = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jsonNode = mapper.readTree(responseJson);
+        JsonNode recordArray = jsonNode.get("peopleInDateRange");
+
+        // Extract each `dob` and add to the list
+        if (recordArray != null && recordArray.isArray()) {
+            for (JsonNode person : recordArray) {
+                  if (person.has("GoldenRecord.dob")) {
+                     dobList.add(person.get("GoldenRecord.dob").asText());
+                  }
+            }
+      }
+        return dobList;
+    }
 
 }

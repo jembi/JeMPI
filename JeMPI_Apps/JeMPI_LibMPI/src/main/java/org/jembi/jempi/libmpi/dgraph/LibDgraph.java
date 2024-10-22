@@ -79,6 +79,18 @@ public final class LibDgraph implements LibMPIClientInterface {
       return DgraphQueries.getExpandedGoldenRecords(goldenIds);
    }
 
+   public String getFieldCount(final ApiModels.CountFields countFields) {
+      return DgraphQueries.getFieldCount(countFields);
+   }
+
+   public long getAgeGroupCount(final ApiModels.SearchAgeCountFields searchAgeCountFields) {
+      return DgraphQueries.getAgeGroupCount(searchAgeCountFields);
+   }
+
+   public List<String> getAllList(final ApiModels.AllList allList) {
+      return DgraphQueries.getAllList(allList);
+   }
+
    public String restoreGoldenRecord(
            final RestoreGoldenRecords goldenRecord) {
       return dgraphMutations.restoreGoldenRecord(goldenRecord);

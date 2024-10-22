@@ -25,6 +25,7 @@ public final class GlobalConstants {
    public static final String SEGMENT_POST_CONFIGURATION = "configuration";
    public static final String SEGMENT_COUNT_INTERACTIONS = "countInteractions";
    public static final String SEGMENT_COUNT_GOLDEN_RECORDS = "countGoldenRecords";
+   public static final String SEGMENT_GET_FIELD_COUNT = "getFieldCount";
    public static final String SEGMENT_COUNT_RECORDS = "countRecords";
    public static final String SEGMENT_GET_GIDS_ALL = "gidsAll";
    public static final String SEGMENT_POST_GIDS_PAGED = "gidsPaged";
@@ -62,7 +63,8 @@ public final class GlobalConstants {
    public static final String SEGMENT_LOGOUT = "logout";
    public static final String SEGMENT_CURRENT_USER = "currentUser";
    public static final String SEGMENT_POST_GOLDEN_RECORD_RESTORE = "restoreGoldenRecord";
-
+   public static final String SEGMENT_GET_AGE_GROUP_COUNT = "getAgeGroupCount";
+   public static final String SEGMENT_GET_DATA_LIST = "getDataList";
    // TIMEOUTS
    public static final int TIMEOUT_DGRAPH_RECONNECT_RETRIES = 5;
    public static final int TIMEOUT_DGRAPH_RECONNECT_SLEEP_SECS = 2;

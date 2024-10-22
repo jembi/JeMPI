@@ -402,6 +402,24 @@ public abstract class ApiModels {
          DemographicData demographicData) {
    }
 
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record CountFields(
+           String fieldName,
+           List<String> value,
+           String recordType,
+           String startDate,
+           String endDate
+          ) {
+   }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record SearchAgeCountFields(
+            String startDate,
+            String endDate,
+            String field
+          ) {
+   }
+
    public record ApiCalculateScoresResponse(
          String interactionId,
          List<ApiScore> scores) {
@@ -425,5 +443,10 @@ public abstract class ApiModels {
          String sortBy,
          Boolean sortAsc) {
          }
+
+   @JsonInclude(JsonInclude.Include.NON_NULL)
+   public record AllList(String field, String startDate, String endDate) { }
+
+   public record AverageAgeResponse(double averageAge) { }
 
 }

@@ -7,6 +7,7 @@ import akka.http.javadsl.marshallers.jackson.Jackson;
 import akka.http.javadsl.marshalling.Marshaller;
 import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.Route;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.libmpi.MpiServiceError;
@@ -548,7 +549,53 @@ public final class Routes {
                         });
    }
 
-   private static Route getFieldsConfiguration(
+    public static Route getFieldCount(
+            final ActorSystem<Void> actorSystem,
+            final ActorRef<BackEnd.Event> backEnd) {
+        return entity(Jackson.unmarshaller(ApiModels.CountFields.class),
+                request -> onComplete(Ask.getFieldCount(actorSystem, backEnd, request),
+                        result -> {
+                            if (!result.isSuccess()) {
+                                return handleError(result.failed().get());
+                            }
+                            JsonNode jsonResponse = null;
+                            try {
+                                jsonResponse = OBJECT_MAPPER.readTree(result.get().genderCount());
+                            } catch (JsonProcessingException e) {
+                                throw new RuntimeException(e);
+                            }
+                            // Complete the request with JSON response
+                            return complete(StatusCodes.OK, jsonResponse, JSON_MARSHALLER);
+                        }));
+    }
+
+   public static Route getAgeGroupCount(
+           final ActorSystem<Void> actorSystem,
+           final ActorRef<BackEnd.Event> backEnd) {
+       return entity(Jackson.unmarshaller(ApiModels.SearchAgeCountFields.class),
+               request -> onComplete(Ask.getAgeGroupCount(actorSystem, backEnd, request),
+                       result -> {
+                           if (!result.isSuccess()) {
+                               return handleError(result.failed().get());
+                           }
+                           return complete(StatusCodes.OK, result.get().ageGroupCount(), JSON_MARSHALLER);
+                           }));
+   }
+
+   public static Route getDataList(
+         final ActorSystem<Void> actorSystem,
+         final ActorRef<BackEnd.Event> backEnd) {
+      return entity(Jackson.unmarshaller(ApiModels.AllList.class),
+          request -> onComplete(Ask.getAllList(actorSystem, backEnd, request),
+                  result -> {
+                      if (!result.isSuccess()) {
+                          return handleError(result.failed().get());
+                      }
+                      return complete(StatusCodes.OK, result.get(), JSON_MARSHALLER);
+                  }));
+}
+
+   public static Route getFieldsConfiguration(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return onComplete(Ask.getFieldsConfiguration(actorSystem, backEnd),
@@ -560,7 +607,7 @@ public final class Routes {
                         });
    }
 
-   private static Route postConfiguration(
+   public static Route postConfiguration(
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Event> backEnd) {
       return entity(Jackson.unmarshaller(Configuration.class),
@@ -661,6 +708,12 @@ public final class Routes {
                                () -> Routes.getNotifications(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_GOLDEN_RECORD,
                                () -> Routes.updateGoldenRecord(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_FIELD_COUNT,
+                               () -> Routes.getFieldCount(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_AGE_GROUP_COUNT,
+                               () -> Routes.getAgeGroupCount(actorSystem, backEnd)),
+                          path(GlobalConstants.SEGMENT_GET_DATA_LIST,
+                               () -> Routes.getDataList(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_POST_FILTER_GIDS_WITH_INTERACTION_COUNT,
                                () -> Routes.postFilterGidsWithInteractionCount(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_PROXY_POST_CR_UPDATE_FIELDS,
@@ -677,7 +730,8 @@ public final class Routes {
                           path(GlobalConstants.SEGMENT_GET_CONFIGURATION,
                                () -> Routes.getConfiguration(actorSystem, backEnd)),
                           path(GlobalConstants.SEGMENT_GET_FIELDS_CONFIGURATION,
-                               () -> Routes.getFieldsConfiguration(actorSystem, backEnd)))));
+                               () -> Routes.getFieldsConfiguration(actorSystem, backEnd))
+                          )));
    }
 
 }
