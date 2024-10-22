@@ -9,7 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.AppConfig;
 import org.jembi.jempi.libapi.BackEnd;
-
+import org.jembi.jempi.shared.config.Config;
 import java.util.UUID;
 
 public final class API {
@@ -23,6 +23,13 @@ public final class API {
 
    public static void main(final String[] args) {
       try {
+         // PostgresConfig postgresConfig = new PostgresConfig("localhost", 5432, "jempi", "postgres", "postgres");
+         Config.create(AppConfig.POSTGRESQL_IP,
+         AppConfig.POSTGRESQL_PORT,
+         AppConfig.POSTGRESQL_CONFIGURATION_DB,
+         AppConfig.POSTGRESQL_USER,
+         AppConfig.POSTGRESQL_PASSWORD);
+
          new API().run();
       } catch (Exception e) {
          LOGGER.error(e.getLocalizedMessage(), e);
@@ -40,6 +47,7 @@ public final class API {
                                                                         AppConfig.POSTGRESQL_PASSWORD,
                                                                         AppConfig.POSTGRESQL_NOTIFICATIONS_DB,
                                                                         AppConfig.POSTGRESQL_AUDIT_DB,
+                                                                        AppConfig.POSTGRESQL_CONFIGURATION_DB,
                                                                         AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                                                         "CLIENT_ID_API-" + UUID.randomUUID(),
                                                                         AppConfig.SYSTEM_CONFIG_DIR,

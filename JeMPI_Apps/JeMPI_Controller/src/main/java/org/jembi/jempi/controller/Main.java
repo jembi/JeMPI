@@ -93,6 +93,7 @@ public final class Main {
       LOGGER.info("CONFIG: {} {} {} {} {}",
                   AppConfig.POSTGRESQL_NOTIFICATIONS_DB,
                   AppConfig.POSTGRESQL_AUDIT_DB,
+                  AppConfig.POSTGRESQL_CONFIGURATION_DB,
                   AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                   AppConfig.KAFKA_APPLICATION_ID,
                   AppConfig.KAFKA_CLIENT_ID);

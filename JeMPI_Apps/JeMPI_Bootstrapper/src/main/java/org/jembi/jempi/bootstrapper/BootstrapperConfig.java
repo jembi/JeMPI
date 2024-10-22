@@ -16,12 +16,16 @@ public class BootstrapperConfig {
    public final String POSTGRESQL_DATABASE;
    public final String POSTGRESQL_USERS_DB;
    public final String POSTGRESQL_NOTIFICATIONS_DB;
+   public final String POSTGRESQL_CONFIGURATION_DB;
    public final String POSTGRESQL_AUDIT_DB;
    public final String POSTGRESQL_KC_TEST_DB;
    public final String KAFKA_BOOTSTRAP_SERVERS;
    public final String KAFKA_APPLICATION_ID;
    public final String[] DGRAPH_ALPHA_HOSTS;
    public final int[] DGRAPH_ALPHA_PORTS;
+   public final String API_CONFIG_REFERENCE_FILENAME;
+   public final String API_FIELDS_CONFIG_FILENAME;
+   public final String SYSTEM_CONFIG_DIR;
 
    public BootstrapperConfig(final Config parsedConfig) {
       POSTGRESQL_IP = parsedConfig.getString("POSTGRESQL_IP");
@@ -33,11 +37,15 @@ public class BootstrapperConfig {
       POSTGRESQL_USERS_DB = parsedConfig.getString("POSTGRESQL_USERS_DB");
       POSTGRESQL_NOTIFICATIONS_DB = parsedConfig.getString("POSTGRESQL_NOTIFICATIONS_DB");
       POSTGRESQL_AUDIT_DB = parsedConfig.getString("POSTGRESQL_AUDIT_DB");
+      POSTGRESQL_CONFIGURATION_DB = parsedConfig.getString("POSTGRESQL_CONFIGURATION_DB");
       POSTGRESQL_KC_TEST_DB = parsedConfig.getString("POSTGRESQL_KC_TEST_DB");
 
       KAFKA_BOOTSTRAP_SERVERS = parsedConfig.getString("KAFKA_BOOTSTRAP_SERVERS");
       KAFKA_APPLICATION_ID = parsedConfig.getString("KAFKA_APPLICATION_ID");
       DGRAPH_ALPHA_HOSTS = parsedConfig.getString("DGRAPH_HOSTS").split(",");
+      API_CONFIG_REFERENCE_FILENAME = parsedConfig.getString("API_CONFIG_REFERENCE_FILENAME");
+      API_FIELDS_CONFIG_FILENAME = parsedConfig.getString("API_FIELDS_CONFIG_FILENAME");
+      SYSTEM_CONFIG_DIR = parsedConfig.getString("SYSTEM_CONFIG_DIR");
       DGRAPH_ALPHA_PORTS = Arrays.stream(parsedConfig.getString("DGRAPH_PORTS").split(",")).mapToInt(s -> {
          try {
             return Integer.parseInt(s);

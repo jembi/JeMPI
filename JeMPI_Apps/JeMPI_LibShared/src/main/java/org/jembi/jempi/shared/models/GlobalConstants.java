@@ -14,7 +14,7 @@ public final class GlobalConstants {
    public static final String TOPIC_AUDIT_TRAIL = "JeMPI-audit-trail";
    public static final String TOPIC_NOTIFICATIONS = "JeMPI-notifications";
    public static final String PSQL_TABLE_AUDIT_TRAIL = "audit_trail";
-
+   public static final String PSQL_TABLE_CONFIGURATION = "configuration";
    /*
     *
     * HTTP SEGMENTS
@@ -70,6 +70,10 @@ public final class GlobalConstants {
    public static final int TIMEOUT_DGRAPH_AKKA_SECS = (TIMEOUT_DGRAPH_RECONNECT_RETRIES * TIMEOUT_DGRAPH_QUERY_SECS) + (TIMEOUT_DGRAPH_RECONNECT_RETRIES * TIMEOUT_DGRAPH_RECONNECT_SLEEP_SECS);
    public static final int TIMEOUT_GENERAL_SECS = 60;
    public static final int TIMEOUT_TEA_TIME_SECS = 30;
+
+   //Configuration Key
+   public static final String CONFIGURATION_CONFIG_KEY = "config";
+   public static final String CONFIGURATION_CONFIG_API_KEY = "config-api";
 
    private GlobalConstants() {
    }
