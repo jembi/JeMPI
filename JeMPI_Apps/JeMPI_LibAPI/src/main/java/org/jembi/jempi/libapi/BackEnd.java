@@ -528,7 +528,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          request.replyTo.tell(new GetFieldCountResponse(getCount));
       } catch (Exception e) {
          LOGGER.error(e.getLocalizedMessage(), e);
-         LOGGER.error("libMPI.getFieldCount failed for goldenId: {} with error: {}", e.getMessage());
+         LOGGER.error("libMPI.getFieldCount failed for with error: {}", e.getMessage());
       }
       return Behaviors.same();
    }
@@ -543,7 +543,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
          request.replyTo.tell(new GetAgeGroupCountResponse(getCount));
       } catch (Exception e) {
          LOGGER.error(e.getLocalizedMessage(), e);
-         LOGGER.error("libMPI.getAgeGroupCountHandler failed for goldenId: {} with error: {}", e.getMessage());
+         LOGGER.error("libMPI.getAgeGroupCountHandler failed with error: {}", e.getMessage());
       }
       return Behaviors.same();
    }
@@ -553,7 +553,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       try {
          dobList = libMPI.getAllList(request.allListRequest);
          LOGGER.info("dobList size: {}", dobList.size());
-         // double allList = calculateAvarageAge(dobList);
          request.replyTo.tell(new GetAllListResponse(dobList));
       } catch (Exception e) {
          LOGGER.error(e.getLocalizedMessage(), e);
@@ -561,28 +560,6 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Event> {
       }
       return Behaviors.same();
    }
-
-    public static double calculateAvarageAge(final List<String> dobList) {
-        LocalDate today = LocalDate.now();  // Get today's date
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");  // DOB format in YYYYMMDD
-        int totalAge = 0;
-        int count = 0;
-        // Iterate through the list of DOBs and calculate the age for each
-        for (String dob : dobList) {
-            if (dob != null && !dob.isEmpty()) {
-               try {
-                LocalDate birthDate = LocalDate.parse(dob, formatter);  // Try to convert DOB to LocalDate
-                int age = Period.between(birthDate, today).getYears();  // Calculate age in years
-                totalAge += age;
-                count++;
-               } catch (DateTimeParseException e) {
-                  LOGGER.error("Invalid date format for dob: {}. Skipping this record.", dob);
-               }
-            }
-        }
-        // Calculate and return average age
-        return count > 0 ? (double) totalAge / count : 0;
-    }
 
    private Behavior<Event> getFieldsConfigurationHandler(final GetFieldsConfigurationRequest request) {
       final var separator = FileSystems.getDefault().getSeparator();
