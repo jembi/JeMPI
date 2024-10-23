@@ -12,6 +12,7 @@ import org.jembi.jempi.shared.config.LinkerConfig;
 import org.jembi.jempi.shared.models.DemographicData;
 import org.jembi.jempi.shared.models.MUPacket;
 import org.jembi.jempi.shared.utils.AppUtils;
+import org.apache.commons.codec.language.DoubleMetaphone;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +30,7 @@ public final class LinkerProbabilistic {
    static final JaroSimilarity JARO_SIMILARITY = new JaroSimilarity();
    static final ExactSimilarity EXACT_SIMILARITY = new ExactSimilarity();
    static final SoundexSimilarity SOUNDEX_SIMILARITY = new SoundexSimilarity();
+   static final DoubleMetaphoneSimilarity DOUBLE_METAPHONE_SIMILARITY = new DoubleMetaphoneSimilarity();
    private static final int METRIC_MIN = 0;
    private static final int METRIC_MAX = 1;
    private static final int METRIC_SCORE = 2;
@@ -79,7 +81,8 @@ public final class LinkerProbabilistic {
       JARO_SIMILARITY,
       JACCARD_SIMILARITY,
       SOUNDEX_SIMILARITY,
-      EXACT_SIMILARITY
+      EXACT_SIMILARITY,
+      DOUBLE_METAPHONE_SIMILARITY
    }
 
    static SimilarityScore<Double> getSimilarityFunction(final SimilarityFunctionName func) {
@@ -92,6 +95,8 @@ public final class LinkerProbabilistic {
             return JACCARD_SIMILARITY;
          case SOUNDEX_SIMILARITY:
             return SOUNDEX_SIMILARITY;
+         case DOUBLE_METAPHONE_SIMILARITY:
+            return DOUBLE_METAPHONE_SIMILARITY;
          default:
             return EXACT_SIMILARITY;
       }
@@ -373,6 +378,31 @@ public final class LinkerProbabilistic {
 
       }
 
+   }
+
+   static class DoubleMetaphoneSimilarity implements SimilarityScore<Double> {
+
+      private final DoubleMetaphone doubleMetaphone = new DoubleMetaphone();
+
+      @Override
+      public Double apply(
+            final CharSequence left,
+            final CharSequence right) {
+         if (StringUtils.isEmpty(left) || StringUtils.isEmpty(right)) {
+            return 0.5;
+         }
+
+         String leftPrimary = doubleMetaphone.doubleMetaphone(left.toString(), false);
+         String leftAlternate = doubleMetaphone.doubleMetaphone(left.toString(), true);
+         String rightPrimary = doubleMetaphone.doubleMetaphone(right.toString(), false);
+         String rightAlternate = doubleMetaphone.doubleMetaphone(right.toString(), true);
+
+         if (StringUtils.equals(leftPrimary, rightPrimary) || StringUtils.equals(leftPrimary, rightAlternate)
+         || StringUtils.equals(leftAlternate, rightPrimary) || StringUtils.equals(leftAlternate, rightAlternate)) {
+            return 1.0;
+         }
+         return 0.0;
+      }
    }
 
    public record ProbabilisticField(
