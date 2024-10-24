@@ -3,6 +3,13 @@
 set -e
 set -u
 
+CI="${CI:-false}"
+if [ $# -eq 0 ]; then
+    tag_to_use="ci-test-main" 
+else
+    tag_to_use=$1
+fi
+
 export USE_LOCAL_REGISTRY=false
 
 # Creating conf.env file
@@ -35,9 +42,18 @@ while true; do
 done
 
 # Maven package
-pushd ../../JeMPI_Apps || exit
-    mvn clean package
-popd || exit
+while true; do
+    read -p "Do you want to reset docker swarm? " yn
+    case $yn in
+        [Yy]* ) 
+          pushd ../../JeMPI_Apps || exit
+              mvn clean package
+          popd || exit
+          break;;
+        [Nn]* ) break;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
 
 # Run bash scripts
 while true; do
@@ -45,7 +61,7 @@ while true; do
     case $yn in
         [Yy]* )
           pushd ./docker/ || exit
-            source ./a-images-1-pull-from-hub.sh
+            CI=$CI TAG=$tag_to_use ./a-images-1-pull-from-hub.sh
           popd || exit
           break;;
         [Nn]* ) break;;
@@ -54,35 +70,35 @@ while true; do
 done
 
 pushd ../../JeMPI_Apps/JeMPI_UI
-  source ./build-image.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build-image.sh || exit 1
 popd
 pushd ../../JeMPI_Apps/JeMPI_AsyncReceiver
-  source ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd ../../JeMPI_Apps/JeMPI_BackupRestoreAPI
-  source ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd ../../JeMPI_Apps/JeMPI_Bootstrapper
-  source ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd ../../JeMPI_Apps/JeMPI_ETL
-  source ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd ../../JeMPI_Apps/JeMPI_Controller
-  source ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd ../../JeMPI_Apps/JeMPI_EM
-  source ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd ../../JeMPI_Apps/JeMPI_Linker
-  source ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd ../../JeMPI_Apps/JeMPI_API
-  source ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd ../../JeMPI_Apps/JeMPI_API_KC
-  source ./build.sh || exit 1
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd ./docker/ || exit
-  source ./d-stack-3-reboot.sh
+  ./d-stack-3-reboot.sh
 popd || exit
