@@ -19,11 +19,7 @@ import org.jembi.jempi.shared.models.GlobalConstants;
 
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static akka.http.javadsl.server.Directives.*;
 import static org.jembi.jempi.libapi.MapError.mapError;
@@ -115,6 +111,8 @@ public final class ProxyRoutes {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.LinkInteractionSyncBody.class),
                     obj -> {
                        try {
+                          final var json = OBJECT_MAPPER.writeValueAsString(obj);
+                          LOGGER.debug("{} {}", GlobalConstants.SEGMENT_PROXY_POST_CR_LINK, json);
                           return onComplete(proxyPostLinkInteractionDoIt(linkerIP, linkerPort, http, obj),
                                             response -> {
                                                if (!response.isSuccess()) {

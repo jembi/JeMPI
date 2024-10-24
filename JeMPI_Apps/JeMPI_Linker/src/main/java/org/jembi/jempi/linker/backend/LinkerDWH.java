@@ -268,9 +268,12 @@ public final class LinkerDWH {
          final float marginWindowSize_,
          final String envelopStan) {
 
-      LinkStatsMeta.ConfusionMatrix confusionMatrix;
-      FieldTallies fieldTallies = CUSTOM_FIELD_TALLIES_SUM_IDENTITY;
 
+      LOGGER.debug("linkInteraction 0 a");
+      LinkStatsMeta.ConfusionMatrix confusionMatrix;
+      LOGGER.debug("linkInteraction 0 b");
+      FieldTallies fieldTallies = CUSTOM_FIELD_TALLIES_SUM_IDENTITY;
+      LOGGER.debug("linkInteraction 1");
       if (linkStatsMetaProducer == null) {
          linkStatsMetaProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                                        GlobalConstants.TOPIC_INTERACTION_PROCESSOR_CONTROLLER,
@@ -278,15 +281,20 @@ public final class LinkerDWH {
                                                        linkStatsMetaSerializer(),
                                                        "LinkerDWH-MU-TALLIES");
       }
+      LOGGER.debug("linkInteraction 2");
 
       if (!Programs.canApplyLinking(LINKER_CONFIG.probabilisticLinkFields,
                                     LINKER_CONFIG.deterministicLinkPrograms,
                                     interaction.demographicData())) {
+         LOGGER.debug("linkInteraction 3");
          return doMatch(libMPI, interaction);
       } else {
+         LOGGER.debug("linkInteraction 4");
          LinkInfo linkInfo = null;
          final List<ExternalLinkCandidate> externalLinkCandidateList = new ArrayList<>();
          LinkerProbabilistic.checkUpdatedLinkMU();
+         LOGGER.debug("get candidates");
+         LOGGER.debug("linkInteraction 5");
          final var candidateGoldenRecords = libMPI.findLinkCandidates(interaction.demographicData());
          LOGGER.debug("{} : {}", envelopStan, candidateGoldenRecords.size());
          if (candidateGoldenRecords.isEmpty()) {

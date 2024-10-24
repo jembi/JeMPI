@@ -259,19 +259,28 @@ final class Routes {
          final ActorSystem<Void> actorSystem,
          final ActorRef<BackEnd.Request> backEnd) {
       return entity(Jackson.unmarshaller(OBJECT_MAPPER, ApiModels.LinkInteractionSyncBody.class),
-                    obj -> onComplete(Ask.postLinkInteraction(actorSystem, backEnd, obj), response -> {
-                       if (!response.isSuccess()) {
-                          final var e = response.failed().get();
+                    obj -> {
+                       try {
+                          final var json = OBJECT_MAPPER.writeValueAsString(obj);
+                          LOGGER.debug("JSON: {}", json);
+                       } catch (JsonProcessingException e) {
                           LOGGER.error(e.getLocalizedMessage(), e);
-                          return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
                        }
-                       final var eventLinkPatientSyncRsp = response.get();
-                       return complete(StatusCodes.OK,
-                                       new ApiModels.ApiExtendedLinkInfo(eventLinkPatientSyncRsp.stan(),
-                                                                         eventLinkPatientSyncRsp.linkInfo(),
-                                                                         eventLinkPatientSyncRsp.externalLinkCandidateList()),
-                                       Jackson.marshaller());
-                    }));
+                       return onComplete(Ask.postLinkInteraction(actorSystem, backEnd, obj),
+                                         response -> {
+                                            if (!response.isSuccess()) {
+                                               final var e = response.failed().get();
+                                               LOGGER.error(e.getLocalizedMessage(), e);
+                                               return mapError(new MpiServiceError.InternalError(e.getLocalizedMessage()));
+                                            }
+                                            final var eventLinkPatientSyncRsp = response.get();
+                                            return complete(StatusCodes.OK,
+                                                            new ApiModels.ApiExtendedLinkInfo(eventLinkPatientSyncRsp.stan(),
+                                                                                              eventLinkPatientSyncRsp.linkInfo(),
+                                                                                              eventLinkPatientSyncRsp.externalLinkCandidateList()),
+                                                            Jackson.marshaller());
+                                         });
+                    });
    }
 
    static Route proxyPostCrUpdateField(

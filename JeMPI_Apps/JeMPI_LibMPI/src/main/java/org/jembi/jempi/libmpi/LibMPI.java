@@ -1,12 +1,14 @@
 package org.jembi.jempi.libmpi;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jembi.jempi.libmpi.postgresql.LibPostgreSQL;
+import org.jembi.jempi.libmpi.dgraph.LibDgraph;
+//import org.jembi.jempi.libmpi.postgresql.LibPostgreSQL;
 import org.jembi.jempi.shared.kafka.MyKafkaProducer;
 import org.jembi.jempi.shared.models.*;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
@@ -16,6 +18,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+
+import static org.jembi.jempi.shared.utils.AppUtils.OBJECT_MAPPER;
 
 public final class LibMPI {
 
@@ -44,8 +48,8 @@ public final class LibMPI {
                                               new StringSerializer(),
                                               new JsonPojoSerializer<>(),
                                               kafkaClientId);
-//      client = new LibDgraph(level, host, port);
-      client = new LibPostgreSQL(level, host, port);
+      client = new LibDgraph(level, host, port);
+      // client = new LibPostgreSQL(level, host, port);
       client.connect();
    }
 
@@ -182,7 +186,15 @@ public final class LibMPI {
    }
 
    public List<GoldenRecord> findLinkCandidates(final DemographicData demographicData) {
+      LOGGER.debug("client connect()");
       client.connect();
+      try {
+         final var json = OBJECT_MAPPER.writeValueAsString(demographicData);
+         LOGGER.debug(json);
+      } catch (JsonProcessingException e) {
+         LOGGER.error(e.getLocalizedMessage(), e);
+      }
+      LOGGER.debug("findLinkCandidates()");
       return client.findLinkCandidates(demographicData);
    }
 

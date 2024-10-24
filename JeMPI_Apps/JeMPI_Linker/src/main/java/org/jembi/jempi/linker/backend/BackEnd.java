@@ -186,6 +186,7 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
    }
 
    private Behavior<Request> syncLinkInteractionHandler(final SyncLinkInteractionRequest request) {
+      LOGGER.debug("syncLinkInteractionHandler");
       final var listLinkInfo = LinkerDWH.linkInteraction(libMPI,
                                                          new Interaction(null,
                                                                          request.link.sourceId(),
