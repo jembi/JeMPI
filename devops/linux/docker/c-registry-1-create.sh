@@ -13,7 +13,7 @@ echo "PLACEMENT_REGISTRY: ${PLACEMENT_REGISTRY}"
 
 docker service create \
   --name registry \
-  --limit-memory=64M \
+  --limit-memory=512M \
   --publish published=5000,target=5000,protocol=tcp,mode=host \
   --mount type=bind,source=${PWD}/data-registry,destination=/var/lib/registry,readonly=false \
   --constraint node.hostname==${PLACEMENT_REGISTRY} \
