@@ -7,7 +7,7 @@ export USE_LOCAL_REGISTRY=false
 
 # Creating conf.env file
 pushd ./docker/conf/env || exit
-    source ./create-env-linux-1.sh
+    source ./create-env-linux-low-1.sh
 popd || exit
 
 while true; do
