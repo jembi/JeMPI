@@ -95,17 +95,17 @@ public final class LinkerDWH {
 
    private static String patientName(final Interaction interaction) {
       var patientRecord = interaction.demographicData();
-      String givenName = patientRecord.fields.stream()
-                                             .filter(field -> "given_name".equals(field.ccTag()))
-                                             .map(DemographicData.DemographicField::value)
-                                             .findFirst()
-                                             .orElse("");
-      String familyName = patientRecord.fields.stream()
-                                              .filter(field -> "family_name".equals(field.ccTag()))
-                                              .map(DemographicData.DemographicField::value)
-                                              .findFirst()
-                                              .orElse("");
-      return (givenName + " " + familyName).trim();
+      Map<String, String> fieldMap = patientRecord.fields.stream()
+                                                         .collect(Collectors.toMap(DemographicData.DemographicField::ccTag,
+                                                                                   DemographicData.DemographicField::value));
+
+      String patientDisplayName = FIELDS_CONFIG.nameFieldsForNotificationDisplay.stream()
+                                                                                .map(fieldName -> fieldMap.getOrDefault(fieldName,
+                                                                                                                        ""))
+                                                                                .filter(StringUtils::isNotBlank)
+                                                                                .collect(Collectors.joining(" "))
+                                                                                .trim();
+      return patientDisplayName;
    }
 
    /**
@@ -268,12 +268,9 @@ public final class LinkerDWH {
          final float marginWindowSize_,
          final String envelopStan) {
 
-
-      LOGGER.debug("linkInteraction 0 a");
       LinkStatsMeta.ConfusionMatrix confusionMatrix;
-      LOGGER.debug("linkInteraction 0 b");
       FieldTallies fieldTallies = CUSTOM_FIELD_TALLIES_SUM_IDENTITY;
-      LOGGER.debug("linkInteraction 1");
+
       if (linkStatsMetaProducer == null) {
          linkStatsMetaProducer = new MyKafkaProducer<>(AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                                        GlobalConstants.TOPIC_INTERACTION_PROCESSOR_CONTROLLER,
@@ -281,20 +278,15 @@ public final class LinkerDWH {
                                                        linkStatsMetaSerializer(),
                                                        "LinkerDWH-MU-TALLIES");
       }
-      LOGGER.debug("linkInteraction 2");
 
       if (!Programs.canApplyLinking(LINKER_CONFIG.probabilisticLinkFields,
                                     LINKER_CONFIG.deterministicLinkPrograms,
                                     interaction.demographicData())) {
-         LOGGER.debug("linkInteraction 3");
          return doMatch(libMPI, interaction);
       } else {
-         LOGGER.debug("linkInteraction 4");
          LinkInfo linkInfo = null;
          final List<ExternalLinkCandidate> externalLinkCandidateList = new ArrayList<>();
          LinkerProbabilistic.checkUpdatedLinkMU();
-         LOGGER.debug("get candidates");
-         LOGGER.debug("linkInteraction 5");
          final var candidateGoldenRecords = libMPI.findLinkCandidates(interaction.demographicData());
          LOGGER.debug("{} : {}", envelopStan, candidateGoldenRecords.size());
          if (candidateGoldenRecords.isEmpty()) {
@@ -347,17 +339,13 @@ public final class LinkerDWH {
             // Get a list of candidates above the supplied threshold
             final var belowThresholdNotifications = new ArrayList<Notification.MatchData>();
             final var aboveThresholdNotifications = new ArrayList<Notification.MatchData>();
-            final var candidatesAboveMatchThreshold = allCandidateScores
-                  .stream()
-                  .peek(v -> {
-                     if (v.score() > minThreshold_ && v.score() < matchThreshold_) {
-                        belowThresholdNotifications.add(new Notification.MatchData(v.goldenRecord().goldenId(), v.score()));
-                     } else if (v.score() >= matchThreshold_ && v.score() < maxThreshold_) {
-                        aboveThresholdNotifications.add(new Notification.MatchData(v.goldenRecord().goldenId(), v.score()));
-                     }
-                  })
-                  .filter(v -> v.score() >= matchThreshold_)
-                  .collect(Collectors.toCollection(ArrayList::new));
+            final var candidatesAboveMatchThreshold = allCandidateScores.stream().peek(v -> {
+               if (v.score() > minThreshold_ && v.score() < matchThreshold_) {
+                  belowThresholdNotifications.add(new Notification.MatchData(v.goldenRecord().goldenId(), v.score()));
+               } else if (v.score() >= matchThreshold_ && v.score() < maxThreshold_) {
+                  aboveThresholdNotifications.add(new Notification.MatchData(v.goldenRecord().goldenId(), v.score()));
+               }
+            }).filter(v -> v.score() >= matchThreshold_).collect(Collectors.toCollection(ArrayList::new));
             if (candidatesAboveMatchThreshold.isEmpty()) {
                if (candidatesInExternalLinkRange.isEmpty()) {
                   linkInfo = libMPI.createInteractionAndLinkToClonedGoldenRecord(interaction, 1.0F);
