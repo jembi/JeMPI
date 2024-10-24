@@ -16,7 +16,7 @@ The Jembi MPI, also known as JeMPI, is a standards-based client registry (CR) or
   - sbt
     - sdk install sbt 1.9
   - java
-    - sdk install java 21.0.1-tem
+    - sdk install java 21.0.3-tem
   - python 3.7
     - wxpython
     - requests
@@ -46,7 +46,7 @@ The Jembi MPI, also known as JeMPI, is a standards-based client registry (CR) or
 It's possible to run the whole stack local without having to use a local registry using the command :
 
 ```
-./launch-local.sh
+./devops/linux/launch-local.sh
 ```
 
 In order to remove the stack, you could use the following command :
@@ -74,7 +74,7 @@ bash --version
 Then to run the stack locally, you will need to switch to bash first :
 
 ```
-bash ./launch-local.sh
+bash ./devops/linux/launch-local.sh
 ```
 
 Note that currently, there is no Dgraph Ratel docker image compiled for M1 CPU, so most certainly you would run into a "Unsupported platform" error. For this you could either decide not to run the Ratel service by setting `export SCALE_RATEL=0` in `docker/conf/env/create-env-linux-1.sh` and use [https://play.dgraph.io/](https://play.dgraph.io/) instead.

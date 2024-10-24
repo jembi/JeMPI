@@ -34,11 +34,8 @@ while true; do
     esac
 done
 
-# Copy Config for API
-cp -f ./JeMPI_Apps/JeMPI_Configuration/config-reference.json ./JeMPI_Apps/JeMPI_API/src/main/resources/config-reference.json
-
 # Maven package
-pushd ./JeMPI_Apps || exit
+pushd ../../JeMPI_Apps || exit
     mvn clean package
 popd || exit
 
@@ -56,27 +53,36 @@ while true; do
     esac
 done
 
-pushd ./JeMPI_Apps/JeMPI_UI
+pushd ../../JeMPI_Apps/JeMPI_UI
   source ./build-image.sh || exit 1
 popd
-pushd ./JeMPI_Apps/JeMPI_AsyncReceiver
+pushd ../../JeMPI_Apps/JeMPI_AsyncReceiver
   source ./build.sh || exit 1
 popd
-pushd ./JeMPI_Apps/JeMPI_ETL
+pushd ../../JeMPI_Apps/JeMPI_BackupRestoreAPI
   source ./build.sh || exit 1
 popd
-pushd ./JeMPI_Apps/JeMPI_Controller
+pushd ../../JeMPI_Apps/JeMPI_Bootstrapper
   source ./build.sh || exit 1
 popd
-pushd ./JeMPI_Apps/JeMPI_EM
+pushd ../../JeMPI_Apps/JeMPI_ETL
   source ./build.sh || exit 1
 popd
-pushd ./JeMPI_Apps/JeMPI_Linker
+pushd ../../JeMPI_Apps/JeMPI_Controller
   source ./build.sh || exit 1
 popd
-pushd ./JeMPI_Apps/JeMPI_API
+pushd ../../JeMPI_Apps/JeMPI_EM
+  source ./build.sh || exit 1
+popd
+pushd ../../JeMPI_Apps/JeMPI_Linker
+  source ./build.sh || exit 1
+popd
+pushd ../../JeMPI_Apps/JeMPI_API
+  source ./build.sh || exit 1
+popd
+pushd ../../JeMPI_Apps/JeMPI_API_KC
   source ./build.sh || exit 1
 popd
 pushd ./docker/ || exit
-  source ./z-stack-2-reboot.sh
+  source ./d-stack-3-reboot.sh
 popd || exit
