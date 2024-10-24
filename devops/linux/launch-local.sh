@@ -69,24 +69,24 @@ while true; do
     esac
 done
 
-# pushd ../../JeMPI_Apps/JeMPI_UI
-#   CI=$CI TAG=$tag_to_use ./build-image.sh || exit 1
-# popd
-# pushd ../../JeMPI_Apps/JeMPI_AsyncReceiver
-#   CI=$CI TAG=$tag_to_use ./build.sh || exit 1
-# popd
-# pushd ../../JeMPI_Apps/JeMPI_BackupRestoreAPI
-#   CI=$CI TAG=$tag_to_use ./build.sh || exit 1
-# popd
-# pushd ../../JeMPI_Apps/JeMPI_Bootstrapper
-#   CI=$CI TAG=$tag_to_use ./build.sh || exit 1
-# popd
-# pushd ../../JeMPI_Apps/JeMPI_ETL
-#   CI=$CI TAG=$tag_to_use ./build.sh || exit 1
-# popd
-# pushd ../../JeMPI_Apps/JeMPI_Controller
-#   CI=$CI TAG=$tag_to_use ./build.sh || exit 1
-# popd
+pushd ../../JeMPI_Apps/JeMPI_UI
+  CI=$CI TAG=$tag_to_use ./build-image.sh || exit 1
+popd
+pushd ../../JeMPI_Apps/JeMPI_AsyncReceiver
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
+popd
+pushd ../../JeMPI_Apps/JeMPI_BackupRestoreAPI
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
+popd
+pushd ../../JeMPI_Apps/JeMPI_Bootstrapper
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
+popd
+pushd ../../JeMPI_Apps/JeMPI_ETL
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
+popd
+pushd ../../JeMPI_Apps/JeMPI_Controller
+  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
+popd
 pushd ../../JeMPI_Apps/JeMPI_EM_Scala
   CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd

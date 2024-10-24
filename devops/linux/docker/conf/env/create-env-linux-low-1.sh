@@ -20,8 +20,8 @@ if [ $USE_LOCAL_REGISTRY == 'true' ]; then
     export NODE1_IP=$(hostname -i)
 else
     # For local deployments (single mode), we set localhost IP
-    export NODE1_IP="127.0.1.1"
-    # NODE1_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | head -1 | awk '{ print $2 }')
+    # export NODE1_IP="127.0.0.1"
+    NODE1_IP=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | head -1 | awk '{ print $2 }')
 fi
 
 export SCALE_KEYCLOAK_TEST_SERVER=1
