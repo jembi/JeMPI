@@ -43,7 +43,7 @@ done
 
 # Maven package
 while true; do
-    read -p "Do you want to reset docker swarm? " yn
+    read -p "Do you want build java packages? " yn
     case $yn in
         [Yy]* ) 
           pushd ../../JeMPI_Apps || exit
@@ -69,25 +69,25 @@ while true; do
     esac
 done
 
-pushd ../../JeMPI_Apps/JeMPI_UI
-  CI=$CI TAG=$tag_to_use ./build-image.sh || exit 1
-popd
-pushd ../../JeMPI_Apps/JeMPI_AsyncReceiver
-  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
-popd
-pushd ../../JeMPI_Apps/JeMPI_BackupRestoreAPI
-  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
-popd
-pushd ../../JeMPI_Apps/JeMPI_Bootstrapper
-  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
-popd
-pushd ../../JeMPI_Apps/JeMPI_ETL
-  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
-popd
-pushd ../../JeMPI_Apps/JeMPI_Controller
-  CI=$CI TAG=$tag_to_use ./build.sh || exit 1
-popd
-pushd ../../JeMPI_Apps/JeMPI_EM
+# pushd ../../JeMPI_Apps/JeMPI_UI
+#   CI=$CI TAG=$tag_to_use ./build-image.sh || exit 1
+# popd
+# pushd ../../JeMPI_Apps/JeMPI_AsyncReceiver
+#   CI=$CI TAG=$tag_to_use ./build.sh || exit 1
+# popd
+# pushd ../../JeMPI_Apps/JeMPI_BackupRestoreAPI
+#   CI=$CI TAG=$tag_to_use ./build.sh || exit 1
+# popd
+# pushd ../../JeMPI_Apps/JeMPI_Bootstrapper
+#   CI=$CI TAG=$tag_to_use ./build.sh || exit 1
+# popd
+# pushd ../../JeMPI_Apps/JeMPI_ETL
+#   CI=$CI TAG=$tag_to_use ./build.sh || exit 1
+# popd
+# pushd ../../JeMPI_Apps/JeMPI_Controller
+#   CI=$CI TAG=$tag_to_use ./build.sh || exit 1
+# popd
+pushd ../../JeMPI_Apps/JeMPI_EM_Scala
   CI=$CI TAG=$tag_to_use ./build.sh || exit 1
 popd
 pushd ../../JeMPI_Apps/JeMPI_Linker
