@@ -1,0 +1,56 @@
+JAVA_VERSION=21.0.4
+JAVA_VERSION_X=${JAVA_VERSION}_7
+
+# https://hub.docker.com/_/eclipse-temurin/tags
+export JAVA_BASE_IMAGE=eclipse-temurin:${JAVA_VERSION_X}-jre-alpine
+
+JEMPI_HUB_NAMESPACE=jembi/jempi
+#JEMPI_TAG="1.0-SNAPSHOT"
+JEMPI_TAG="sd-dev"
+
+export ASYNC_RECEIVER_HUB_IMAGE=$JEMPI_HUB_NAMESPACE-async-receiver
+export ASYNC_RECEIVER_IMAGE=${JEMPI_HUB_NAMESPACE}-async-receiver:${JEMPI_TAG}
+export ASYNC_RECEIVER_JAR=AsyncReceiver-1.0-SNAPSHOT-spring-boot.jar
+
+export SYNC_RECEIVER_HUB_IMAGE=$JEMPI_HUB_NAMESPACE-sync-receiver
+export SYNC_RECEIVER_IMAGE=${JEMPI_HUB_NAMESPACE}-sync-receiver:${JEMPI_TAG}
+export SYNC_RECEIVER_JAR=SyncReceiver-1.0-SNAPSHOT-spring-boot.jar
+
+export ETL_HUB_IMAGE=$JEMPI_HUB_NAMESPACE-etl
+export ETL_IMAGE=${JEMPI_HUB_NAMESPACE}-etl:${JEMPI_TAG}
+export ETL_JAR=ETL-1.0-SNAPSHOT-spring-boot.jar
+
+export CONTROLLER_HUB_IMAGE=$JEMPI_HUB_NAMESPACE-controller
+export CONTROLLER_IMAGE=${JEMPI_HUB_NAMESPACE}-controller:${JEMPI_TAG}
+export CONTROLLER_JAR=Controller-1.0-SNAPSHOT-spring-boot.jar
+
+export EM_HUB_IMAGE=$JEMPI_HUB_NAMESPACE-em
+export EM_IMAGE=${JEMPI_HUB_NAMESPACE}-em:${JEMPI_TAG}
+export EM_JAR=EM-1.0-SNAPSHOT-spring-boot.jar
+
+export EM_SCALA_HUB_IMAGE=$JEMPI_HUB_NAMESPACE-em-scala
+export EM_SCALA_IMAGE=${JEMPI_HUB_NAMESPACE}-em-scala:${JEMPI_TAG}
+export EM_SCALA_JAR=em-scala-fatjar-1.0.jar
+
+export LINKER_HUB_IMAGE=$JEMPI_HUB_NAMESPACE-linker
+export LINKER_IMAGE=${JEMPI_HUB_NAMESPACE}-linker:${JEMPI_TAG}
+export LINKER_JAR=Linker-1.0-SNAPSHOT-spring-boot.jar
+
+export API_HUB_IMAGE=$JEMPI_HUB_NAMESPACE-api
+export API_IMAGE=${JEMPI_HUB_NAMESPACE}-api:${JEMPI_TAG}
+export API_JAR=API-1.0-SNAPSHOT-spring-boot.jar
+
+export API_KC_HUB_IMAGE=$JEMPI_HUB_NAMESPACE-api-kc
+export API_KC_IMAGE=${JEMPI_HUB_NAMESPACE}-api-kc:${JEMPI_TAG}
+export API_KC_JAR=API_KC-1.0-SNAPSHOT-spring-boot.jar
+
+export UI_HUB_IMAGE=$JEMPI_HUB_NAMESPACE-ui
+export UI_IMAGE=${JEMPI_HUB_NAMESPACE}-web:${JEMPI_TAG}
+
+export BOOTSTRAPPER_HUB_IMAGE=$JEMPI_HUB_NAMESPACE-bootstrapper
+export BOOTSTRAPPER_IMAGE=${JEMPI_HUB_NAMESPACE}-bootstrapper:${JEMPI_TAG}
+export BOOTSTRAPPER_JAR=Bootstrapper-1.0-SNAPSHOT-spring-boot.jar
+
+export BACKUP_RESTORE_API_HUB_IMAGE=$JEMPI_HUB_NAMESPACE-backuprestoreapi:${JEMPI_TAG}
+export BACKUP_RESTORE_API_IMAGE=${JEMPI_HUB_NAMESPACE}-backuprestoreapi:${JEMPI_TAG}
+export BACKUP_RESTORE_API_JAR=JeMPI_BackupRestoreAPI-1.0-SNAPSHOT-spring-boot.jar

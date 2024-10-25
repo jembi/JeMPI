@@ -3,6 +3,9 @@ package org.jembi.jempi.shared.models;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jembi.jempi.shared.config.DGraphConfig;
 import org.jembi.jempi.shared.config.FieldsConfig;
 
@@ -18,6 +21,8 @@ public record AuxInteractionData(
       java.time.LocalDateTime auxDateCreated,
       List<AuxInteractionUserField> auxUserFields) {
 
+   private static final Logger LOGGER = LogManager.getLogger(AuxInteractionData.class);         
+
    public static JsonNode fromAuxInteractionData(final AuxInteractionData auxInteractionData) {
       final var objectNode = OBJECT_MAPPER.createObjectNode();
       objectNode.put(FieldsConfig.INTERACTION_AUX_DATE_CREATED_FIELD_NAME_CC, auxInteractionData.auxDateCreated.toString());
@@ -32,6 +37,11 @@ public record AuxInteractionData(
    public static AuxInteractionData fromCustomAuxInteractionData(final JsonNode node) {
       final var dt = node.get(FieldsConfig.INTERACTION_AUX_DATE_CREATED_FIELD_NAME_CC).textValue();
       final var d = Instant.parse(dt).atOffset(ZoneOffset.UTC).toLocalDateTime();
+      LOGGER.debug("{}", dt);
+      for (int i = 0; i < FIELDS_CONFIG.userAuxInteractionFields.size(); i++) {
+            LOGGER.debug("{} {}", FIELDS_CONFIG.userAuxInteractionFields.get(i).ccName(),
+                                          FIELDS_CONFIG.userAuxInteractionFields.get(i).scName());
+      }
       return new AuxInteractionData(
             d,
             FIELDS_CONFIG.userAuxInteractionFields
