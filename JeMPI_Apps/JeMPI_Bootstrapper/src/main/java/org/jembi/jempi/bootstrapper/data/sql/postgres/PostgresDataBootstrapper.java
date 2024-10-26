@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 public class PostgresDataBootstrapper extends DataBootstrapper {
 
-   private record DBSchemaDetails(String dbName, String schemaFilePath) { }
    private final PostgresDALLib postgresDALLib;
 
    public PostgresDataBootstrapper(final String configFilePath) {
@@ -34,27 +33,30 @@ public class PostgresDataBootstrapper extends DataBootstrapper {
 
    protected List<DBSchemaDetails> getAllDbSchemas() {
       return List.of(
-              new DBSchemaDetails(this.loadedConfig.POSTGRESQL_USERS_DB, DataBootstraperConsts.POSTGRES_INIT_SCHEMA_USERS_DB),
-              new DBSchemaDetails(this.loadedConfig.POSTGRESQL_NOTIFICATIONS_DB, DataBootstraperConsts.POSTGRES_INIT_SCHEMA_NOTIFICATION_DB),
-              new DBSchemaDetails(this.loadedConfig.POSTGRESQL_AUDIT_DB, DataBootstraperConsts.POSTGRES_INIT_SCHEMA_AUDIT_DB),
-              new DBSchemaDetails(this.loadedConfig.POSTGRESQL_KC_TEST_DB, null)
-      );
+            new DBSchemaDetails(this.loadedConfig.POSTGRESQL_USERS_DB, DataBootstraperConsts.POSTGRES_INIT_SCHEMA_USERS_DB),
+            new DBSchemaDetails(this.loadedConfig.POSTGRESQL_NOTIFICATIONS_DB,
+                                DataBootstraperConsts.POSTGRES_INIT_SCHEMA_NOTIFICATION_DB),
+            new DBSchemaDetails(this.loadedConfig.POSTGRESQL_AUDIT_DB, DataBootstraperConsts.POSTGRES_INIT_SCHEMA_AUDIT_DB),
+            new DBSchemaDetails(this.loadedConfig.POSTGRESQL_MPI_DB, DataBootstraperConsts.POSTGRES_INIT_SCHEMA_MPI_DB),
+            new DBSchemaDetails(this.loadedConfig.POSTGRESQL_KC_TEST_DB, null)
+                    );
    }
+
    @Override
    public Boolean createSchema() throws SQLException {
       LOGGER.info("Loading Postgres schema data.");
 
-      for (DBSchemaDetails schemaDetails: getAllDbSchemas()) {
+      for (DBSchemaDetails schemaDetails : getAllDbSchemas()) {
          String dbName = schemaDetails.dbName();
          String dbSchemaFilePath = schemaDetails.schemaFilePath();
 
-         LOGGER.info(String.format("---> Create schema for database %s", dbName));
+         LOGGER.info("---> Create schema for database {}", dbName);
 
          postgresDALLib.createDb(dbName);
 
          if (dbSchemaFilePath != null) {
             postgresDALLib.runQuery(connection -> connection.prepareStatement(getCreateSchemaScript(dbSchemaFilePath)),
-                        true,
+                                    true,
                                     dbName);
          }
 
@@ -80,13 +82,13 @@ public class PostgresDataBootstrapper extends DataBootstrapper {
 
    public Boolean deleteTables() throws SQLException {
       LOGGER.info("Deleting Postgres tables");
-      for (DBSchemaDetails schemaDetails: getAllDbSchemas()) {
+      for (DBSchemaDetails schemaDetails : getAllDbSchemas()) {
          String dbName = schemaDetails.dbName();
          if (postgresDALLib.databaseExists(dbName)) {
             LOGGER.info(String.format("---> Deleting tables for database %s", dbName));
             postgresDALLib.runQuery(connection -> {
                return connection.prepareStatement(this.getAllTablesWrapper(
-                       "'DROP TABLE ' || table_name || ' CASCADE ;';"));
+                     "'DROP TABLE ' || table_name || ' CASCADE ;';"));
 
             }, true, dbName);
          }
@@ -97,15 +99,12 @@ public class PostgresDataBootstrapper extends DataBootstrapper {
    @Override
    public Boolean deleteData() throws SQLException {
       LOGGER.info("Deleting Postgres data");
-      for (DBSchemaDetails schemaDetails: getAllDbSchemas()) {
+      for (DBSchemaDetails schemaDetails : getAllDbSchemas()) {
          String dbName = schemaDetails.dbName();
          if (postgresDALLib.databaseExists(dbName)) {
-            LOGGER.info(String.format("---> Deleting data for database %s", dbName));
-            postgresDALLib.runQuery(connection -> {
-               return connection.prepareStatement(this.getAllTablesWrapper(
-                       "'DELETE FROM ' || table_name || ';';"));
-
-            }, true, dbName);
+            LOGGER.info("---> Deleting data for database {}", dbName);
+            postgresDALLib.runQuery(connection -> connection.prepareStatement(this.getAllTablesWrapper(
+                  "'DELETE FROM ' || table_name || ';';")), true, dbName);
          }
       }
       return true;
@@ -115,5 +114,10 @@ public class PostgresDataBootstrapper extends DataBootstrapper {
    public Boolean resetAll() throws SQLException {
       LOGGER.info("Resetting Postgres data and schemas.");
       return this.deleteData() && this.deleteTables() && this.createSchema();
+   }
+
+   private record DBSchemaDetails(
+         String dbName,
+         String schemaFilePath) {
    }
 }

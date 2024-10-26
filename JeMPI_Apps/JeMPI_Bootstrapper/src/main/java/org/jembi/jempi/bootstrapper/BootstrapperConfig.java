@@ -17,6 +17,7 @@ public class BootstrapperConfig {
    public final String POSTGRESQL_USERS_DB;
    public final String POSTGRESQL_NOTIFICATIONS_DB;
    public final String POSTGRESQL_AUDIT_DB;
+   public final String POSTGRESQL_MPI_DB;
    public final String POSTGRESQL_KC_TEST_DB;
    public final String KAFKA_BOOTSTRAP_SERVERS;
    public final String KAFKA_APPLICATION_ID;
@@ -33,6 +34,7 @@ public class BootstrapperConfig {
       POSTGRESQL_USERS_DB = parsedConfig.getString("POSTGRESQL_USERS_DB");
       POSTGRESQL_NOTIFICATIONS_DB = parsedConfig.getString("POSTGRESQL_NOTIFICATIONS_DB");
       POSTGRESQL_AUDIT_DB = parsedConfig.getString("POSTGRESQL_AUDIT_DB");
+      POSTGRESQL_MPI_DB = parsedConfig.getString("POSTGRESQL_MPI_DB");
       POSTGRESQL_KC_TEST_DB = parsedConfig.getString("POSTGRESQL_KC_TEST_DB");
 
       KAFKA_BOOTSTRAP_SERVERS = parsedConfig.getString("KAFKA_BOOTSTRAP_SERVERS");
