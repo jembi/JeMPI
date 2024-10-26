@@ -47,14 +47,15 @@ public final class AppConfig {
       }
    }).toArray();
 
+   private AppConfig() {
+   }
+
    public static String[] getDGraphHosts() {
       return DGRAPH_ALPHA_HOSTS;
    }
+
    public static int[] getDGraphPorts() {
       return DGRAPH_ALPHA_PORTS;
-   }
-
-   private AppConfig() {
    }
 
    private static class Builder {
@@ -109,10 +110,10 @@ public final class AppConfig {
       Config build() {
          // Resolve substitutions.
          conf = conf.resolve();
-         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Logging properties. Make sure sensitive data such as passwords or secrets are not logged!");
-            LOGGER.debug(conf.root().render());
-         }
+//         if (LOGGER.isDebugEnabled()) {
+//            LOGGER.debug("Logging properties. Make sure sensitive data such as passwords or secrets are not logged!");
+//            LOGGER.debug(conf.root().render());
+//         }
          return conf;
       }
 

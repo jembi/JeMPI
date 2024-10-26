@@ -22,6 +22,7 @@ import org.jembi.jempi.shared.models.LinkStatsMeta;
 import org.jembi.jempi.shared.serdes.JsonPojoDeserializer;
 import org.jembi.jempi.shared.serdes.JsonPojoSerializer;
 
+import java.util.Arrays;
 import java.util.Properties;
 
 public final class Main {
@@ -90,12 +91,21 @@ public final class Main {
    }
 
    private void run() {
-      LOGGER.info("CONFIG: {} {} {} {} {}",
-                  AppConfig.POSTGRESQL_NOTIFICATIONS_DB,
-                  AppConfig.POSTGRESQL_AUDIT_DB,
-                  AppConfig.KAFKA_BOOTSTRAP_SERVERS,
-                  AppConfig.KAFKA_APPLICATION_ID,
-                  AppConfig.KAFKA_CLIENT_ID);
+      LOGGER.info("GET_LOG_LEVEL:               {}", AppConfig.GET_LOG_LEVEL);
+      LOGGER.info("KAFKA_BOOTSTRAP_SERVERS:     {}", AppConfig.KAFKA_BOOTSTRAP_SERVERS);
+      LOGGER.info("KAFKA_APPLICATION_ID:        {}", AppConfig.KAFKA_APPLICATION_ID);
+      LOGGER.info("KAFKA_CLIENT_ID:             {}", AppConfig.KAFKA_CLIENT_ID);
+      LOGGER.info("POSTGRESQL_IP:               {}", AppConfig.POSTGRESQL_IP);
+      LOGGER.info("POSTGRESQL_PORT:             {}", AppConfig.POSTGRESQL_PORT);
+      LOGGER.info("POSTGRESQL_USER:             {}", AppConfig.POSTGRESQL_USER);
+      LOGGER.info("POSTGRESQL_PASSWORD:         {}", AppConfig.POSTGRESQL_PASSWORD);
+      LOGGER.info("POSTGRESQL_NOTIFICATIONS_DB: {}", AppConfig.POSTGRESQL_NOTIFICATIONS_DB);
+      LOGGER.info("POSTGRESQL_AUDIT_DB:         {}", AppConfig.POSTGRESQL_AUDIT_DB);
+      LOGGER.info("CONTROLLER_HTTP_PORT:        {}", AppConfig.CONTROLLER_HTTP_PORT);
+      LOGGER.info("LINKER_IP:                   {}", AppConfig.LINKER_IP);
+      LOGGER.info("LINKER_HTTP_PORT:            {}", AppConfig.LINKER_HTTP_PORT);
+      LOGGER.info("DGRAPH_ALPHA_HOSTS:          {}", (Object) AppConfig.getDGraphHosts());
+      LOGGER.info("DGRAPH_ALPHA_PORTS:          {}", Arrays.stream(AppConfig.getDGraphPorts()).mapToObj(Long::valueOf).toList());
 
       ActorSystem.create(this.create(), "ControllerApp");
 

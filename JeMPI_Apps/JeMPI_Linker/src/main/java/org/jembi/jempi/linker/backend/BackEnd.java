@@ -190,10 +190,15 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
       try {
          final SourceId sourceId = request.link.sourceId();
          LOGGER.debug(OBJECT_MAPPER.writeValueAsString(sourceId));
-         final AuxInteractionData auxInteractionData = AuxInteractionData.fromCustomAuxInteractionData(request.link.auxInteractionData());
+         final AuxInteractionData auxInteractionData =
+               AuxInteractionData.fromCustomAuxInteractionData(request.link.auxInteractionData());
          LOGGER.debug(OBJECT_MAPPER.writeValueAsString(auxInteractionData));
          final DemographicData demographicField = DemographicData.fromCustomDemographicData(request.link.demographicData());
          LOGGER.debug(OBJECT_MAPPER.writeValueAsString(demographicField));
+
+         final float threshold = request.link.matchThreshold() == null
+               ? AppConfig.LINKER_MATCH_THRESHOLD
+               : request.link.matchThreshold();
 
          final var listLinkInfo = LinkerDWH.linkInteraction(libMPI,
                                                             new Interaction(null,
@@ -202,19 +207,19 @@ public final class BackEnd extends AbstractBehavior<BackEnd.Request> {
                                                                             demographicField),
                                                             request.link.externalLinkRange(),
                                                             request.link.matchThreshold() == null
-                                                               ? AppConfig.LINKER_MATCH_THRESHOLD
-                                                               : request.link.matchThreshold(),
-                                                            request.link.externalLinkRange().low(),
-                                                            request.link.externalLinkRange().high(),
+                                                                  ? AppConfig.LINKER_MATCH_THRESHOLD
+                                                                  : request.link.matchThreshold(),
+                                                            threshold - 0.05F,
+                                                            threshold + 0.05F,
                                                             AppConfig.LINKER_MATCH_THRESHOLD_MARGIN,
                                                             request.link.stan());
          request.replyTo.tell(new SyncLinkInteractionResponse(request.link.stan(),
                                                               listLinkInfo.isRight()
-                                                                 ? listLinkInfo.get()
-                                                                 : null,
+                                                                    ? listLinkInfo.get()
+                                                                    : null,
                                                               listLinkInfo.isLeft()
-                                                                 ? listLinkInfo.getLeft()
-                                                                 : null));
+                                                                    ? listLinkInfo.getLeft()
+                                                                    : null));
       } catch (JsonProcessingException e) {
          LOGGER.error(e.getLocalizedMessage(), e);
       }

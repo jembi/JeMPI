@@ -1,0 +1,93 @@
+projectName: platform
+image: jembi/platform:latest
+logPath: /tmp/logs
+
+packages:
+  - interoperability-layer-openhim
+  - reverse-proxy-nginx
+  - fhir-datastore-hapi-fhir
+  - message-bus-kafka
+  - analytics-datastore-elastic-search
+  - dashboard-visualiser-kibana
+  - data-mapper-logstash
+  - dashboard-visualiser-jsreport
+  - client-registry-santempi
+  - message-bus-helper-hapi-proxy
+  - job-scheduler-ofelia
+  - kafka-mapper-consumer
+  - kafka-unbundler-consumer
+  - analytics-datastore-clickhouse
+  - dashboard-visualiser-superset
+  - monitoring
+  - mpi-mediator
+  - client-registry-jempi
+  - identity-access-manager-keycloak
+  - openhim-mapping-mediator
+  - reverse-proxy-traefik
+  - database-postgres
+  - reprocess-mediator
+  - fhir-ig-importer
+
+profiles:
+  - name: cdr-dw
+    packages:
+      - message-bus-kafka
+      - interoperability-layer-openhim
+      - reverse-proxy-nginx
+      - fhir-datastore-hapi-fhir
+      - job-scheduler-ofelia
+      - analytics-datastore-clickhouse
+      - dashboard-visualiser-superset
+      - monitoring
+      - mpi-mediator
+      - client-registry-jempi
+      - identity-access-manager-keycloak
+      - openhim-mapping-mediator
+      - kafka-mapper-consumer
+      - kafka-unbundler-consumer
+      - fhir-ig-importer
+      - reprocess-mediator
+    envFiles:
+      - cdr-dw.env
+
+  - name: cdr
+    packages:
+      - interoperability-layer-openhim
+      - reverse-proxy-nginx
+      - fhir-datastore-hapi-fhir
+      - message-bus-kafka
+      - job-scheduler-ofelia
+      - kafka-unbundler-consumer
+      - monitoring
+      - mpi-mediator
+      - client-registry-jempi
+      - identity-access-manager-keycloak
+      - openhim-mapping-mediator
+    envFiles:
+      - cdr.env
+
+  - name: mpi
+    packages:
+      - interoperability-layer-openhim
+      - reverse-proxy-nginx
+      - message-bus-kafka
+      - job-scheduler-ofelia
+      - monitoring
+      - client-registry-jempi
+      - identity-access-manager-keycloak
+      - openhim-mapping-mediator
+    envFiles:
+      - mpi.env
+
+  - name: mpi-qa
+    packages:
+      - interoperability-layer-openhim
+      - reverse-proxy-nginx
+      - message-bus-kafka
+      - job-scheduler-ofelia
+      - monitoring
+      - client-registry-jempi
+      - identity-access-manager-keycloak
+      - openhim-mapping-mediator
+    envFiles:
+      - mpi-qa.env
