@@ -6,6 +6,7 @@ set -u
 STACK_NAME=jempi
 
 declare -a APPS=(
+  bootstrapper  
   async-receiver
   etl
   controller
