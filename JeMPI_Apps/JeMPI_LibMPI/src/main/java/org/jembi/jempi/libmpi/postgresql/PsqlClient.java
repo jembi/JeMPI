@@ -10,10 +10,10 @@ final class PsqlClient {
 
    private static final Logger LOGGER = LogManager.getLogger(PsqlClient.class);
 
-   private static final String POSTGRESQL_IP = "postgresql";
+   private static final String POSTGRESQL_IP = "postgres-1";
    private static final int POSTGRESQL_PORT = 5432;
    private static final String POSTGRESQL_USER = "postgres";
-   private static final String POSTGRESQL_PASSWORD = "postgres";
+   private static final String POSTGRESQL_PASSWORD = "instant101";
    private static final String POSTGRESQL_DB = "mpi_db";
 
    private Connection connection;
