@@ -14,7 +14,7 @@ public final class GlobalConstants {
    public static final String TOPIC_AUDIT_TRAIL = "JeMPI-audit-trail";
    public static final String TOPIC_NOTIFICATIONS = "JeMPI-notifications";
    public static final String PSQL_TABLE_AUDIT_TRAIL = "audit_trail";
-
+   public static final String PSQL_TABLE_CONFIGURATION = "configuration";
    /*
     *
     * HTTP SEGMENTS

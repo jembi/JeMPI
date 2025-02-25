@@ -40,6 +40,7 @@ public final class APIKC {
                                                                               AppConfig.POSTGRESQL_PASSWORD,
                                                                               AppConfig.POSTGRESQL_NOTIFICATIONS_DB,
                                                                               AppConfig.POSTGRESQL_AUDIT_DB,
+                                                                              AppConfig.POSTGRESQL_CONFIGURATION_DB,
                                                                               AppConfig.KAFKA_BOOTSTRAP_SERVERS,
                                                                               "CLIENT_ID_API_KC-" + UUID.randomUUID(),
                                                                               AppConfig.SYSTEM_CONFIG_DIR,
