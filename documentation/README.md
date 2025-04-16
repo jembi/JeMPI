@@ -16,7 +16,7 @@ JeMPI’s primary goal is to act as a tool in order to solve the issue of multip
 
 This is achieved by matching the various patient records from different systems under a Master Patient record with a unique ID. This allows for downstream applications, such as surveillance, to accurately display data and information on patient records without the worry that the data contains multiple records for the same patient.
 
-## PRIVACY & APPLICABLE LAWS
+## Privacy and Applicable Laws
 
 JeMPI is an open-source Master Patient Index (MPI) application that stores patient identity and demographic information and assigns a golden ID for internal, unique identification. It was designed to assist with compliance with standard protection of personally identifiable information (PII) legislation and regulations by separating personal identification information from clinical information in a health information exchange.
 
