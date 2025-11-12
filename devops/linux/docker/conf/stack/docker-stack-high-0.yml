@@ -116,7 +116,7 @@ services:
     volumes:
       - type: bind
         source: ${DATA_KAFKA_01_DIR}
-        target: /bitnami/kafka
+        target: /soldevelo/kafka
         read_only: false
     deploy:
       mode: replicated
@@ -156,7 +156,7 @@ services:
     volumes:
       - type: bind
         source: ${DATA_KAFKA_02_DIR}
-        target: /bitnami/kafka
+        target: /soldevelo/kafka
         read_only: false
     deploy:
       mode: replicated
@@ -196,7 +196,7 @@ services:
     volumes:
       - type: bind
         source: ${DATA_KAFKA_03_DIR}
-        target: /bitnami/kafka
+        target: /soldevelo/kafka
         read_only: false
     deploy:
       mode: replicated
